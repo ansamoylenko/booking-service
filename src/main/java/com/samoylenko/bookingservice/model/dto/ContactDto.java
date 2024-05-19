@@ -2,7 +2,9 @@ package com.samoylenko.bookingservice.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.validation.constraints.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
@@ -15,6 +17,8 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @SuperBuilder
+@NoArgsConstructor
+@AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ContactDto extends BaseDto implements Serializable {
     @Pattern(message = "имя должно содержать только буквы", regexp = "^[A-ЯЁ][а-яё]+\\s[A-ЯЁ][а-яё]+$")

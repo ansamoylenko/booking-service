@@ -2,9 +2,8 @@ package com.samoylenko.bookingservice.model.status;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.ToString;
 
-@ToString
+//@ToString
 @Getter
 @AllArgsConstructor
 public enum WalkStatus {
@@ -15,5 +14,5 @@ public enum WalkStatus {
     FINISHED("Прогулка завершена"),
     CANCELED("Прогулка отменена");
 
-    private String description;
+    private final String description;
 }
