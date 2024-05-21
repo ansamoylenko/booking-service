@@ -29,7 +29,7 @@ public class WalkDto extends BaseDto implements Serializable {
     @NotBlank(message = "Маршрут не может быть пустым")
     private String routeId;
     @Positive(message = "количество людей должно быть положительным")
-    private Integer maxCount;
+    private Integer maxPlaces;
     @PositiveOrZero(message = "цена не может быть отрицательной")
     private Integer priceForOne;
     private Instant startTime;

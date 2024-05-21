@@ -24,6 +24,6 @@ public class PaymentDto extends BaseDto implements Serializable {
     private String id;
     private Instant createdDate;
     private Instant lastModifiedDate;
-    private OrderDto orderEntity;
+    private BookingDto orderEntity;
     private Integer amount;
 }

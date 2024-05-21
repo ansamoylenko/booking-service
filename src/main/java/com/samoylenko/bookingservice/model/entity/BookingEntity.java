@@ -1,13 +1,14 @@
 package com.samoylenko.bookingservice.model.entity;
 
+import com.samoylenko.bookingservice.model.status.BookingStatus;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.proxy.HibernateProxy;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 @Getter
@@ -17,15 +18,31 @@ import java.util.Objects;
 @NoArgsConstructor
 @Entity
 @Generated
-@Table(name = "route")
+@Table(name = "booking")
 @EntityListeners(AuditingEntityListener.class)
-public class RouteEntity extends BaseEntity {
-    private String name;
-    private String description;
+public class BookingEntity extends BaseEntity {
+    private BookingStatus status;
+
+    @ManyToOne(cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+    @JoinColumn(name = "walk_id")
+    private WalkEntity walk;
+
+    @PositiveOrZero
     private Integer priceForOne;
 
-    @OneToMany(mappedBy = "route", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
-    private List<WalkEntity> walks = new ArrayList<>();
+    @Positive
+    private Integer numberOfPeople;
+
+    @OneToOne(cascade = CascadeType.REMOVE, orphanRemoval = true)
+    @JoinColumn(name = "contact_id")
+    private ContactEntity contact;
+
+    @OneToOne(cascade = CascadeType.REMOVE, orphanRemoval = true)
+    @JoinColumn(name = "payment_id")
+    private PaymentEntity payment;
+
+    private String comment;
+    private Boolean hasChildren;
 
     @Override
     public final boolean equals(Object o) {
@@ -34,7 +51,7 @@ public class RouteEntity extends BaseEntity {
         Class<?> oEffectiveClass = o instanceof HibernateProxy ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass() : o.getClass();
         Class<?> thisEffectiveClass = this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() : this.getClass();
         if (thisEffectiveClass != oEffectiveClass) return false;
-        RouteEntity that = (RouteEntity) o;
+        BookingEntity that = (BookingEntity) o;
         return getId() != null && Objects.equals(getId(), that.getId());
     }
 
@@ -49,8 +66,10 @@ public class RouteEntity extends BaseEntity {
                 "id = " + getId() + ", " +
                 "createdDate = " + getCreatedDate() + ", " +
                 "lastModifiedDate = " + getLastModifiedDate() + ", " +
-                "name = " + getName() + ", " +
-                "description = " + getDescription() + ", " +
-                "priceForOne = " + getPriceForOne() + ")";
+                "status = " + getStatus() + ", " +
+                "priceForOne = " + getPriceForOne() + ", " +
+                "numberOfPeople = " + getNumberOfPeople() + ", " +
+                "comment = " + getComment() + ", " +
+                "hasChildren = " + getHasChildren() + ")";
     }
 }

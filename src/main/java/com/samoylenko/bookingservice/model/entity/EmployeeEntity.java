@@ -1,11 +1,13 @@
 package com.samoylenko.bookingservice.model.entity;
 
-import com.samoylenko.bookingservice.model.status.OrderStatus;
-import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import com.samoylenko.bookingservice.annotations.Phone;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
+import jakarta.persistence.Table;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.proxy.HibernateProxy;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -18,18 +20,26 @@ import java.util.Objects;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "order")
+@Generated
+@Table(name = "employee")
 @EntityListeners(AuditingEntityListener.class)
-public class OrderEntity extends BaseEntity {
-    private OrderStatus status;
-    private String walkId;
-    private Integer priceForOne;
-    private Integer numberOfPeople;
-    @OneToOne(cascade = CascadeType.REMOVE, orphanRemoval = true)
-    @JoinColumn(name = "contact_entity_id")
-    private ContactEntity contactEntity;
-    private String comment;
-    private Boolean hasChildren;
+public class EmployeeEntity extends BaseEntity {
+    @NotNull
+    private EmployeeRole role;
+
+    @NotBlank
+    private String firstName;
+
+    @NotBlank
+    private String lastName;
+
+    @NotBlank
+    @Email
+    private String email;
+
+    @NotBlank
+    @Phone
+    private String phone;
 
     @Override
     public final boolean equals(Object o) {
@@ -38,7 +48,7 @@ public class OrderEntity extends BaseEntity {
         Class<?> oEffectiveClass = o instanceof HibernateProxy ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass() : o.getClass();
         Class<?> thisEffectiveClass = this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() : this.getClass();
         if (thisEffectiveClass != oEffectiveClass) return false;
-        OrderEntity that = (OrderEntity) o;
+        EmployeeEntity that = (EmployeeEntity) o;
         return getId() != null && Objects.equals(getId(), that.getId());
     }
 
@@ -51,11 +61,12 @@ public class OrderEntity extends BaseEntity {
     public String toString() {
         return getClass().getSimpleName() + "(" +
                 "id = " + getId() + ", " +
-                "status = " + getStatus() + ", " +
-                "walkId = " + getWalkId() + ", " +
-                "priceForOne = " + getPriceForOne() + ", " +
-                "numberOfPeople = " + getNumberOfPeople() + ", " +
-                "comment = " + getComment() + ", " +
-                "hasChildren = " + getHasChildren() + ")";
+                "createdDate = " + getCreatedDate() + ", " +
+                "lastModifiedDate = " + getLastModifiedDate() + ", " +
+                "role = " + getRole() + ", " +
+                "firstName = " + getFirstName() + ", " +
+                "lastName = " + getLastName() + ", " +
+                "email = " + getEmail() + ", " +
+                "phone = " + getPhone() + ")";
     }
 }

@@ -1,5 +1,15 @@
 spring:
   autoconfigure:
     exclude:
-      - org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration
-      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+  #      - org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration
+  #      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+
+  jpa:
+    show-sql: true
+    properties:
+      hibernate.format_sql: true
+    hibernate.ddl-auto: update
+
+logging:
+  level:
+    org.springframework.orm.jpa.JpaTransactionManager: DEBUG

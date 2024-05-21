@@ -7,7 +7,7 @@ import lombok.ToString;
 @ToString
 @Generated
 @AllArgsConstructor
-public enum OrderStatus {
+public enum BookingStatus {
     DRAFT("Создан черновик заявки"),
     PAID("Заявка оплачена"),
     CANCELED("Заявка отменена"),

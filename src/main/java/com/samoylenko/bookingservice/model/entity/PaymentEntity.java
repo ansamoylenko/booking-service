@@ -2,10 +2,7 @@ package com.samoylenko.bookingservice.model.entity;
 
 import com.samoylenko.bookingservice.model.status.PaymentStatus;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.proxy.HibernateProxy;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -18,15 +15,16 @@ import java.util.Objects;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@Generated
 @Table(name = "payment")
 @EntityListeners(AuditingEntityListener.class)
 public class PaymentEntity extends BaseEntity {
     @Column(name = "payment_status", nullable = false)
     private PaymentStatus status;
 
-    @OneToOne(orphanRemoval = true)
+    @OneToOne(cascade = CascadeType.REMOVE, orphanRemoval = true)
     @JoinColumn(name = "order_entity_id")
-    private OrderEntity orderEntity;
+    private BookingEntity booking;
 
     @Column(name = "amount", nullable = false)
     private Integer amount;

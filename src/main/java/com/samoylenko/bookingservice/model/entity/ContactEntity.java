@@ -1,13 +1,15 @@
 package com.samoylenko.bookingservice.model.entity;
 
+import com.samoylenko.bookingservice.annotations.Phone;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.proxy.HibernateProxy;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
@@ -18,11 +20,17 @@ import java.util.Objects;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@Generated
 @Table(name = "contact")
+@EntityListeners(AuditingEntityListener.class)
 public class ContactEntity extends BaseEntity {
     private String firstName;
     private String lastName;
+    @NotBlank
+    @Email
     private String email;
+    @NotBlank
+    @Phone
     private String phone;
     private LocalDateTime dateOfBirth;
 

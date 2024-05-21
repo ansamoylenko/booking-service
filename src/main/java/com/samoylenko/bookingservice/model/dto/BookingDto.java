@@ -1,8 +1,8 @@
 package com.samoylenko.bookingservice.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.samoylenko.bookingservice.model.entity.OrderEntity;
-import com.samoylenko.bookingservice.model.status.OrderStatus;
+import com.samoylenko.bookingservice.model.entity.BookingEntity;
+import com.samoylenko.bookingservice.model.status.BookingStatus;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
@@ -15,7 +15,7 @@ import lombok.experimental.SuperBuilder;
 import java.io.Serializable;
 
 /**
- * DTO for {@link OrderEntity}
+ * DTO for {@link BookingEntity}
  *
  * @author Alexander Samoylenko
  */
@@ -25,8 +25,8 @@ import java.io.Serializable;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class OrderDto extends BaseDto implements Serializable {
-    private OrderStatus status;
+public class BookingDto extends BaseDto implements Serializable {
+    private BookingStatus status;
     @NotNull(message = "walkId не может быть пустым")
     private String walkId;
     @PositiveOrZero(message = "цена не может быть отрицательной")

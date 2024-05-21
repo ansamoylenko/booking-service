@@ -1,19 +1,20 @@
 package com.samoylenko.bookingservice.model.entity;
 
 import com.samoylenko.bookingservice.model.status.WalkStatus;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EntityListeners;
-import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.proxy.HibernateProxy;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 
 @Getter
@@ -22,15 +23,33 @@ import java.util.Objects;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@Generated
 @Table(name = "walk")
 @EntityListeners(AuditingEntityListener.class)
 public class WalkEntity extends BaseEntity {
     private WalkStatus status;
-    private String routeId;
-    private Integer maxCount;
+
+    @NotNull
+    @ManyToOne(cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+    private RouteEntity route;
+
+    @OneToMany(mappedBy = "walk", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+    @OrderBy("createdDate")
+    private List<BookingEntity> bookings;
+    @Positive
+    private Integer maxPlaces;
+    @PositiveOrZero
+    private Integer reservedPlaces;
+    @PositiveOrZero
     private Integer priceForOne;
     private LocalDateTime startTime;
     private LocalDateTime endTime;
+
+    @ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH}, fetch = FetchType.LAZY)
+    @JoinTable(name = "walk_employee",
+            joinColumns = @JoinColumn(name = "walk_id"),
+            inverseJoinColumns = @JoinColumn(name = "employee_id"))
+    private Set<EmployeeEntity> employees = new HashSet<>();
 
     @Override
     public final boolean equals(Object o) {
@@ -55,8 +74,7 @@ public class WalkEntity extends BaseEntity {
                 "createdDate = " + getCreatedDate() + ", " +
                 "lastModifiedDate = " + getLastModifiedDate() + ", " +
                 "status = " + getStatus() + ", " +
-                "routeId = " + getRouteId() + ", " +
-                "maxCount = " + getMaxCount() + ", " +
+                "maxCount = " + getMaxPlaces() + ", " +
                 "priceForOne = " + getPriceForOne() + ", " +
                 "startTime = " + getStartTime() + ", " +
                 "endTime = " + getEndTime() + ")";
