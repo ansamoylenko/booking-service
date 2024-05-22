@@ -1,6 +1,8 @@
 package com.samoylenko.bookingservice.model.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.proxy.HibernateProxy;
@@ -20,8 +22,11 @@ import java.util.Objects;
 @Table(name = "route")
 @EntityListeners(AuditingEntityListener.class)
 public class RouteEntity extends BaseEntity {
+    @NotBlank
     private String name;
+    @NotBlank
     private String description;
+    @PositiveOrZero
     private Integer priceForOne;
 
     @OneToMany(mappedBy = "route", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)

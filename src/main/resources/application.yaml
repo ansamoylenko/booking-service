@@ -5,6 +5,9 @@ spring:
   application:
     name: booking-service
 
+  jpa:
+    open-in-view: false
+
   datasource:
     url: jdbc:postgresql://${DB_HOSTNAME}:${DB_PORT}/${DB_NAME}
     driver-class-name: org.postgresql.Driver

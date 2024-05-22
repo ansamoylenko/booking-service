@@ -3,5 +3,11 @@ server:
 spring:
   autoconfigure:
     exclude:
-      - org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration
-      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+  #      - org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration
+  #      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+
+  jpa:
+    show-sql: false
+    properties:
+      hibernate.format_sql: false
+    hibernate.ddl-auto: create

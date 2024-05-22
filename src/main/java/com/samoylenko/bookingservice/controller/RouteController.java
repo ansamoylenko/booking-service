@@ -1,8 +1,11 @@
 package com.samoylenko.bookingservice.controller;
 
-import com.samoylenko.bookingservice.model.dto.RouteDto;
 import com.samoylenko.bookingservice.model.dto.WalkDto;
+import com.samoylenko.bookingservice.model.dto.route.RouteCreateDto;
+import com.samoylenko.bookingservice.model.dto.route.RouteDto;
+import com.samoylenko.bookingservice.model.dto.route.RouteUpdateDto;
 import com.samoylenko.bookingservice.service.RouteService;
+import com.samoylenko.bookingservice.service.WalkService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
@@ -23,15 +26,16 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @AllArgsConstructor
 public class RouteController {
     private final RouteService routeService;
+    private final WalkService walkService;
 
     @Operation(summary = "Добавить новый маршрут")
     @PostMapping(produces = APPLICATION_JSON_VALUE)
-    public ResponseEntity<Void> createRouteDto(@RequestBody RouteDto route, UriComponentsBuilder uriBuilder) {
+    public ResponseEntity<RouteDto> createRouteDto(@RequestBody RouteCreateDto route, UriComponentsBuilder uriBuilder) {
         var created = routeService.createRoute(route);
         var location = uriBuilder.path("/api/v1/routes/{id}")
                 .buildAndExpand(created.getId())
                 .toUri();
-        return ResponseEntity.created(location).build();
+        return ResponseEntity.created(location).body(created);
     }
 
     @Operation(summary = "Получить все маршруты")
@@ -51,7 +55,7 @@ public class RouteController {
     @Operation(summary = "Обновить параметры маршрута")
     @PatchMapping(value = "/{id}", produces = APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
-    public RouteDto updateRouteDto(@PathVariable String id, @RequestBody RouteDto route) {
+    public RouteDto updateRouteDto(@PathVariable String id, @RequestBody RouteUpdateDto route) {
         return routeService.updateRoute(id, route);
     }
 
@@ -59,13 +63,13 @@ public class RouteController {
     @DeleteMapping(value = "/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteRouteDto(@PathVariable String id) {
-        routeService.deleteRoute(id);
+        routeService.markDeleted(id);
     }
 
     @Operation(summary = "Получить прогулки по маршруту")
     @GetMapping(value = "/{id}/walks", produces = APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public Page<WalkDto> getWalks(@PathVariable String id, PageRequest pageRequest) {
-        return routeService.getWalksByRoute(id, pageRequest);
+        return walkService.getWalksByRoute(id, pageRequest);
     }
 }

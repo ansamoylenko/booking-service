@@ -33,4 +33,6 @@ public class BaseEntity {
     @LastModifiedDate
     @Column(name = "last_modified_date")
     private Instant lastModifiedDate;
+
+    private boolean deleted;
 }

@@ -1,6 +1,7 @@
-package com.samoylenko.bookingservice.model.dto;
+package com.samoylenko.bookingservice.model.dto.route;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.samoylenko.bookingservice.model.dto.BaseDto;
 import com.samoylenko.bookingservice.model.entity.RouteEntity;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.PositiveOrZero;

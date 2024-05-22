@@ -31,4 +31,8 @@ public class WalkService {
     public Page<WalkDto> getOrdersByWalk(String id, PageRequest pageRequest) {
         return null;
     }
+
+    public Page<WalkDto> getWalksByRoute(String id, PageRequest pageRequest) {
+        return null;
+    }
 }
