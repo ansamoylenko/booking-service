@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 @Service
 @Validated
@@ -34,21 +35,25 @@ public class RouteService {
         return modelMapper.map(found, RouteDto.class);
     }
 
+    public RouteEntity getRouteEntityById(String id) {
+        return routeRepository.findById(id)
+                .orElseThrow(() -> new RouteNotFoundException(id));
+    }
+
     public RouteDto updateRoute(String id, @Valid RouteUpdateDto route) {
         RouteEntity existingRoute = routeRepository.findById(id)
                 .orElseThrow(() -> new RouteNotFoundException(id));
-        if (route.getName() != null) {
-            existingRoute.setName(route.getName());
-        }
-        if (route.getDescription() != null) {
-            existingRoute.setDescription(route.getDescription());
-        }
-        if (route.getPriceForOne() != null) {
-            existingRoute.setPriceForOne(route.getPriceForOne());
-        }
-
+        updateIfNotNull(route.getName(), existingRoute::setName);
+        updateIfNotNull(route.getDescription(), existingRoute::setDescription);
+        updateIfNotNull(route.getPriceForOne(), existingRoute::setPriceForOne);
         RouteEntity updatedRoute = routeRepository.save(existingRoute);
         return modelMapper.map(updatedRoute, RouteDto.class);
+    }
+
+    private <T> void updateIfNotNull(T value, Consumer<T> setter) {
+        if (value != null) {
+            setter.accept(value);
+        }
     }
 
     public void markDeleted(String id) {

@@ -1,16 +1,16 @@
 package com.samoylenko.bookingservice.controller;
 
-import com.samoylenko.bookingservice.model.dto.WalkDto;
+import com.samoylenko.bookingservice.model.dto.request.WalkRequest;
 import com.samoylenko.bookingservice.model.dto.route.RouteCreateDto;
 import com.samoylenko.bookingservice.model.dto.route.RouteDto;
 import com.samoylenko.bookingservice.model.dto.route.RouteUpdateDto;
+import com.samoylenko.bookingservice.model.dto.walk.WalkAdminDto;
 import com.samoylenko.bookingservice.service.RouteService;
 import com.samoylenko.bookingservice.service.WalkService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -69,7 +69,10 @@ public class RouteController {
     @Operation(summary = "Получить прогулки по маршруту")
     @GetMapping(value = "/{id}/walks", produces = APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
-    public Page<WalkDto> getWalks(@PathVariable String id, PageRequest pageRequest) {
-        return walkService.getWalksByRoute(id, pageRequest);
+    public Page<WalkAdminDto> getWalks(@PathVariable String id) {
+        var request = WalkRequest.builder()
+                .routeId(id)
+                .build();
+        return walkService.getWalksForAdmin(request);
     }
 }

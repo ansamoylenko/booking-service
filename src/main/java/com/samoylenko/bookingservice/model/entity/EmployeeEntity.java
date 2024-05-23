@@ -3,6 +3,7 @@ package com.samoylenko.bookingservice.model.entity;
 import com.samoylenko.bookingservice.annotations.Phone;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -13,6 +14,7 @@ import org.hibernate.proxy.HibernateProxy;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.util.Objects;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -40,6 +42,9 @@ public class EmployeeEntity extends BaseEntity {
     @NotBlank
     @Phone
     private String phone;
+
+    @ManyToMany(mappedBy = "employees")
+    private Set<WalkEntity> walks;
 
     @Override
     public final boolean equals(Object o) {

@@ -13,7 +13,8 @@ public enum WalkStatus {
     BOOKING_PAUSED("Запись приостановлена"),
     BOOKING_FINISHED("Запись завершена"),
     FINISHED("Прогулка завершена"),
-    CANCELED("Прогулка отменена");
+    CANCELED("Прогулка отменена"),
+    DELETED("Прогулка удалена");
 
     private final String description;
 }

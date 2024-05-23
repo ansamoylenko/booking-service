@@ -1,6 +1,7 @@
 package com.samoylenko.bookingservice.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.samoylenko.bookingservice.model.dto.booking.BookingDto;
 import com.samoylenko.bookingservice.model.entity.PaymentEntity;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

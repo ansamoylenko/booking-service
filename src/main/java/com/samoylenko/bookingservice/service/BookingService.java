@@ -1,6 +1,6 @@
 package com.samoylenko.bookingservice.service;
 
-import com.samoylenko.bookingservice.model.dto.BookingDto;
+import com.samoylenko.bookingservice.model.dto.booking.BookingDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;

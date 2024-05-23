@@ -36,16 +36,34 @@ public class WalkEntity extends BaseEntity {
     @OneToMany(mappedBy = "walk", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
     @OrderBy("createdDate")
     private List<BookingEntity> bookings;
+
+    @NotNull
     @Positive
     private Integer maxPlaces;
+
+    @NotNull
     @PositiveOrZero
     private Integer reservedPlaces;
+
+    @NotNull
+    @PositiveOrZero
+    private Integer availablePlaces;
+
+    @NotNull
     @PositiveOrZero
     private Integer priceForOne;
+
+    @NotNull
     private LocalDateTime startTime;
+
+    @NotNull
     private LocalDateTime endTime;
 
-    @ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH}, fetch = FetchType.LAZY)
+    @NotNull
+    @Positive
+    private Integer duration;
+
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "walk_employee",
             joinColumns = @JoinColumn(name = "walk_id"),
             inverseJoinColumns = @JoinColumn(name = "employee_id"))

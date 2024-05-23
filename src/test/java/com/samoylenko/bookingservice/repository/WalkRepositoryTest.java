@@ -23,12 +23,15 @@ public class WalkRepositoryTest extends BaseRepositoryTest {
     private RouteRepository routeRepository;
     @Autowired
     private BookingRepository bookingRepository;
+    @Autowired
+    private EmployeeRepository employeeRepository;
 
     @BeforeEach
     public void setUp() {
         bookingRepository.deleteAll();
         walkRepository.deleteAll();
         routeRepository.deleteAll();
+        employeeRepository.deleteAll();
     }
 
     @Test
@@ -92,8 +95,8 @@ public class WalkRepositoryTest extends BaseRepositoryTest {
     @Test
     public void findAll_shouldFindAllWalksFilteredByEmployee() {
         var savedRoute = routeRepository.save(DefaultRouteEntityBuilder.of().build());
-        var employee1 = DefaultEmployeeEntityBuilder.of().build();
-        var employee2 = DefaultEmployeeEntityBuilder.of().build();
+        var employee1 = employeeRepository.save(DefaultEmployeeEntityBuilder.of().build());
+        var employee2 = employeeRepository.save(DefaultEmployeeEntityBuilder.of().build());
         var walk1 = DefaultWalkEntityBuilder.of().withRoute(savedRoute).withEmployees(Set.of(employee1)).build();
         var walk2 = DefaultWalkEntityBuilder.of().withRoute(savedRoute).withEmployees(Set.of(employee2)).build();
         var walk3 = DefaultWalkEntityBuilder.of().withRoute(savedRoute).withEmployees(Set.of(employee1, employee2)).build();

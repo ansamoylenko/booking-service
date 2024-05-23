@@ -1,6 +1,6 @@
 package com.samoylenko.bookingservice.controller;
 
-import com.samoylenko.bookingservice.model.dto.BookingDto;
+import com.samoylenko.bookingservice.model.dto.booking.BookingDto;
 import com.samoylenko.bookingservice.service.BookingService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

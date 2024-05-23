@@ -1,6 +1,8 @@
-package com.samoylenko.bookingservice.model.dto;
+package com.samoylenko.bookingservice.model.dto.booking;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.samoylenko.bookingservice.model.dto.BaseDto;
+import com.samoylenko.bookingservice.model.dto.ContactDto;
 import com.samoylenko.bookingservice.model.entity.BookingEntity;
 import com.samoylenko.bookingservice.model.status.BookingStatus;
 import jakarta.validation.constraints.NotNull;
@@ -25,7 +27,7 @@ import java.io.Serializable;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class BookingDto extends BaseDto implements Serializable {
+public class BookingAdminDto extends BaseDto implements Serializable {
     private BookingStatus status;
     @NotNull(message = "walkId не может быть пустым")
     private String walkId;

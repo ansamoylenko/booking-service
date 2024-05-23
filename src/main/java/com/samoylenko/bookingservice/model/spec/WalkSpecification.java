@@ -21,8 +21,11 @@ public class WalkSpecification {
 
     public static Specification<WalkEntity> withRoute(String routeId) {
         return (root, query, cb) -> routeId == null ?
-                cb.conjunction() :
-                cb.equal(root.get("route").get("id"), routeId);
+                cb.isFalse(root.get("deleted")) :
+                cb.and(
+                        cb.equal(root.get("route").get("id"), routeId),
+                        cb.isFalse(root.get("deleted"))
+                );
     }
 
     public static Specification<WalkEntity> withEmployee(String employeeId) {
@@ -48,4 +51,12 @@ public class WalkSpecification {
                 cb.conjunction() :
                 cb.greaterThanOrEqualTo(root.get("reservedPlaces"), reservedPlaces);
     }
+
+    public static Specification<WalkEntity> withAvailablePlacesMoreOrEqualTo(Integer availablePlaces) {
+        return (root, query, cb) -> availablePlaces == null ?
+                cb.conjunction() :
+                cb.greaterThanOrEqualTo(root.get("availablePlaces"), availablePlaces);
+    }
+
+
 }

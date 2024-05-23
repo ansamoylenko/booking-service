@@ -1,6 +1,10 @@
 package com.samoylenko.bookingservice.controller;
 
-import com.samoylenko.bookingservice.model.dto.WalkDto;
+import com.samoylenko.bookingservice.model.dto.request.WalkRequest;
+import com.samoylenko.bookingservice.model.dto.walk.WalkAdminDto;
+import com.samoylenko.bookingservice.model.dto.walk.WalkCreateDto;
+import com.samoylenko.bookingservice.model.dto.walk.WalkUpdateDto;
+import com.samoylenko.bookingservice.model.dto.walk.WalkUserDto;
 import com.samoylenko.bookingservice.service.WalkService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -23,32 +27,32 @@ public class WalkController {
 
     @Operation(summary = "Добавить новую прогулку")
     @PostMapping(produces = APPLICATION_JSON_VALUE)
-    public ResponseEntity<Void> addWalk(@RequestBody WalkDto walk, UriComponentsBuilder uriBuilder) {
+    public ResponseEntity<WalkAdminDto> addWalk(@RequestBody WalkCreateDto walk, UriComponentsBuilder uriBuilder) {
         var created = walkService.createWalk(walk);
         var location = uriBuilder.path("/api/v1/walks/{id}")
                 .buildAndExpand(created.getId())
                 .toUri();
-        return ResponseEntity.created(location).build();
+        return ResponseEntity.created(location).body(created);
     }
 
     @Operation(summary = "Получить страницу с прогулками")
     @GetMapping(produces = APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
-    public Page<WalkDto> getPageOfWalks(PageRequest pageRequest) {
-        return walkService.getPageOfWalks(pageRequest);
+    public Page<WalkAdminDto> getPageOfWalks(WalkRequest pageRequest) {
+        return walkService.getWalksForAdmin(pageRequest);
     }
 
     @Operation(summary = "Получить прогулку по id")
     @GetMapping(value = "/{id}", produces = APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
-    public WalkDto getWalk(@PathVariable String id) {
-        return walkService.getWalk(id);
+    public WalkUserDto getWalk(@PathVariable String id) {
+        return walkService.getWalkForUser(id);
     }
 
     @Operation(summary = "Обновить параметры прогулки")
     @PatchMapping(value = "/{id}", produces = APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
-    public WalkDto updateWalk(@PathVariable String id, @RequestBody WalkDto walk) {
+    public WalkAdminDto updateWalk(@PathVariable String id, @RequestBody WalkUpdateDto walk) {
         return walkService.updateWalk(id, walk);
     }
 
@@ -56,13 +60,13 @@ public class WalkController {
     @DeleteMapping(value = "/{id}", produces = APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteWalk(@PathVariable String id) {
-        walkService.deleteWalk(id);
+        walkService.markDeleted(id);
     }
 
     @Operation(summary = "Получить записи по прогулке")
     @GetMapping(value = "/{id}/OrderDtos", produces = APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
-    public Page<WalkDto> getWalkOrderDtos(@PathVariable String id, PageRequest pageRequest) {
+    public Page<WalkUserDto> getWalkOrderDtos(@PathVariable String id, PageRequest pageRequest) {
         return walkService.getOrdersByWalk(id, pageRequest);
     }
 }
