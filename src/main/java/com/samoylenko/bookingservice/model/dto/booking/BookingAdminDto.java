@@ -29,7 +29,7 @@ import java.io.Serializable;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class BookingAdminDto extends BaseDto implements Serializable {
     private BookingStatus status;
-    @NotNull(message = "walkId не может быть пустым")
+    @NotNull(message = "{invalid.notNull}")
     private String walkId;
     @PositiveOrZero(message = "цена не может быть отрицательной")
     private Integer priceForOne;

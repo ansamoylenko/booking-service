@@ -86,7 +86,7 @@ public class WalkServiceTest {
 
         assertThatThrownBy(() -> walkService.createWalk(walkDto))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("route with id notExistingRoute not found");
+                .hasMessageContaining("notExistingRoute");
     }
 
     @Test
@@ -95,10 +95,7 @@ public class WalkServiceTest {
 
         assertThatThrownBy(() -> walkService.createWalk(walkDto))
                 .isInstanceOf(ConstraintViolationException.class)
-                .hasMessageContaining("не указан маршрут")
-                .hasMessageContaining("не указана дата начала прогулки")
-                .hasMessageContaining("не указана продолжительность прогулки")
-                .hasMessageContaining("не указано максимальное количество людей");
+                .hasMessageContaining("поле не должно быть пустым");
     }
 
     @Test
@@ -128,7 +125,7 @@ public class WalkServiceTest {
     public void getWalkForUser_withNotExistingWalk_shouldReturnNotFoundException() {
         assertThatThrownBy(() -> walkService.getWalkForUser("notExistingWalk"))
                 .isInstanceOf(WalkNotFoundException.class)
-                .hasMessageContaining("walk with id notExistingWalk not found");
+                .hasMessageContaining("notExistingWalk");
     }
 
     @Test
@@ -265,7 +262,7 @@ public class WalkServiceTest {
 
         assertThatThrownBy(() -> walkService.updateWalk("notExistingWalk", updateDto))
                 .isInstanceOf(WalkNotFoundException.class)
-                .hasMessageContaining("walk with id notExistingWalk not found");
+                .hasMessageContaining("notExistingWalk");
     }
 
     @Test
@@ -281,10 +278,9 @@ public class WalkServiceTest {
 
         assertThatThrownBy(() -> walkService.updateWalk(savedWalk.getId(), updateDto))
                 .isInstanceOf(ConstraintViolationException.class)
-                .hasMessageContaining("продолжительность маршрута должна быть положительной")
-                .hasMessageContaining("количество людей должно быть положительным")
-                .hasMessageContaining("цена не может быть отрицательно")
-                .hasMessageContaining("время начала прогулки должно быть в будущем");
+                .hasMessageContaining("должно быть в будущем")
+                .hasMessageContaining("должно быть больше нуля")
+                .hasMessageContaining("должно быть больше или равно нулю");
     }
 
 

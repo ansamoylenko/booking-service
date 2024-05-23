@@ -22,18 +22,18 @@ import java.time.LocalDateTime;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ContactDto extends BaseDto implements Serializable {
     @Pattern(message = "имя должно содержать только буквы", regexp = "^[A-ЯЁ][а-яё]+\\s[A-ЯЁ][а-яё]+$")
-    @NotBlank(message = "имя не должно быть пустым")
+    @NotBlank(message = "{invalid.notBlank}")
     private String firstName;
 
     @Pattern(message = "фамилия должно содержать только буквы", regexp = "^[A-ЯЁ][а-яё]+\\s[A-ЯЁ][а-яё]+$")
-    @NotBlank(message = "фамилия не должна быть пустой")
+    @NotBlank(message = "{invalid.notBlank}")
     private String lastName;
 
     @Email(message = "email должен быть валидным")
-    @NotBlank(message = "email не должно быть пустым")
+    @NotBlank(message = "{invalid.notBlank}")
     private String email;
 
-    @NotBlank(message = "телефон не должен быть пустым")
+    @NotBlank(message = "{invalid.notBlank}")
     private String phone;
 
     @NotNull

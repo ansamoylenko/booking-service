@@ -21,7 +21,7 @@ public class WalkSpecification {
 
     public static Specification<WalkEntity> withRoute(String routeId) {
         return (root, query, cb) -> routeId == null ?
-                cb.isFalse(root.get("deleted")) :
+                cb.isFalse(root.get("route").get("deleted")) :
                 cb.and(
                         cb.equal(root.get("route").get("id"), routeId),
                         cb.isFalse(root.get("deleted"))

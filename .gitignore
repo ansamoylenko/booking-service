@@ -37,3 +37,4 @@ build/
 /mvnw.cmd
 
 .env
+/pgdata/

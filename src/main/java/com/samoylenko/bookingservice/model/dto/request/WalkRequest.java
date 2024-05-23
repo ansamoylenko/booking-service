@@ -1,22 +1,37 @@
 package com.samoylenko.bookingservice.model.dto.request;
 
 import com.samoylenko.bookingservice.model.status.WalkStatus;
-import lombok.Builder;
-import lombok.Value;
+import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
-@Value
+@Getter
 @Builder
+@Generated
+@AllArgsConstructor
+@NoArgsConstructor
 public class WalkRequest {
-    String routeId;             // for user
-    LocalDateTime startAfter;   // for user
-    LocalDateTime startBefore;  // for user
-    Integer placeCount;         // for user
+    @Schema(description = "Идентификатор маршрута", example = "3f5d6702-8554-4137-85e0-4ada615e7253")
+    private String routeId;             // for user
 
-    Integer pageNumber;         // for user
-    Integer pageSize;           // for user
+    @Schema(description = "Минимальное время начала прогулки", example = "2024-01-01T00:00:00")
+    private LocalDateTime startAfter;   // for user
 
-    String employeeId;          // for admin
-    WalkStatus status;          // for admin
+    @Schema(description = "Максимальное время начала прогулки", example = "2024-12-01T00:00:00")
+    private LocalDateTime startBefore;  // for user
+
+    @Schema(description = "Количество доступных мест", example = "2")
+    private Integer placeCount;         // for user
+
+    @Schema(description = "Номер страницы", example = "0")
+    private Integer pageNumber;         // for user
+    @Schema(description = "Размер страницы", example = "10")
+    private Integer pageSize;           // for user
+
+    @Schema(description = "Идентификатор сотрудника", example = "3f5d6702-8554-4137-85e0-4ada615e7253")
+    private String employeeId;          // for admin
+
+    @Schema(description = "Статус прогулки", example = "Запись активна")
+    private WalkStatus status;          // for admin
 }

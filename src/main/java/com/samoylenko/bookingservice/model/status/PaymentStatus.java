@@ -1,5 +1,6 @@
 package com.samoylenko.bookingservice.model.status;
 
+import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.AllArgsConstructor;
 import lombok.Generated;
 import lombok.ToString;
@@ -12,5 +13,11 @@ public enum PaymentStatus {
     PAID("Успешная оплата"),
     REFUNDED("Оплата отменена"),
     CANCELED("Оплата не прошла");
-    private String description;
+
+    private final String description;
+
+    @JsonValue
+    public String getDescription() {
+        return description;
+    }
 }

@@ -1,5 +1,6 @@
 package com.samoylenko.bookingservice.model.status;
 
+import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.AllArgsConstructor;
 import lombok.Generated;
 import lombok.Getter;
@@ -8,7 +9,7 @@ import lombok.Getter;
 @Generated
 @AllArgsConstructor
 public enum WalkStatus {
-    DRAFT("Черновик прогулки"),
+    DRAFT("Черновик"),
     BOOKING_IN_PROGRESS("Запись активна"),
     BOOKING_PAUSED("Запись приостановлена"),
     BOOKING_FINISHED("Запись завершена"),
@@ -17,4 +18,9 @@ public enum WalkStatus {
     DELETED("Прогулка удалена");
 
     private final String description;
+
+    @JsonValue
+    public String getDescription() {
+        return description;
+    }
 }

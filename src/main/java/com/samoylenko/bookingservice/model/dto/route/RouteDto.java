@@ -24,9 +24,9 @@ import java.time.Instant;
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class RouteDto extends BaseDto implements Serializable {
-    @NotBlank(message = "название не может быть пустым")
+    @NotBlank(message = "{invalid.notBlank}")
     private String name;
-    @NotBlank(message = "описание не может быть пустым")
+    @NotBlank(message = "{invalid.notBlank}")
     private String description;
     @PositiveOrZero(message = "цена не может быть отрицательной")
     private Integer priceForOne;

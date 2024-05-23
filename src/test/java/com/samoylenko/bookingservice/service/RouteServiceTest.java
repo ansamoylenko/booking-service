@@ -124,7 +124,7 @@ public class RouteServiceTest {
     public void getRouteById_withUnknownId_shouldReturnRouteNotFoundException() {
         assertThatThrownBy(() -> routeService.getRouteById("unknown"))
                 .isInstanceOf(RouteNotFoundException.class)
-                .hasMessageContaining("route with id unknown not found");
+                .hasMessageContaining("unknown");
     }
 
     @Test
