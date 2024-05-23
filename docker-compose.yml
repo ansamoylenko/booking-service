@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  booking-service:
+    container_name: booking-service
+    image: booking-service:0.0.1-SNAPSHOT
+    restart: always
+    environment:
+      - DB_PORT=${DB_PORT}
+      - DB_HOSTNAME=${DB_HOSTNAME}
+      - DB_NAME=${DB_NAME}
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+    build:
+      context: .
+    ports:
+      - "0.0.0.0:${BOOKING_SERVICE_EXTERNAL_PORT}:8080"
+      - "0.0.0.0:${BOOKING_SERVICE_DEBUG_PORT}:5005"
+    volumes:
+      - ./config:/app/config
+    networks:
+      - booking-network
+
+  data-base:
+    image: postgres:13.3
+    container_name: postgres-db
+    restart: always
+    networks:
+      - booking-network
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      PGDATA: "/var/lib/postgresql/data/pgdata"
+    volumes:
+      - ./pgdata:/var/lib/postgresql/data
+    ports:
+      - "5436:5432"
+
+networks:
+  booking-network:
+    external: true
+    name: booking-network
