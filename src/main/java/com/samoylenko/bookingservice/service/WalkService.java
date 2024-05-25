@@ -1,10 +1,7 @@
 package com.samoylenko.bookingservice.service;
 
 import com.samoylenko.bookingservice.model.dto.request.WalkRequest;
-import com.samoylenko.bookingservice.model.dto.walk.WalkAdminDto;
-import com.samoylenko.bookingservice.model.dto.walk.WalkCreateDto;
-import com.samoylenko.bookingservice.model.dto.walk.WalkUpdateDto;
-import com.samoylenko.bookingservice.model.dto.walk.WalkUserDto;
+import com.samoylenko.bookingservice.model.dto.walk.*;
 import com.samoylenko.bookingservice.model.entity.WalkEntity;
 import com.samoylenko.bookingservice.model.exception.RouteNotFoundException;
 import com.samoylenko.bookingservice.model.exception.WalkNotFoundException;
@@ -15,9 +12,9 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -35,12 +32,12 @@ public class WalkService {
     private final WalkRepository walkRepository;
     private final ModelMapper modelMapper;
 
-    public WalkAdminDto createWalk(@Valid WalkCreateDto walk) {
+    public CompositeAdminWalkDto createWalk(@Valid WalkCreateDto walk) {
         try {
             var route = routeService.getRouteEntityById(walk.getRouteId());
             var entity = WalkEntity.builder()
                     .route(route)
-                    .status(WalkStatus.DRAFT)
+                    .status(WalkStatus.BOOKING_IN_PROGRESS)
                     .startTime(walk.getStartTime())
                     .duration(walk.getDurationInMinutes())
                     .endTime(walk.getStartTime().plusMinutes(walk.getDurationInMinutes()))
@@ -51,8 +48,10 @@ public class WalkService {
                     .build();
 
             var saved = walkRepository.save(entity);
-            return modelMapper.map(saved, WalkAdminDto.class)
-                    .withBookings(List.of());
+            modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+            return modelMapper.map(saved, CompositeAdminWalkDto.class)
+                    .withBookings(List.of())
+                    .withEmployees(List.of());
         } catch (RouteNotFoundException e) {
             throw new IllegalArgumentException(e.getMessage());
         } catch (Exception e) {
@@ -61,54 +60,50 @@ public class WalkService {
     }
 
     @Transactional
-    public Page<WalkAdminDto> getWalksForAdmin(WalkRequest request) {
-        var spec = WalkSpecification
-                .withStatus(request.getStatus())
-                .and(withRoute(request.getRouteId()))
-                .and(startTimeAfter(request.getStartAfter())
-                        .and(startTimeBefore(request.getStartBefore()))
-                        .and(withAvailablePlacesMoreOrEqualTo(request.getPlaceCount()))
-                        .and(withEmployee(request.getEmployeeId())));
-
-        var pageRequest = PageRequest.of(
-                request.getPageNumber() == null ? 0 : request.getPageNumber(),
-                request.getPageSize() == null ? 10 : request.getPageSize(),
-                Sort.by(Sort.Direction.ASC, "startTime")
-        );
-
-        var walks = walkRepository.findAll(spec, pageRequest);
-
-        return walks.map(walk -> modelMapper.map(walk, WalkAdminDto.class));
+    public CompositeAdminWalkDto getWalkForAdmin(@NotBlank String id) {
+        var entity = walkRepository.findById(id)
+                .orElseThrow(() -> new WalkNotFoundException(id));
+        return modelMapper.map(entity, CompositeAdminWalkDto.class);
     }
 
     @Transactional
-    public List<WalkUserDto> getWalksForUser(WalkRequest request) {
+    public Page<WalkDto> getWalksForAdmin(WalkRequest request) {
+        var spec = WalkSpecification
+                .withStatus(request.getStatus())
+                .and(withRoute(request.getRouteId()))
+                .and(startTimeAfter(request.getStartAfter()))
+                .and(startTimeBefore(request.getStartBefore()))
+                .and(withAvailablePlacesMoreOrEqualTo(request.getAvailablePlaces()))
+                .and(withEmployee(request.getEmployeeId()));
+
+        return walkRepository
+                .findAll(spec, request.getPageRequest())
+                .map((element) -> modelMapper.map(element, WalkDto.class));
+    }
+
+    @Transactional
+    public Page<WalkDto> getWalksForUser(WalkRequest request) {
         var spec = WalkSpecification
                 .withRoute(request.getRouteId())
                 .and(withStatus(WalkStatus.BOOKING_IN_PROGRESS))
                 .and(startTimeAfter(request.getStartAfter()))
-                .and(startTimeBefore(request.getStartBefore().plusDays(1)))
-                .and(withAvailablePlacesMoreOrEqualTo(request.getPlaceCount()));
-        var pageRequest = PageRequest.of(request.getPageNumber(), request.getPageSize(), Sort.by(Sort.Direction.ASC, "startTime"));
+                .and(startTimeBefore(request.getStartBefore()))
+                .and(withAvailablePlacesMoreOrEqualTo(request.getAvailablePlaces()));
 
-        var walks = walkRepository.findAll(spec, pageRequest).getContent();
-
-        return walks.stream()
-                .map(walk -> modelMapper.map(walk, WalkUserDto.class))
-                .toList();
+        return walkRepository
+                .findAll(spec, request.getPageRequest())
+                .map((element) -> modelMapper.map(element, WalkDto.class));
     }
 
     @Transactional
-    public WalkUserDto getWalkForUser(@NotBlank String id) {
+    public CompositeUserWalkDto getWalkForUser(@NotBlank String id) {
         var found = walkRepository.findById(id)
                 .orElseThrow(() -> new WalkNotFoundException(id));
-        var userDto = modelMapper.map(found, WalkUserDto.class);
-        userDto.setEndTime(found.getStartTime().plusMinutes(found.getDuration()));
-        return userDto;
+        return modelMapper.map(found, CompositeUserWalkDto.class);
     }
 
     @Transactional
-    public WalkAdminDto updateWalk(@NotBlank String walkId, @Valid WalkUpdateDto walkDto) {
+    public CompositeAdminWalkDto updateWalk(@NotBlank String walkId, @Valid WalkUpdateDto walkDto) {
         var walkEntity = walkRepository.findById(walkId)
                 .orElseThrow(() -> new WalkNotFoundException(walkId));
         updateIfNotNull(walkDto.getStatus(), walkEntity::setStatus);
@@ -121,7 +116,7 @@ public class WalkService {
         });
 
         var updated = walkRepository.save(walkEntity);
-        return modelMapper.map(updated, WalkAdminDto.class);
+        return modelMapper.map(updated, CompositeAdminWalkDto.class);
     }
 
     private <T> void updateIfNotNull(T value, Consumer<T> setter) {
@@ -138,12 +133,7 @@ public class WalkService {
     }
 
     //todo getRecordsForAdmin with filter by walk
-    public Page<WalkUserDto> getOrdersByWalk(String id, PageRequest pageRequest) {
-        return null;
-    }
-
-    //todo change to getWalksForUser with filter by route
-    public Page<WalkUserDto> getWalksByRoute(String id, PageRequest pageRequest) {
+    public Page<WalkDto> getOrdersByWalk(String id, PageRequest pageRequest) {
         return null;
     }
 }

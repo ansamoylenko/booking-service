@@ -4,7 +4,7 @@ import com.samoylenko.bookingservice.model.dto.request.WalkRequest;
 import com.samoylenko.bookingservice.model.dto.route.RouteCreateDto;
 import com.samoylenko.bookingservice.model.dto.route.RouteDto;
 import com.samoylenko.bookingservice.model.dto.route.RouteUpdateDto;
-import com.samoylenko.bookingservice.model.dto.walk.WalkAdminDto;
+import com.samoylenko.bookingservice.model.dto.walk.WalkDto;
 import com.samoylenko.bookingservice.service.RouteService;
 import com.samoylenko.bookingservice.service.WalkService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -69,10 +69,10 @@ public class RouteController {
     @Operation(summary = "Получить прогулки по маршруту")
     @GetMapping(value = "/{id}/walks", produces = APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
-    public Page<WalkAdminDto> getWalks(@PathVariable String id) {
+    public Page<WalkDto> getWalks(@PathVariable String id) {
         var request = WalkRequest.builder()
                 .routeId(id)
                 .build();
-        return walkService.getWalksForAdmin(request);
+        return walkService.getWalksForUser(request);
     }
 }

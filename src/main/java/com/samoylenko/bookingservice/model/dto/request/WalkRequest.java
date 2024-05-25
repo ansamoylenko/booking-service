@@ -3,6 +3,8 @@ package com.samoylenko.bookingservice.model.dto.request;
 import com.samoylenko.bookingservice.model.status.WalkStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 
 import java.time.LocalDateTime;
 
@@ -22,16 +24,23 @@ public class WalkRequest {
     private LocalDateTime startBefore;  // for user
 
     @Schema(description = "Количество доступных мест", example = "2")
-    private Integer placeCount;         // for user
+    private Integer availablePlaces;         // for user
 
     @Schema(description = "Номер страницы", example = "0")
     private Integer pageNumber;         // for user
     @Schema(description = "Размер страницы", example = "10")
-    private Integer pageSize;           // for user
+    private Integer pageSize;         // for user
 
     @Schema(description = "Идентификатор сотрудника", example = "3f5d6702-8554-4137-85e0-4ada615e7253")
     private String employeeId;          // for admin
 
     @Schema(description = "Статус прогулки", example = "Запись активна")
     private WalkStatus status;          // for admin
+
+    public PageRequest getPageRequest() {
+        return PageRequest.of(
+                pageNumber == null ? 0 : pageNumber,
+                pageSize == null ? 10 : pageSize,
+                Sort.by(Sort.Direction.ASC, "startTime"));
+    }
 }

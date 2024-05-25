@@ -3,22 +3,19 @@ package com.samoylenko.bookingservice.service;
 import com.samoylenko.bookingservice.model.dto.request.WalkRequest;
 import com.samoylenko.bookingservice.model.dto.walk.WalkCreateDto;
 import com.samoylenko.bookingservice.model.dto.walk.WalkUpdateDto;
+import com.samoylenko.bookingservice.model.entity.DefaultBookingEntityBuilder;
 import com.samoylenko.bookingservice.model.entity.DefaultEmployeeEntityBuilder;
 import com.samoylenko.bookingservice.model.entity.DefaultRouteEntityBuilder;
 import com.samoylenko.bookingservice.model.entity.DefaultWalkEntityBuilder;
 import com.samoylenko.bookingservice.model.exception.WalkNotFoundException;
 import com.samoylenko.bookingservice.model.status.WalkStatus;
-import com.samoylenko.bookingservice.repository.EmployeeRepository;
-import com.samoylenko.bookingservice.repository.RouteRepository;
-import com.samoylenko.bookingservice.repository.WalkRepository;
+import com.samoylenko.bookingservice.repository.*;
 import jakarta.validation.ConstraintViolationException;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.TestConstructor;
 
-import java.time.LocalDate;
 import java.time.Month;
 import java.util.List;
 import java.util.Set;
@@ -30,20 +27,13 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @SpringBootTest
 @ActiveProfiles("test")
-public class WalkServiceTest {
-    @Autowired
-    private WalkService walkService;
-    @Autowired
-    private WalkRepository walkRepository;
-    @Autowired
-    private RouteRepository routeRepository;
-    @Autowired
-    private EmployeeRepository employeeRepository;
+@TestConstructor(autowireMode = TestConstructor.AutowireMode.ALL)
+public class WalkServiceTest extends BaseServiceTest {
+    private final WalkService walkService;
 
-    @BeforeEach
-    public void setUp() {
-        walkRepository.deleteAll();
-        routeRepository.deleteAll();
+    public WalkServiceTest(WalkService walkService, WalkRepository walkRepository, RouteRepository routeRepository, EmployeeRepository employeeRepository, BookingRepository bookingRepository, ContactRepository contactRepository, PaymentRepository paymentRepository) {
+        super(walkRepository, routeRepository, employeeRepository, bookingRepository, contactRepository, paymentRepository);
+        this.walkService = walkService;
     }
 
     @Test
@@ -60,7 +50,7 @@ public class WalkServiceTest {
         var createdWalk = walkService.createWalk(walkDto);
 
         assertThat(createdWalk).isNotNull();
-        assertThat(createdWalk.getStatus()).isEqualTo(WalkStatus.DRAFT);
+        assertThat(createdWalk.getStatus()).isEqualTo(WalkStatus.BOOKING_IN_PROGRESS);
         assertThat(createdWalk.getRoute()).isNotNull();
         assertThat(createdWalk.getRoute().getId()).isEqualTo(savedRoute.getId());
         assertThat(createdWalk.getId()).isNotNull();
@@ -72,6 +62,7 @@ public class WalkServiceTest {
         assertThat(createdWalk.getStartTime()).isEqualTo(walkDto.getStartTime());
         assertThat(createdWalk.getEndTime().isAfter(createdWalk.getStartTime())).isTrue();
         assertThat(createdWalk.getBookings()).isEmpty();
+        assertThat(createdWalk.getEmployees()).isEmpty();
     }
 
     @Test
@@ -119,6 +110,8 @@ public class WalkServiceTest {
         assertThat(found.getDuration()).isEqualTo(savedWalk.getDuration());
         assertThat(found.getRoute()).isNotNull();
         assertThat(found.getRoute().getId()).isEqualTo(savedRoute.getId());
+        assertThat(found.getRoute().getName()).isNotNull();
+        assertThat(found.getRoute().getDescription()).isNotNull();
     }
 
     @Test
@@ -129,26 +122,39 @@ public class WalkServiceTest {
     }
 
     @Test
-    public void getWalkForUser_shouldReturnWalkAdminDto() {
+    public void getWalkForAdmin_shouldReturnWalkAdminDto() {
         var savedRoute = routeRepository.save(DefaultRouteEntityBuilder.of().build());
+        var employee1 = employeeRepository.save(DefaultEmployeeEntityBuilder.of().build());
+        var employee2 = employeeRepository.save(DefaultEmployeeEntityBuilder.of().build());
         var savedWalk = walkRepository.save(DefaultWalkEntityBuilder.of()
                 .withMaxPlaces(20)
                 .withPriceForOne(3500)
                 .withDuration(120)
                 .withAvailablePlaces(20)
-                .withRoute(savedRoute).build());
+                .withRoute(savedRoute)
+                .withEmployees(Set.of(employee1, employee2))
+                .build());
+        var booking1 = bookingRepository.save(DefaultBookingEntityBuilder.of().withWalk(savedWalk).build());
+        var booking2 = bookingRepository.save(DefaultBookingEntityBuilder.of().withWalk(savedWalk).build());
 
-        var found = walkService.getWalkForUser(savedWalk.getId());
+        var found = walkService.getWalkForAdmin(savedWalk.getId());
 
         assertThat(found).isNotNull();
-        assertThat(found.getId()).isEqualTo(savedWalk.getId());
+        assertThat(found.getCreatedDate()).isNotNull();
+        assertThat(found.getLastModifiedDate()).isNotNull();
+        assertThat(found.getStatus()).isNotNull();
+        assertThat(found.getRoute()).isNotNull();
+        assertThat(found.getMaxPlaces()).isEqualTo(savedWalk.getMaxPlaces());
         assertThat(found.getAvailablePlaces()).isEqualTo(savedWalk.getMaxPlaces());
+        assertThat(found.getReservedPlaces()).isEqualTo(0);
         assertThat(found.getPriceForOne()).isEqualTo(savedWalk.getPriceForOne());
+        assertThat(found.getDuration()).isEqualTo(savedWalk.getDuration());
         assertThat(found.getStartTime()).isEqualTo(savedWalk.getStartTime());
         assertThat(found.getEndTime()).isNotNull();
-        assertThat(found.getDuration()).isEqualTo(savedWalk.getDuration());
-        assertThat(found.getRoute()).isNotNull();
-        assertThat(found.getRoute().getId()).isEqualTo(savedRoute.getId());
+        assertThat(found.getBookings()).hasSize(2);
+        assertThat(found.getBookings().get(0).getId()).isEqualTo(booking1.getId());
+        assertThat(found.getBookings().get(1).getId()).isEqualTo(booking2.getId());
+        assertThat(found.getEmployees()).hasSize(2);
     }
 
     @Test
@@ -168,19 +174,16 @@ public class WalkServiceTest {
         var walk3 = walk1.withRoute(otherRoute);
         var walk4 = walk1.withAvailablePlaces(1);
         var walk5 = walk1.withStatus(WalkStatus.BOOKING_FINISHED);
-        var walk6 = walk1.withStartTime(of(2024, Month.JUNE, 3, 6, 0));
-        var walk7 = walk1.withStartTime(of(2024, Month.MAY, 29, 6, 0));
-        var saved = walkRepository.saveAll(List.of(walk3.build(), walk4.build(), walk5.build(), walk6.build(), walk7.build()));
+        var saved = walkRepository.saveAll(List.of(walk3.build(), walk4.build(), walk5.build()));
         var request = WalkRequest.builder()
-                .startAfter(LocalDate.of(2024, Month.JUNE, 1).atStartOfDay())
-                .startBefore(LocalDate.of(2024, Month.JUNE, 2).atStartOfDay())
-                .placeCount(3)
+                .availablePlaces(3)
                 .routeId(savedRoute.getId())
                 .pageNumber(0)
                 .pageSize(10)
                 .build();
 
-        var found = walkService.getWalksForUser(request);
+        var foundPage = walkService.getWalksForUser(request);
+        var found = foundPage.getContent();
 
         assertThat(found).hasSize(2);
         assertThat(found.get(0).getId()).isEqualTo(savedWalk1.getId());

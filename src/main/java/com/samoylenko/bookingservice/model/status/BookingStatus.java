@@ -10,6 +10,7 @@ import lombok.ToString;
 @AllArgsConstructor
 public enum BookingStatus {
     DRAFT("Создан черновик заявки"),
+    WAITING_FOR_PAYMENT("Ожидание оплаты"),
     PAID("Заявка оплачена"),
     CANCELED("Заявка отменена"),
     REJECTED("Заявка отклонена"),

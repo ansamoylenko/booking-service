@@ -9,6 +9,8 @@ import com.samoylenko.bookingservice.model.status.WalkStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 
 import java.util.List;
 import java.util.Set;
@@ -76,6 +78,32 @@ public class WalkRepositoryTest extends BaseRepositoryTest {
 
         assertThat(bookingsBefore).hasSize(1);
         assertThat(bookingsAfter).isEmpty();
+    }
+
+    @Test
+    public void findAll_shouldReturnPageOfWalksFilteredByAvailablePaces() {
+        var savedRoute = routeRepository.save(DefaultRouteEntityBuilder.of().build());
+        var walk1 = walkRepository.save(DefaultWalkEntityBuilder.of()
+                .withRoute(savedRoute)
+                .withAvailablePlaces(2)
+                .withStartTime(now().plusHours(2))
+                .build());
+        var walk2 = walkRepository.save(DefaultWalkEntityBuilder.of().withRoute(savedRoute).withAvailablePlaces(0).build());
+        var walk3 = walkRepository.save(DefaultWalkEntityBuilder.of()
+                .withRoute(savedRoute)
+                .withAvailablePlaces(1)
+                .withStartTime(now().plusHours(1))
+                .build());
+        var spec = WalkSpecification.withAvailablePlacesMoreOrEqualTo(1);
+        var pageRequest = PageRequest.of(0, 10, Sort.by("startTime").ascending());
+
+        var walks = walkRepository.findAll(spec, pageRequest);
+
+        assertThat(walks).isNotNull();
+        assertThat(walks.getTotalElements()).isEqualTo(2);
+        assertThat(walks.getContent()).hasSize(2);
+        assertThat(walks.getContent()).contains(walk1, walk3);
+        assertThat(walks.getContent().get(0).getId()).isEqualTo(walk3.getId());
     }
 
     @Test

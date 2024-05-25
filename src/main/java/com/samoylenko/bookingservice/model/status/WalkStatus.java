@@ -23,4 +23,16 @@ public enum WalkStatus {
     public String getDescription() {
         return description;
     }
+
+    public static WalkStatus fromDescription(String description) {
+        if (description == null) {
+            return null;
+        }
+        for (WalkStatus status : WalkStatus.values()) {
+            if (status.getDescription().equals(description)) {
+                return status;
+            }
+        }
+        return null;
+    }
 }

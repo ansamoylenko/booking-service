@@ -4,28 +4,25 @@ import com.samoylenko.bookingservice.model.dto.route.RouteCreateDto;
 import com.samoylenko.bookingservice.model.dto.route.RouteUpdateDto;
 import com.samoylenko.bookingservice.model.entity.DefaultRouteEntityBuilder;
 import com.samoylenko.bookingservice.model.exception.RouteNotFoundException;
-import com.samoylenko.bookingservice.repository.RouteRepository;
+import com.samoylenko.bookingservice.repository.*;
 import jakarta.validation.ConstraintViolationException;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.TestConstructor;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @SpringBootTest
 @ActiveProfiles("test")
-public class RouteServiceTest {
-    @Autowired
-    private RouteService routeService;
-    @Autowired
-    private RouteRepository routeRepository;
+@TestConstructor(autowireMode = TestConstructor.AutowireMode.ALL)
+public class RouteServiceTest extends BaseServiceTest {
+    private final RouteService routeService;
 
-    @BeforeEach
-    public void setUp() {
-        routeRepository.deleteAll();
+    public RouteServiceTest(RouteService routeService, WalkRepository walkRepository, RouteRepository routeRepository, EmployeeRepository employeeRepository, BookingRepository bookingRepository, ContactRepository contactRepository, PaymentRepository paymentRepository) {
+        super(walkRepository, routeRepository, employeeRepository, bookingRepository, contactRepository, paymentRepository);
+        this.routeService = routeService;
     }
 
     @Test
