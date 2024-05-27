@@ -13,7 +13,7 @@ public class DefaultBookingEntityBuilder implements DefaultEntityBuilder<Booking
     private WalkEntity walk;
     private Integer priceForOne = 3500;
     private Integer numberOfPeople = 1;
-    private ContactEntity contact;
+    private ClientEntity client;
     private PaymentEntity payment;
     private String comment = "";
     private Boolean hasChildren = false;
@@ -23,9 +23,8 @@ public class DefaultBookingEntityBuilder implements DefaultEntityBuilder<Booking
         return BookingEntity.builder()
                 .status(status)
                 .walk(walk)
-                .priceForOne(priceForOne)
                 .numberOfPeople(numberOfPeople)
-                .contact(contact)
+                .client(client)
                 .payment(payment)
                 .comment(comment)
                 .hasChildren(hasChildren)

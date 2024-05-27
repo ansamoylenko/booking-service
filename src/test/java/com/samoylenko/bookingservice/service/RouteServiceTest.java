@@ -20,8 +20,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 public class RouteServiceTest extends BaseServiceTest {
     private final RouteService routeService;
 
-    public RouteServiceTest(RouteService routeService, WalkRepository walkRepository, RouteRepository routeRepository, EmployeeRepository employeeRepository, BookingRepository bookingRepository, ContactRepository contactRepository, PaymentRepository paymentRepository) {
-        super(walkRepository, routeRepository, employeeRepository, bookingRepository, contactRepository, paymentRepository);
+    public RouteServiceTest(RouteService routeService, WalkRepository walkRepository, RouteRepository routeRepository, EmployeeRepository employeeRepository, BookingRepository bookingRepository, ClientRepository clientRepository, PaymentRepository paymentRepository) {
+        super(walkRepository, routeRepository, employeeRepository, bookingRepository, clientRepository, paymentRepository);
         this.routeService = routeService;
     }
 
@@ -31,6 +31,7 @@ public class RouteServiceTest extends BaseServiceTest {
                 .name("testName")
                 .description("testDescription")
                 .priceForOne(10)
+                .serviceName("testService")
                 .build();
 
         var created = routeService.createRoute(routeDto);

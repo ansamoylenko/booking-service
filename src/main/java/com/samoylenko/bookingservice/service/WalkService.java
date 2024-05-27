@@ -3,6 +3,7 @@ package com.samoylenko.bookingservice.service;
 import com.samoylenko.bookingservice.model.dto.request.WalkRequest;
 import com.samoylenko.bookingservice.model.dto.walk.*;
 import com.samoylenko.bookingservice.model.entity.WalkEntity;
+import com.samoylenko.bookingservice.model.exception.LimitExceededException;
 import com.samoylenko.bookingservice.model.exception.RouteNotFoundException;
 import com.samoylenko.bookingservice.model.exception.WalkNotFoundException;
 import com.samoylenko.bookingservice.model.spec.WalkSpecification;
@@ -59,11 +60,35 @@ public class WalkService {
         }
     }
 
+    public void decreaseAvailablePlaces(@NotBlank String id, int numberOfPlaces) {
+        var walk = walkRepository.findById(id)
+                .orElseThrow(() -> new WalkNotFoundException(id));
+
+        if (walk.getAvailablePlaces() < numberOfPlaces) {
+            throw new LimitExceededException(id);
+        }
+        walk.setAvailablePlaces(walk.getAvailablePlaces() - numberOfPlaces);
+        walkRepository.save(walk);
+    }
+
+    public void increaseAvailablePlaces(@NotBlank String id, int numberOfPlaces) {
+        var walk = walkRepository.findById(id)
+                .orElseThrow(() -> new WalkNotFoundException(id));
+        walk.setAvailablePlaces(walk.getAvailablePlaces() + numberOfPlaces);
+        walkRepository.save(walk);
+    }
+
     @Transactional
     public CompositeAdminWalkDto getWalkForAdmin(@NotBlank String id) {
         var entity = walkRepository.findById(id)
                 .orElseThrow(() -> new WalkNotFoundException(id));
         return modelMapper.map(entity, CompositeAdminWalkDto.class);
+    }
+
+    @Transactional
+    public WalkEntity getWalkEntityById(@NotBlank String id) {
+        return walkRepository.findById(id)
+                .orElseThrow(() -> new WalkNotFoundException(id));
     }
 
     @Transactional

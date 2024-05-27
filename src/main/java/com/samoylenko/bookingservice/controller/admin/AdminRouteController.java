@@ -1,4 +1,4 @@
-package com.samoylenko.bookingservice.controller;
+package com.samoylenko.bookingservice.controller.admin;
 
 import com.samoylenko.bookingservice.model.dto.request.WalkRequest;
 import com.samoylenko.bookingservice.model.dto.route.RouteCreateDto;
@@ -21,10 +21,10 @@ import java.util.List;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RestController
-@RequestMapping("/api/v1/routes")
-@Tag(name = "Маршруты")
+@RequestMapping("/api/v1/admin/routes")
+@Tag(name = "Маршруты (для администратора)")
 @AllArgsConstructor
-public class RouteController {
+public class AdminRouteController {
     private final RouteService routeService;
     private final WalkService walkService;
 
@@ -32,7 +32,7 @@ public class RouteController {
     @PostMapping(produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<RouteDto> createRouteDto(@RequestBody RouteCreateDto route, UriComponentsBuilder uriBuilder) {
         var created = routeService.createRoute(route);
-        var location = uriBuilder.path("/api/v1/routes/{id}")
+        var location = uriBuilder.path("/api/v1/admin/routes/{id}")
                 .buildAndExpand(created.getId())
                 .toUri();
         return ResponseEntity.created(location).body(created);

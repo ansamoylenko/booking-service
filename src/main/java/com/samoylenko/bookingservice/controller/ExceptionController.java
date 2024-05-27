@@ -1,5 +1,7 @@
 package com.samoylenko.bookingservice.controller;
 
+import com.samoylenko.bookingservice.model.exception.LimitExceededException;
+import com.samoylenko.bookingservice.model.exception.PaymentException;
 import com.samoylenko.bookingservice.model.exception.RouteNotFoundException;
 import com.samoylenko.bookingservice.model.exception.WalkNotFoundException;
 import jakarta.validation.ValidationException;
@@ -29,6 +31,28 @@ public class ExceptionController {
         log.warn(e.getMessage());
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
+                .contentType(MediaType.TEXT_PLAIN)
+                .body(e.getMessage());
+    }
+
+    @ResponseBody
+    @ExceptionHandler(LimitExceededException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ResponseEntity<String> handleException(LimitExceededException e) {
+        log.warn(e.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .contentType(MediaType.TEXT_PLAIN)
+                .body(e.getMessage());
+    }
+
+    @ResponseBody
+    @ExceptionHandler(PaymentException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ResponseEntity<String> handleException(PaymentException e) {
+        log.warn(e.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .contentType(MediaType.TEXT_PLAIN)
                 .body(e.getMessage());
     }

@@ -3,7 +3,6 @@ package com.samoylenko.bookingservice.model.entity;
 import com.samoylenko.bookingservice.model.status.BookingStatus;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Positive;
-import jakarta.validation.constraints.PositiveOrZero;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.proxy.HibernateProxy;
@@ -27,15 +26,12 @@ public class BookingEntity extends BaseEntity {
     @JoinColumn(name = "walk_id")
     private WalkEntity walk;
 
-    @PositiveOrZero
-    private Integer priceForOne;
-
     @Positive
     private Integer numberOfPeople;
 
     @OneToOne(cascade = CascadeType.REMOVE, orphanRemoval = true)
-    @JoinColumn(name = "contact_id")
-    private ContactEntity contact;
+    @JoinColumn(name = "client_id")
+    private ClientEntity client;
 
     @OneToOne(cascade = CascadeType.REMOVE, orphanRemoval = true)
     @JoinColumn(name = "payment_id")
@@ -43,6 +39,7 @@ public class BookingEntity extends BaseEntity {
 
     private String comment;
     private Boolean hasChildren;
+    private Boolean agreementConfirmed;
 
     @Override
     public final boolean equals(Object o) {
@@ -67,7 +64,6 @@ public class BookingEntity extends BaseEntity {
                 "createdDate = " + getCreatedDate() + ", " +
                 "lastModifiedDate = " + getLastModifiedDate() + ", " +
                 "status = " + getStatus() + ", " +
-                "priceForOne = " + getPriceForOne() + ", " +
                 "numberOfPeople = " + getNumberOfPeople() + ", " +
                 "comment = " + getComment() + ", " +
                 "hasChildren = " + getHasChildren() + ")";

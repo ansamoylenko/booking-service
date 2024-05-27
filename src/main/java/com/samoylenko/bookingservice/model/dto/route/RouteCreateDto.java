@@ -28,4 +28,8 @@ public class RouteCreateDto implements Serializable {
     @Schema(description = "Цена за одного человека", example = "3500", requiredMode = Schema.RequiredMode.REQUIRED)
     @PositiveOrZero(message = "цена не может быть отрицательной")
     private Integer priceForOne;
+
+    @Schema(description = "Название услуги в чеке", example = "Прогулка", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Title(message = "название услуги не может быть пустым")
+    private String serviceName;
 }

@@ -31,8 +31,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 public class WalkServiceTest extends BaseServiceTest {
     private final WalkService walkService;
 
-    public WalkServiceTest(WalkService walkService, WalkRepository walkRepository, RouteRepository routeRepository, EmployeeRepository employeeRepository, BookingRepository bookingRepository, ContactRepository contactRepository, PaymentRepository paymentRepository) {
-        super(walkRepository, routeRepository, employeeRepository, bookingRepository, contactRepository, paymentRepository);
+    public WalkServiceTest(WalkService walkService, WalkRepository walkRepository, RouteRepository routeRepository, EmployeeRepository employeeRepository, BookingRepository bookingRepository, ClientRepository clientRepository, PaymentRepository paymentRepository) {
+        super(walkRepository, routeRepository, employeeRepository, bookingRepository, clientRepository, paymentRepository);
         this.walkService = walkService;
     }
 

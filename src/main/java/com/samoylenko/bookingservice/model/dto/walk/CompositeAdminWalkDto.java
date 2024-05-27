@@ -1,6 +1,6 @@
 package com.samoylenko.bookingservice.model.dto.walk;
 
-import com.samoylenko.bookingservice.model.dto.booking.BookingAdminDto;
+import com.samoylenko.bookingservice.model.dto.booking.CompositeBookingDto;
 import com.samoylenko.bookingservice.model.dto.route.RouteDto;
 import com.samoylenko.bookingservice.model.entity.EmployeeEntity;
 import com.samoylenko.bookingservice.model.entity.WalkEntity;
@@ -37,6 +37,6 @@ public class CompositeAdminWalkDto implements Serializable {
     private Instant lastModifiedDate;
     private Integer maxPlaces;
     private Integer reservedPlaces;
-    private List<BookingAdminDto> bookings;
+    private List<CompositeBookingDto> bookings;
     private List<EmployeeEntity> employees;
 }

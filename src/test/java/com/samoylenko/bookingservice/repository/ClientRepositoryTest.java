@@ -9,9 +9,9 @@ import org.springframework.transaction.TransactionSystemException;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-public class ContactRepositoryTest extends BaseRepositoryTest {
+public class ClientRepositoryTest extends BaseRepositoryTest {
     @Autowired
-    private ContactRepository repository;
+    private ClientRepository repository;
 
     @BeforeEach
     public void setUp() {

@@ -21,9 +21,9 @@ import java.util.Objects;
 @NoArgsConstructor
 @Entity
 @Generated
-@Table(name = "contact")
+@Table(name = "client")
 @EntityListeners(AuditingEntityListener.class)
-public class ContactEntity extends BaseEntity {
+public class ClientEntity extends BaseEntity {
     private String firstName;
     private String lastName;
     @NotBlank
@@ -41,7 +41,7 @@ public class ContactEntity extends BaseEntity {
         Class<?> oEffectiveClass = o instanceof HibernateProxy ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass() : o.getClass();
         Class<?> thisEffectiveClass = this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() : this.getClass();
         if (thisEffectiveClass != oEffectiveClass) return false;
-        ContactEntity that = (ContactEntity) o;
+        ClientEntity that = (ClientEntity) o;
         return getId() != null && Objects.equals(getId(), that.getId());
     }
 

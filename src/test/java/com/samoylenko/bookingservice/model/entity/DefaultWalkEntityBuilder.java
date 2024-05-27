@@ -17,7 +17,7 @@ public class DefaultWalkEntityBuilder implements DefaultEntityBuilder<WalkEntity
     private RouteEntity route;
     private Integer maxPlaces = 20;
     private Integer reservedPlaces = 0;
-    private Integer availablePlaces = 10;
+    private Integer availablePlaces = 20;
     private Integer priceForOne = 3500;
     private LocalDateTime startTime = LocalDateTime.parse("2024-05-01T00:00:00");
     private LocalDateTime endTime = startTime.plusHours(2);

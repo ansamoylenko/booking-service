@@ -4,14 +4,18 @@ import com.samoylenko.bookingservice.repository.*;
 import lombok.AllArgsConstructor;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
+@SpringBootTest
+@ActiveProfiles("test")
 @AllArgsConstructor
 public class BaseServiceTest {
     final WalkRepository walkRepository;
     final RouteRepository routeRepository;
     final EmployeeRepository employeeRepository;
     final BookingRepository bookingRepository;
-    final ContactRepository contactRepository;
+    final ClientRepository clientRepository;
     final PaymentRepository paymentRepository;
 
     @BeforeEach
@@ -20,7 +24,7 @@ public class BaseServiceTest {
         routeRepository.deleteAll();
         bookingRepository.deleteAll();
         employeeRepository.deleteAll();
-        contactRepository.deleteAll();
+        clientRepository.deleteAll();
         paymentRepository.deleteAll();
     }
 
@@ -30,7 +34,7 @@ public class BaseServiceTest {
         routeRepository.deleteAll();
         employeeRepository.deleteAll();
         bookingRepository.deleteAll();
-        contactRepository.deleteAll();
+        clientRepository.deleteAll();
         paymentRepository.deleteAll();
     }
 }

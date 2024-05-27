@@ -29,6 +29,9 @@ public class RouteEntity extends BaseEntity {
     @PositiveOrZero
     private Integer priceForOne;
 
+    @NotBlank
+    private String serviceName;
+
     @OneToMany(mappedBy = "route", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
     private List<WalkEntity> walks = new ArrayList<>();
 

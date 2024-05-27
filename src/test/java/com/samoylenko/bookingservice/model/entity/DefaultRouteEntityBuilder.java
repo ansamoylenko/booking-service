@@ -11,6 +11,7 @@ public class DefaultRouteEntityBuilder implements DefaultEntityBuilder<RouteEnti
     private String name = "testRoute";
     private String description = "testDescription";
     private Integer priceForOne = 100;
+    private String serviceName = "testServiceName";
 
     @Override
     public RouteEntity build() {
@@ -18,6 +19,7 @@ public class DefaultRouteEntityBuilder implements DefaultEntityBuilder<RouteEnti
                 .name(name)
                 .description(description)
                 .priceForOne(priceForOne)
+                .serviceName(serviceName)
                 .build();
     }
 }

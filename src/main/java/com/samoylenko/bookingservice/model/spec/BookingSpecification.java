@@ -5,16 +5,21 @@ import com.samoylenko.bookingservice.model.status.BookingStatus;
 import org.springframework.data.jpa.domain.Specification;
 
 public class BookingSpecification {
+    public static Specification<BookingEntity> withClientId(String clientId) {
+        return (root, query, cb) -> clientId == null ?
+                cb.conjunction() :
+                cb.equal(root.get("client").get("id"), clientId);
+    }
     public static Specification<BookingEntity> withPhone(String phone) {
         return (root, query, cb) -> phone == null ?
                 cb.conjunction() :
-                cb.equal(root.get("contact").get("phone"), phone);
+                cb.equal(root.get("client").get("phone"), phone);
     }
 
     public static Specification<BookingEntity> withEmail(String email) {
         return (root, query, cb) -> email == null ?
                 cb.conjunction() :
-                cb.equal(root.get("contact").get("email"), email);
+                cb.equal(root.get("client").get("email"), email);
     }
 
     public static Specification<BookingEntity> withWalk(String walkId) {

@@ -1,4 +1,4 @@
-package com.samoylenko.bookingservice.controller;
+package com.samoylenko.bookingservice.controller.user;
 
 import com.samoylenko.bookingservice.model.dto.request.WalkRequest;
 import com.samoylenko.bookingservice.model.dto.walk.CompositeUserWalkDto;
@@ -15,7 +15,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RestController
 @RequestMapping("/api/v1/walks")
-@Tag(name = "Прогулки")
+@Tag(name = "Прогулки (для пользователя)")
 @AllArgsConstructor
 public class WalkController {
     private final WalkService walkService;

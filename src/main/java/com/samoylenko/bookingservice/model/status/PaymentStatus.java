@@ -20,4 +20,16 @@ public enum PaymentStatus {
     public String getDescription() {
         return description;
     }
+
+    public static PaymentStatus fromDescription(String description) {
+        if (description == null) {
+            return null;
+        }
+        for (PaymentStatus status : PaymentStatus.values()) {
+            if (status.getDescription().equals(description)) {
+                return status;
+            }
+        }
+        return null;
+    }
 }

@@ -22,4 +22,16 @@ public enum BookingStatus {
     public String getDescription() {
         return description;
     }
+
+    public static BookingStatus fromDescription(String description) {
+        if (description == null) {
+            return null;
+        }
+        for (BookingStatus status : BookingStatus.values()) {
+            if (status.getDescription().equals(description)) {
+                return status;
+            }
+        }
+        return null;
+    }
 }
