@@ -1,9 +1,6 @@
 package com.samoylenko.bookingservice.controller;
 
-import com.samoylenko.bookingservice.model.exception.LimitExceededException;
-import com.samoylenko.bookingservice.model.exception.PaymentException;
-import com.samoylenko.bookingservice.model.exception.RouteNotFoundException;
-import com.samoylenko.bookingservice.model.exception.WalkNotFoundException;
+import com.samoylenko.bookingservice.model.exception.*;
 import jakarta.validation.ValidationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -87,6 +84,26 @@ public class ExceptionController {
         var logMessage = messageSource.getMessage("error.walkNotFound", new Object[]{e.getMessage()}, Locale.ENGLISH);
         var message = messageSource.getMessage("error.walkNotFound", new Object[]{e.getMessage()}, locale);
         log.warn(logMessage);
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .contentType(MediaType.TEXT_PLAIN)
+                .body(message);
+    }
+
+    @ExceptionHandler(BookingNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ResponseEntity<String> handleException(BookingNotFoundException e, Locale locale) {
+        var message = e.getMessage();
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .contentType(MediaType.TEXT_PLAIN)
+                .body(message);
+    }
+
+    @ExceptionHandler(VoucherNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ResponseEntity<String> handleException(VoucherNotFoundException e, Locale locale) {
+        var message = e.getMessage();
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
                 .contentType(MediaType.TEXT_PLAIN)

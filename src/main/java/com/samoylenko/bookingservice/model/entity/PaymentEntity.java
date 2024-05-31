@@ -1,6 +1,7 @@
 package com.samoylenko.bookingservice.model.entity;
 
 import com.samoylenko.bookingservice.model.status.PaymentStatus;
+import com.samoylenko.bookingservice.model.voucher.VoucherEntity;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -47,6 +48,10 @@ public class PaymentEntity extends BaseEntity {
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "booking_id")
     private BookingEntity booking;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "voucher_id")
+    private VoucherEntity voucher;
 
     @Override
     public final boolean equals(Object o) {

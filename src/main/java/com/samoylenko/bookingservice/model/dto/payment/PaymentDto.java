@@ -26,4 +26,5 @@ public class PaymentDto implements Serializable {
     private int totalCost;
     private Duration timeToPay;
     private String link;
+    private String promocode;
 }

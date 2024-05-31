@@ -8,10 +8,14 @@ import com.samoylenko.bookingservice.model.exception.PaymentException;
 import com.samoylenko.bookingservice.model.exception.PaymentNotFoundException;
 import com.samoylenko.bookingservice.model.spec.PaymentSpecification;
 import com.samoylenko.bookingservice.model.status.PaymentStatus;
+import com.samoylenko.bookingservice.model.status.ValidateResult;
+import com.samoylenko.bookingservice.model.voucher.VoucherEntity;
 import com.samoylenko.bookingservice.repository.PaymentRepository;
+import com.samoylenko.bookingservice.repository.VoucherRepository;
+import com.samoylenko.bookingservice.service.handler.VoucherHandler;
+import com.samoylenko.bookingservice.service.handler.VoucherHandlerFactory;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
-import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
@@ -23,27 +27,46 @@ import java.time.temporal.ChronoUnit;
 
 import static java.time.Duration.between;
 
-
 @Service
 @Validated
-@AllArgsConstructor
 public class PaymentService {
     private final PaymentRepository paymentRepository;
     private final ModelMapper modelMapper;
-    private final Integer timeToPayInMinutes = 15;
+    private final VoucherRepository voucherRepository;
+    private final VoucherHandler voucherHandler;
+    private static final Integer timeToPayInMinutes = 15;
+
+    public PaymentService(PaymentRepository paymentRepository, ModelMapper modelMapper, VoucherRepository voucherRepository, VoucherHandlerFactory voucherHandlerFactory) {
+        this.paymentRepository = paymentRepository;
+        this.modelMapper = modelMapper;
+        this.voucherRepository = voucherRepository;
+        this.voucherHandler = voucherHandlerFactory.getVoucherHandler();
+    }
 
     public PaymentDto create(@Valid PaymentCreateDto paymentCreateDto) throws PaymentException {
-        var priceForOne = paymentCreateDto.getPriceForOne();
-        var totalCost = paymentCreateDto.getAmount() * priceForOne;
+        VoucherEntity voucher = null;
+        var price = paymentCreateDto.getPriceForOne();
+        var amount = paymentCreateDto.getAmount();
+        var cost = price * amount;
 
-        if (paymentCreateDto.getCertificate() != null) {
-            totalCost = (paymentCreateDto.getAmount() - 1) * priceForOne;
-            priceForOne = totalCost / paymentCreateDto.getAmount();
-        } else if (paymentCreateDto.getPromoCode() != null) {
-            priceForOne = priceForOne - 300;
-            totalCost = paymentCreateDto.getAmount() * priceForOne;
+        if (paymentCreateDto.getPromoCode() != null) {
+            var request = VoucherHandler.AppliementRequest.builder()
+                    .quantity(amount)
+                    .routeId(paymentCreateDto.getRouteId())
+                    .voucherCode(paymentCreateDto.getPromoCode())
+                    .price(price)
+                    .build();
+
+            var response = voucherHandler.apply(request);
+            price = response.getPrice();
+            cost = response.getCost();
+
+            if (response.getAppliementResult().getStatus().equals(ValidateResult.Status.VALID)) {
+                voucher = voucherRepository.findById(response.getVoucherId()).orElse(null);
+            }
         }
-        var link = getInvoiceLink(paymentCreateDto);
+
+        var link = getInvoiceLink(paymentCreateDto); //TODO change request
         var latestPaymentTime = Instant.now().plus(timeToPayInMinutes, ChronoUnit.MINUTES);
 
         var paymentEntity = paymentRepository.save(PaymentEntity.builder()
@@ -52,10 +75,11 @@ public class PaymentService {
                 .serviceName(paymentCreateDto.getServiceName())
                 .priceForOne(paymentCreateDto.getPriceForOne())
                 .amount(paymentCreateDto.getAmount())
-                .priceForOne(priceForOne)
-                .totalCost(totalCost)
+                .priceForOne(price)
+                .totalCost(cost)
                 .link(link)
                 .latestPaymentTime(latestPaymentTime)
+                .voucher(voucher)
                 .build());
         return getPaymentForUser(paymentEntity.getId());
     }
@@ -63,8 +87,10 @@ public class PaymentService {
     public PaymentDto getPaymentForUser(@NotBlank String id) {
         var payment = paymentRepository.findById(id)
                 .orElseThrow(() -> new PaymentNotFoundException(id));
+        var promocode = payment.getVoucher() == null ? null : payment.getVoucher().getId();
         return modelMapper
                 .map(payment, PaymentDto.class)
+                .withPromocode(promocode)
                 .withTimeToPay(getTimeToPay(payment.getLatestPaymentTime()));
     }
 

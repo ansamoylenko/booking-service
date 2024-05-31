@@ -48,7 +48,7 @@ public class BookingService {
         var booking = bookingRepository.save(BookingEntity.builder()
                 .walk(walk)
                 .status(BookingStatus.DRAFT)
-                .client(clientRepository.findById(client.getId()).get())
+                .client(clientRepository.findById(client.getId()).orElse(null))
                 .numberOfPeople(dto.getNumberOfPeople())
                 .comment(dto.getBookingInfo().getComment())
                 .hasChildren(dto.getBookingInfo().isHasChildren())
@@ -56,14 +56,14 @@ public class BookingService {
                 .build());
         var payment = paymentService.create(PaymentCreateDto.builder()
                 .orderId(booking.getId())
+                .routeId(walk.getRoute().getId())
                 .serviceName(walk.getRoute().getServiceName())
                 .amount(dto.getNumberOfPeople())
                 .priceForOne(walk.getPriceForOne())
                 .promoCode(dto.getBookingInfo().getPromoCode())
-                .certificate(dto.getBookingInfo().getCertificate())
                 .client(client)
                 .build());
-        booking.setPayment(paymentRepository.findById(payment.getId()).get());
+        booking.setPayment(paymentRepository.findById(payment.getId()).orElse(null));
         booking.setStatus(BookingStatus.WAITING_FOR_PAYMENT);
         booking = bookingRepository.save(booking);
         return getBookingById(booking.getId());

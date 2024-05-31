@@ -4,10 +4,13 @@ import com.samoylenko.bookingservice.model.dto.client.ClientDto;
 import com.samoylenko.bookingservice.model.dto.payment.PaymentCreateDto;
 import com.samoylenko.bookingservice.model.entity.*;
 import com.samoylenko.bookingservice.model.status.PaymentStatus;
+import com.samoylenko.bookingservice.model.status.ValidateResult;
+import com.samoylenko.bookingservice.model.voucher.VoucherType;
 import com.samoylenko.bookingservice.repository.*;
 import jakarta.validation.ValidationException;
 import org.junit.jupiter.api.Test;
 import org.modelmapper.ModelMapper;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.TestConstructor;
 
 import java.time.Duration;
@@ -16,11 +19,16 @@ import java.time.temporal.ChronoUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
 
 @TestConstructor(autowireMode = TestConstructor.AutowireMode.ALL)
 public class PaymentServiceTest extends BaseServiceTest {
     private final PaymentService paymentService;
     private final ModelMapper modelMapper;
+    @MockBean
+    private VoucherService voucherService;
+
 
     public PaymentServiceTest(PaymentService paymentService, WalkRepository walkRepository, RouteRepository routeRepository, EmployeeRepository employeeRepository, BookingRepository bookingRepository, ClientRepository clientRepository, PaymentRepository paymentRepository) {
         super(walkRepository, routeRepository, employeeRepository, bookingRepository, clientRepository, paymentRepository);
@@ -33,6 +41,7 @@ public class PaymentServiceTest extends BaseServiceTest {
         var client = modelMapper.map(DefaultClientEntityBuilder.of().build(), ClientDto.class);
         var paymentCreateDto = PaymentCreateDto.builder()
                 .orderId("orderId")
+                .routeId("routeId")
                 .serviceName("serviceName")
                 .client(client)
                 .amount(1)
@@ -72,17 +81,55 @@ public class PaymentServiceTest extends BaseServiceTest {
         var client = modelMapper.map(DefaultClientEntityBuilder.of().build(), ClientDto.class);
         var paymentCreateDto = PaymentCreateDto.builder()
                 .orderId("orderId")
+                .routeId("routeId")
                 .serviceName("serviceName")
                 .client(client)
                 .amount(2)
                 .priceForOne(3000)
-                .certificate("certificate")
+                .promoCode("certificate")
                 .build();
+        var validateResult = ValidateResult.builder()
+                .id("voucherId")
+                .type(VoucherType.CERTIFICATE)
+                .status(ValidateResult.Status.VALID)
+                .discountAbsolute(3200)
+                .build();
+        when(voucherService.validate(anyString(), anyString())).thenReturn(validateResult);
+        when(voucherService.apply(anyString(), anyString())).thenReturn(validateResult);
 
         var payment = paymentService.create(paymentCreateDto);
 
         assertThat(payment).isNotNull();
-        assertThat(payment.getTotalCost()).isEqualTo(3000);
+        assertThat(payment.getTotalCost()).isEqualTo(2800);
+        assertThat(payment.getPriceForOne()).isEqualTo(1400);
+    }
+
+    @Test
+    public void create_withCertificateWthBiggerValue_shouldReturnPaymentDto() {
+        var client = modelMapper.map(DefaultClientEntityBuilder.of().build(), ClientDto.class);
+        var paymentCreateDto = PaymentCreateDto.builder()
+                .orderId("orderId")
+                .routeId("routeId")
+                .serviceName("serviceName")
+                .client(client)
+                .amount(2)
+                .priceForOne(3000)
+                .promoCode("certificate")
+                .build();
+        var validateResult = ValidateResult.builder()
+                .id("voucherId")
+                .type(VoucherType.CERTIFICATE)
+                .status(ValidateResult.Status.VALID)
+                .discountAbsolute(10000)
+                .build();
+        when(voucherService.validate(anyString(), anyString())).thenReturn(validateResult);
+        when(voucherService.apply(anyString(), anyString())).thenReturn(validateResult);
+
+        var payment = paymentService.create(paymentCreateDto);
+
+        assertThat(payment).isNotNull();
+        assertThat(payment.getTotalCost()).isEqualTo(0);
+        assertThat(payment.getPriceForOne()).isEqualTo(0);
     }
 
     @Test
@@ -90,20 +137,29 @@ public class PaymentServiceTest extends BaseServiceTest {
         var client = modelMapper.map(DefaultClientEntityBuilder.of().build(), ClientDto.class);
         var paymentCreateDto = PaymentCreateDto.builder()
                 .orderId("orderId")
+                .routeId("routeId")
                 .serviceName("serviceName")
                 .client(client)
                 .amount(2)
-                .priceForOne(1000)
+                .priceForOne(3000)
                 .promoCode("promoCode")
                 .build();
+        var validateResult = ValidateResult.builder()
+                .id("voucherId")
+                .type(VoucherType.PROMO_CODE)
+                .status(ValidateResult.Status.VALID)
+                .discountAbsolute(300)
+                .build();
+        when(voucherService.validate(anyString(), anyString())).thenReturn(validateResult);
+        when(voucherService.apply(anyString(), anyString())).thenReturn(validateResult);
 
         var payment = paymentService.create(paymentCreateDto);
 
         assertThat(payment).isNotNull();
         assertThat(payment.getServiceName()).isEqualTo(paymentCreateDto.getServiceName());
-        assertThat(payment.getTotalCost()).isEqualTo(1400);
+        assertThat(payment.getTotalCost()).isEqualTo(5400);
         assertThat(payment.getAmount()).isEqualTo(2);
-        assertThat(payment.getPriceForOne()).isEqualTo(700);
+        assertThat(payment.getPriceForOne()).isEqualTo(2700);
     }
 
     @Test

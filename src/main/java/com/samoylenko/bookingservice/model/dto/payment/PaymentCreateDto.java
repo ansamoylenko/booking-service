@@ -21,17 +21,22 @@ import java.io.Serializable;
 public class PaymentCreateDto implements Serializable {
     @NotBlank
     private String orderId;
+
+    @NotBlank
+    private String routeId;
+
     @NotBlank
     private String serviceName;
 
     @NotNull
     @Positive
     private Integer amount;
+
     @NotNull
     @PositiveOrZero
     private Integer priceForOne;
+
     private String promoCode;
-    private String certificate;
 
     @NotNull
     private ClientDto client;
