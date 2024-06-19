@@ -8,6 +8,7 @@ import lombok.experimental.SuperBuilder;
 import org.hibernate.proxy.HibernateProxy;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.time.Instant;
 import java.util.Objects;
 
 @Getter
@@ -40,6 +41,7 @@ public class BookingEntity extends BaseEntity {
     private String comment;
     private Boolean hasChildren;
     private Boolean agreementConfirmed;
+    private Instant endTime;
 
     @Override
     public final boolean equals(Object o) {
@@ -66,6 +68,7 @@ public class BookingEntity extends BaseEntity {
                 "status = " + getStatus() + ", " +
                 "numberOfPeople = " + getNumberOfPeople() + ", " +
                 "comment = " + getComment() + ", " +
+               "endTime  =  " + getEndTime() +
                 "hasChildren = " + getHasChildren() + ")";
     }
 }

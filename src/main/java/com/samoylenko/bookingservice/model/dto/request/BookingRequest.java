@@ -4,6 +4,8 @@ import com.samoylenko.bookingservice.model.status.BookingStatus;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
+import java.util.List;
+
 @With
 @Getter
 @Generated
@@ -12,7 +14,7 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 public class BookingRequest extends BaseRequest {
     private String walkId;
-    private BookingStatus status;
+    private List<BookingStatus> status;
     private String clientPhone;
     private String clientEmail;
     private String clientId;

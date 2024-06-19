@@ -4,6 +4,8 @@ import com.samoylenko.bookingservice.model.entity.BookingEntity;
 import com.samoylenko.bookingservice.model.status.BookingStatus;
 import org.springframework.data.jpa.domain.Specification;
 
+import java.util.List;
+
 public class BookingSpecification {
     public static Specification<BookingEntity> withClientId(String clientId) {
         return (root, query, cb) -> clientId == null ?
@@ -32,5 +34,11 @@ public class BookingSpecification {
         return (root, query, cb) -> status == null ?
                 cb.conjunction() :
                 cb.equal(root.get("status"), status);
+    }
+
+    public static Specification<BookingEntity> withStatus(List<BookingStatus> statusList) {
+        return (root, query, cb) -> statusList == null ?
+                cb.conjunction() :
+                root.get("status").in(statusList);
     }
 }

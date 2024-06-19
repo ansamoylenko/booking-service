@@ -10,6 +10,7 @@ import lombok.ToString;
 @AllArgsConstructor
 public enum PaymentStatus {
     PENDING("Ожидание оплаты"),
+    EXPIRED("Истекло время ожидания"),
     PAID("Успешная оплата"),
     REFUNDED("Оплата отменена"),
     CANCELED("Оплата не прошла");

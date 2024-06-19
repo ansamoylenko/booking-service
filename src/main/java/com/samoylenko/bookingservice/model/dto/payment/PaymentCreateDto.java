@@ -12,6 +12,7 @@ import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 import java.io.Serializable;
+import java.time.Instant;
 
 @Getter
 @Setter
@@ -36,8 +37,10 @@ public class PaymentCreateDto implements Serializable {
     @PositiveOrZero
     private Integer priceForOne;
 
-    private String promoCode;
+    private String voucher;
 
     @NotNull
     private ClientDto client;
+    private Instant expiryTime;
+
 }

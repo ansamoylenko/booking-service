@@ -10,6 +10,7 @@ import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 import java.io.Serializable;
+import java.time.Duration;
 import java.time.Instant;
 
 @Getter
@@ -27,4 +28,5 @@ public class CompositeBookingDto implements Serializable {
     private BookingInfo info;
     private ClientDto client;
     private PaymentDto payment;
+    private Duration timeLeft;
 }

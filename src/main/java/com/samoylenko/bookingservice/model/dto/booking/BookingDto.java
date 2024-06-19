@@ -22,4 +22,5 @@ public class BookingDto implements Serializable {
     private BookingStatus status;
     private String walkId;
     private Integer numberOfPeople;
+    private Instant endTime;
 }

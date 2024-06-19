@@ -11,6 +11,7 @@ import java.time.Instant;
 @With
 @Setter
 @Getter
+@ToString
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -25,6 +26,6 @@ public class PaymentDto implements Serializable {
     private int priceForOne;
     private int totalCost;
     private Duration timeToPay;
-    private String link;
+    private String invoiceUrl;
     private String promocode;
 }

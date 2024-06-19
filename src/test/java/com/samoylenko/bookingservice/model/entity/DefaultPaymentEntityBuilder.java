@@ -20,6 +20,8 @@ public class DefaultPaymentEntityBuilder implements DefaultEntityBuilder<Payment
     private Integer totalCost = 3500;
     private String link = "test-link";
     private Instant latestPaymentTime = Instant.now();
+    private String invoiceId = "test-invoice-id";
+    private String invoiceUrl = "test-invoice-url";
 
     @Override
     public PaymentEntity build() {
@@ -31,8 +33,10 @@ public class DefaultPaymentEntityBuilder implements DefaultEntityBuilder<Payment
                 .amount(amount)
                 .priceForOne(priceForOne)
                 .totalCost(totalCost)
-                .link(link)
+                .invoiceUrl(link)
                 .latestPaymentTime(latestPaymentTime)
+                .invoiceId(invoiceId)
+                .invoiceUrl(invoiceUrl)
                 .build();
     }
 }

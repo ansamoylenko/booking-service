@@ -1,5 +1,5 @@
 server:
-  port: 8080
+  port: 8088
 spring:
   autoconfigure:
     exclude:
@@ -11,3 +11,12 @@ spring:
     properties:
       hibernate.format_sql: false
     hibernate.ddl-auto: none
+
+logging:
+  level:
+    web: DEBUG
+
+service:
+  bookingLifeTime: 1
+  bookingCheckPeriodImMs: 5000
+  invoiceCheckPeriodImMs: 5000

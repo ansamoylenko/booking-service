@@ -3,6 +3,8 @@ package com.samoylenko.bookingservice.service;
 import com.samoylenko.bookingservice.model.dto.booking.BookingCreateDto;
 import com.samoylenko.bookingservice.model.dto.booking.BookingInfo;
 import com.samoylenko.bookingservice.model.dto.client.ClientCreateDto;
+import com.samoylenko.bookingservice.model.dto.payment.InvoiceCreateDto;
+import com.samoylenko.bookingservice.model.dto.payment.paykeeper.InvoiceResponse;
 import com.samoylenko.bookingservice.model.dto.request.BookingRequest;
 import com.samoylenko.bookingservice.model.entity.DefaultBookingEntityBuilder;
 import com.samoylenko.bookingservice.model.entity.DefaultContactEntityBuilder;
@@ -15,10 +17,15 @@ import com.samoylenko.bookingservice.repository.*;
 import org.junit.jupiter.api.Test;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.TestConstructor;
+
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 @TestConstructor(autowireMode = TestConstructor.AutowireMode.ALL)
 public class BookingServiceTest extends BaseServiceTest {
@@ -26,6 +33,8 @@ public class BookingServiceTest extends BaseServiceTest {
 
     @Autowired
     private ModelMapper modelMapper;
+    @MockBean
+    private PayKeeperClient payKeeperClient;
 
     public BookingServiceTest(BookingService bookingService, WalkRepository walkRepository, RouteRepository routeRepository, EmployeeRepository employeeRepository, BookingRepository bookingRepository, ClientRepository clientRepository, PaymentRepository paymentRepository) {
         super(walkRepository, routeRepository, employeeRepository, bookingRepository, clientRepository, paymentRepository);
@@ -48,16 +57,12 @@ public class BookingServiceTest extends BaseServiceTest {
         var created = bookingService.create(createDto);
 
         assertThat(created).isNotNull();
-        assertThat(created.getStatus()).isEqualTo(BookingStatus.WAITING_FOR_PAYMENT);
+        assertThat(created.getStatus()).isEqualTo(BookingStatus.ACTIVE);
         assertThat(created.getWalkId()).isEqualTo(walk.getId());
         assertThat(created.getNumberOfPeople()).isEqualTo(createDto.getNumberOfPeople());
         assertThat(created.getInfo()).isNotNull();
         assertThat(created.getClient()).isNotNull();
-        assertThat(created.getPayment()).isNotNull();
-        assertThat(created.getPayment().getStatus()).isEqualTo(PaymentStatus.PENDING);
-        assertThat(created.getPayment().getTimeToPay()).isNotNull();
-        assertThat(created.getPayment().getLink()).isNotNull();
-        assertThat(created.getPayment().getTotalCost()).isEqualTo(walk.getPriceForOne() * createDto.getNumberOfPeople());
+        assertThat(created.getPayment()).isNull();
         var updatedWalk = walkRepository.findById(created.getWalkId());
         assertThat(updatedWalk).isNotEmpty();
         assertThat(updatedWalk.get().getAvailablePlaces()).isEqualTo(walk.getAvailablePlaces() - createDto.getNumberOfPeople());
@@ -84,6 +89,56 @@ public class BookingServiceTest extends BaseServiceTest {
     }
 
     @Test
+    public void createInvoice_shouldReturnUpdatedBooking() {
+        var route = routeRepository.save(DefaultRouteEntityBuilder.of().build());
+        var walk = walkRepository.save(DefaultWalkEntityBuilder.of().withRoute(route).build());
+        var client = clientRepository.save(DefaultContactEntityBuilder.of().build());
+        var booking = bookingRepository.save(DefaultBookingEntityBuilder.of()
+                .withClient(client)
+                .withWalk(walk).build());
+        when(payKeeperClient.getToken()).thenReturn("token");
+        when(payKeeperClient.createInvoice(any(InvoiceCreateDto.class)))
+                .thenReturn(new InvoiceResponse("invoiceId", "invoiceUrl"));
+
+        var updated = bookingService.createInvoice(booking.getId(), null);
+
+        assertThat(updated).isNotNull();
+        assertThat(updated.getWalkId()).isEqualTo(walk.getId());
+        assertThat(updated.getStatus()).isEqualTo(BookingStatus.WAITING_FOR_PAYMENT);
+        assertThat(updated.getPayment()).isNotNull();
+        assertThat(updated.getPayment().getInvoiceUrl()).isEqualTo("invoiceUrl");
+        assertThat(updated.getPayment().getStatus()).isEqualTo(PaymentStatus.PENDING);
+    }
+
+    @Test
+    public void createInvoice_withNotExistBooking_shouldThrowIllegalArgumentException() {
+        assertThatThrownBy(() -> bookingService.createInvoice("notExistBooking", null))
+                .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    public void createInvoice_withExistingPayment_shouldReturnBookingWithFirstPayment() {
+        var route = routeRepository.save(DefaultRouteEntityBuilder.of().build());
+        var walk = walkRepository.save(DefaultWalkEntityBuilder.of().withRoute(route).build());
+        var client = clientRepository.save(DefaultContactEntityBuilder.of().build());
+        var booking = bookingRepository.save(DefaultBookingEntityBuilder.of()
+                .withClient(client)
+                .withWalk(walk).build());
+        when(payKeeperClient.getToken()).thenReturn("token");
+        when(payKeeperClient.createInvoice(any(InvoiceCreateDto.class)))
+                .thenReturn(new InvoiceResponse("invoiceId", "invoiceUrl"));
+        var first = bookingService.createInvoice(booking.getId(), null);
+
+        var second = bookingService.createInvoice(booking.getId(), null);
+
+        assertThat(first).isNotNull();
+        assertThat(second).isNotNull();
+        assertThat(second.getPayment()).isNotNull();
+        assertThat(second.getPayment().getId()).isEqualTo(first.getPayment().getId());
+    }
+
+
+    @Test
     public void getBookings_withFilterByStatus_shouldReturnAllBookingDto() {
         var booking1 = bookingRepository.save(DefaultBookingEntityBuilder.of()
                 .withStatus(BookingStatus.WAITING_FOR_PAYMENT)
@@ -94,7 +149,7 @@ public class BookingServiceTest extends BaseServiceTest {
         var booking3 = bookingRepository.save(DefaultBookingEntityBuilder.of()
                 .withStatus(BookingStatus.COMPLETED)
                 .build());
-        var request = BookingRequest.of().withStatus(BookingStatus.COMPLETED);
+        var request = BookingRequest.of().withStatus(List.of(BookingStatus.COMPLETED));
 
         var found = bookingService.getBookings(request);
 

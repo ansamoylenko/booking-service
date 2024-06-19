@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
@@ -108,7 +109,7 @@ public class AdminWalkController {
             @RequestParam(value = "clientId", required = false) String clientId,
             @RequestParam(value = "phone", required = false) String phone,
             @RequestParam(value = "email", required = false) String email,
-            @RequestParam(value = "status", required = false) BookingStatus status
+            @RequestParam(value = "status", required = false) List<BookingStatus> status
     ) {
         var request = BookingRequest.builder()
                 .pageNumber(page)

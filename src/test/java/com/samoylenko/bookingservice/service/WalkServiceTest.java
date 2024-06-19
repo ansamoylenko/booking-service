@@ -244,7 +244,7 @@ public class WalkServiceTest extends BaseServiceTest {
                 .durationInMinutes(30)
                 .priceForOne(2222)
                 .maxPlaces(100)
-                .startTime(of(2024, Month.JUNE, 1, 6, 0))
+                .startTime(of(2034, Month.JUNE, 1, 6, 0))
                 .build();
 
         var updatedWalk = walkService.updateWalk(savedWalk.getId(), updateDto);

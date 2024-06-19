@@ -39,10 +39,13 @@ public class PaymentEntity extends BaseEntity {
     @Column(name = "total_cost", nullable = false)
     private Integer totalCost;
 
-    @Column(name = "link", nullable = false)
-    private String link;
+    @Column(name = "invoice_url")
+    private String invoiceUrl;
 
-    @Column(name = "latest_payment_time", nullable = false)
+    @Column(name = "invoice_id")
+    private String invoiceId;
+
+    @Column(name = "latest_payment_time")
     private Instant latestPaymentTime;
 
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)

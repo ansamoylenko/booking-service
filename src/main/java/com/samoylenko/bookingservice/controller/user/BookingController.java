@@ -21,7 +21,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 public class BookingController {
     private final BookingService bookingService;
 
-    @Operation(summary = "Добавить новую запись")
+    @Operation(summary = "Создать бронирование")
     @PostMapping(produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<CompositeBookingDto> createOrder(@RequestBody BookingCreateDto createDto, UriComponentsBuilder uriBuilder) {
         var created = bookingService.create(createDto);
@@ -31,7 +31,18 @@ public class BookingController {
         return ResponseEntity.created(location).body(created);
     }
 
-    @Operation(summary = "Получить запись по id")
+    @Operation(summary = "Создать счет на оплату")
+    @PostMapping(value = "/{id}/invoice", produces = APPLICATION_JSON_VALUE)
+    @ResponseStatus(HttpStatus.OK)
+    public CompositeBookingDto createInvoice(
+            @PathVariable String id,
+            @RequestParam(value = "voucher", required = false) String voucher
+    ) {
+        return bookingService.createInvoice(id, voucher);
+    }
+
+
+    @Operation(summary = "Получить бронирование")
     @GetMapping(value = "/{id}", produces = APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public CompositeBookingDto getOrder(@PathVariable String id) {

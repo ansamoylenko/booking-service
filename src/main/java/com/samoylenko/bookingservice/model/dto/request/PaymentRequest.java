@@ -8,7 +8,7 @@ import lombok.experimental.SuperBuilder;
 @Getter
 @Generated
 @SuperBuilder
-@NoArgsConstructor
+@NoArgsConstructor(staticName = "of")
 @AllArgsConstructor
 public class PaymentRequest extends BaseRequest {
     private PaymentStatus status;

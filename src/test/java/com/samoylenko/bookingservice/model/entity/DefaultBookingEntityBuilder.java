@@ -5,11 +5,13 @@ import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.With;
 
+import java.time.Instant;
+
 @With
 @AllArgsConstructor
 @NoArgsConstructor(staticName = "of")
 public class DefaultBookingEntityBuilder implements DefaultEntityBuilder<BookingEntity> {
-    private BookingStatus status = BookingStatus.DRAFT;
+    private BookingStatus status = BookingStatus.ACTIVE;
     private WalkEntity walk;
     private Integer priceForOne = 3500;
     private Integer numberOfPeople = 1;
@@ -17,6 +19,7 @@ public class DefaultBookingEntityBuilder implements DefaultEntityBuilder<Booking
     private PaymentEntity payment;
     private String comment = "";
     private Boolean hasChildren = false;
+    private Instant endTime = Instant.now().plusSeconds(60);
 
     @Override
     public BookingEntity build() {
@@ -28,6 +31,7 @@ public class DefaultBookingEntityBuilder implements DefaultEntityBuilder<Booking
                 .payment(payment)
                 .comment(comment)
                 .hasChildren(hasChildren)
+                .endTime(endTime)
                 .build();
     }
 }

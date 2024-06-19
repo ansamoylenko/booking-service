@@ -2,10 +2,7 @@ package com.samoylenko.bookingservice.model.dto.client;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.samoylenko.bookingservice.model.dto.BaseDto;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import java.io.Serializable;
@@ -16,6 +13,7 @@ import java.time.LocalDateTime;
  */
 @Getter
 @Setter
+@ToString
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor

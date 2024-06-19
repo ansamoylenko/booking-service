@@ -9,9 +9,10 @@ import lombok.ToString;
 @Generated
 @AllArgsConstructor
 public enum BookingStatus {
-    DRAFT("Создан черновик заявки"),
+    ACTIVE("Заявка активна"),
     WAITING_FOR_PAYMENT("Ожидание оплаты"),
     PAID("Заявка оплачена"),
+    EXPIRED("Заявка просрочена"),
     CANCELED("Заявка отменена"),
     REJECTED("Заявка отклонена"),
     COMPLETED("Заявка выполнена");

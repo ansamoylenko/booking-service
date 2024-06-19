@@ -15,6 +15,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.util.List;
+
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RestController
@@ -43,7 +45,7 @@ public class AdminBookingController {
             @RequestParam(value = "clientId", required = false) String clientId,
             @RequestParam(value = "phone", required = false) String phone,
             @RequestParam(value = "email", required = false) String email,
-            @RequestParam(value = "status", required = false) BookingStatus status,
+            @RequestParam(value = "status", required = false) List<BookingStatus> status,
             @RequestParam(value = "walkId", required = false) String walkId
     ) {
         var request = BookingRequest.builder()
