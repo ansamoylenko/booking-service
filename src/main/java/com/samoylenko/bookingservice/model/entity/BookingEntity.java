@@ -30,8 +30,8 @@ public class BookingEntity extends BaseEntity {
     @Positive
     private Integer numberOfPeople;
 
-    @OneToOne(cascade = CascadeType.REMOVE, orphanRemoval = true)
-    @JoinColumn(name = "client_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "client_id", nullable = false)
     private ClientEntity client;
 
     @OneToOne(cascade = CascadeType.REMOVE, orphanRemoval = true)

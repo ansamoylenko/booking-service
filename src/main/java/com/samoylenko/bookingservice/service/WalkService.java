@@ -12,6 +12,7 @@ import com.samoylenko.bookingservice.repository.WalkRepository;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.data.domain.Page;
@@ -25,6 +26,7 @@ import java.util.function.Consumer;
 
 import static com.samoylenko.bookingservice.model.spec.WalkSpecification.*;
 
+@Slf4j
 @Service
 @Validated
 @AllArgsConstructor
@@ -60,22 +62,22 @@ public class WalkService {
         }
     }
 
-    public void decreaseAvailablePlaces(@NotBlank String id, int numberOfPlaces) {
-        var walk = walkRepository.findById(id)
-                .orElseThrow(() -> new WalkNotFoundException(id));
-
+    public void decreaseAvailablePlaces(@NotBlank String walkId, int numberOfPlaces) {
+        var walk = getWalkEntityById(walkId);
         if (walk.getAvailablePlaces() < numberOfPlaces) {
-            throw new LimitExceededException(id);
+            throw new LimitExceededException(walkId);
         }
         walk.setAvailablePlaces(walk.getAvailablePlaces() - numberOfPlaces);
         walkRepository.save(walk);
+        log.info("Locked {} places of walk {}, available: {}", numberOfPlaces, walkId, walk.getAvailablePlaces());
     }
 
-    public void increaseAvailablePlaces(@NotBlank String id, int numberOfPlaces) {
-        var walk = walkRepository.findById(id)
-                .orElseThrow(() -> new WalkNotFoundException(id));
+    public void increaseAvailablePlaces(@NotBlank String walkId, int numberOfPlaces) {
+        var walk = walkRepository.findById(walkId)
+                .orElseThrow(() -> new WalkNotFoundException(walkId));
         walk.setAvailablePlaces(walk.getAvailablePlaces() + numberOfPlaces);
         walkRepository.save(walk);
+        log.info("Unlocked {} places of walk {}, available: {}", numberOfPlaces, walkId, walk.getAvailablePlaces());
     }
 
     @Transactional
@@ -85,7 +87,6 @@ public class WalkService {
         return modelMapper.map(entity, CompositeAdminWalkDto.class);
     }
 
-    @Transactional
     public WalkEntity getWalkEntityById(@NotBlank String id) {
         return walkRepository.findById(id)
                 .orElseThrow(() -> new WalkNotFoundException(id));

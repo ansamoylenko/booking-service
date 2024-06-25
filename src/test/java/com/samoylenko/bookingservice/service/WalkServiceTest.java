@@ -3,10 +3,7 @@ package com.samoylenko.bookingservice.service;
 import com.samoylenko.bookingservice.model.dto.request.WalkRequest;
 import com.samoylenko.bookingservice.model.dto.walk.WalkCreateDto;
 import com.samoylenko.bookingservice.model.dto.walk.WalkUpdateDto;
-import com.samoylenko.bookingservice.model.entity.DefaultBookingEntityBuilder;
-import com.samoylenko.bookingservice.model.entity.DefaultEmployeeEntityBuilder;
-import com.samoylenko.bookingservice.model.entity.DefaultRouteEntityBuilder;
-import com.samoylenko.bookingservice.model.entity.DefaultWalkEntityBuilder;
+import com.samoylenko.bookingservice.model.entity.*;
 import com.samoylenko.bookingservice.model.exception.WalkNotFoundException;
 import com.samoylenko.bookingservice.model.status.WalkStatus;
 import com.samoylenko.bookingservice.repository.*;
@@ -134,8 +131,15 @@ public class WalkServiceTest extends BaseServiceTest {
                 .withRoute(savedRoute)
                 .withEmployees(Set.of(employee1, employee2))
                 .build());
-        var booking1 = bookingRepository.save(DefaultBookingEntityBuilder.of().withWalk(savedWalk).build());
-        var booking2 = bookingRepository.save(DefaultBookingEntityBuilder.of().withWalk(savedWalk).build());
+        var client = clientRepository.save(DefaultClientEntityBuilder.of().build());
+        var booking1 = bookingRepository.save(DefaultBookingEntityBuilder.of()
+                .withWalk(savedWalk)
+                .withClient(client)
+                .build());
+        var booking2 = bookingRepository.save(DefaultBookingEntityBuilder.of()
+                .withWalk(savedWalk)
+                .withClient(client)
+                .build());
 
         var found = walkService.getWalkForAdmin(savedWalk.getId());
 

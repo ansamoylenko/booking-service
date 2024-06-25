@@ -7,7 +7,7 @@ import com.samoylenko.bookingservice.model.dto.payment.InvoiceCreateDto;
 import com.samoylenko.bookingservice.model.dto.payment.paykeeper.InvoiceResponse;
 import com.samoylenko.bookingservice.model.dto.request.BookingRequest;
 import com.samoylenko.bookingservice.model.entity.DefaultBookingEntityBuilder;
-import com.samoylenko.bookingservice.model.entity.DefaultContactEntityBuilder;
+import com.samoylenko.bookingservice.model.entity.DefaultClientEntityBuilder;
 import com.samoylenko.bookingservice.model.entity.DefaultRouteEntityBuilder;
 import com.samoylenko.bookingservice.model.entity.DefaultWalkEntityBuilder;
 import com.samoylenko.bookingservice.model.exception.LimitExceededException;
@@ -45,7 +45,7 @@ public class BookingServiceTest extends BaseServiceTest {
     public void create_shouldReturnCreatedBooking() {
         var route = routeRepository.save(DefaultRouteEntityBuilder.of().build());
         var walk = walkRepository.save(DefaultWalkEntityBuilder.of().withRoute(route).build());
-        var client = modelMapper.map(DefaultContactEntityBuilder.of().build(), ClientCreateDto.class);
+        var client = modelMapper.map(DefaultClientEntityBuilder.of().build(), ClientCreateDto.class);
         var bookingInfo = BookingInfo.builder().agreementConfirmed(true).hasChildren(false).build();
         var createDto = BookingCreateDto.builder()
                 .walkId(walk.getId())
@@ -75,7 +75,7 @@ public class BookingServiceTest extends BaseServiceTest {
                 .withAvailablePlaces(0)
                 .withRoute(route)
                 .build());
-        var contact = modelMapper.map(DefaultContactEntityBuilder.of().build(), ClientCreateDto.class);
+        var contact = modelMapper.map(DefaultClientEntityBuilder.of().build(), ClientCreateDto.class);
         var bookingInfo = BookingInfo.builder().agreementConfirmed(true).hasChildren(false).build();
         var createDto = BookingCreateDto.builder()
                 .walkId(walk.getId())
@@ -92,7 +92,7 @@ public class BookingServiceTest extends BaseServiceTest {
     public void createInvoice_shouldReturnUpdatedBooking() {
         var route = routeRepository.save(DefaultRouteEntityBuilder.of().build());
         var walk = walkRepository.save(DefaultWalkEntityBuilder.of().withRoute(route).build());
-        var client = clientRepository.save(DefaultContactEntityBuilder.of().build());
+        var client = clientRepository.save(DefaultClientEntityBuilder.of().build());
         var booking = bookingRepository.save(DefaultBookingEntityBuilder.of()
                 .withClient(client)
                 .withWalk(walk).build());
@@ -120,7 +120,7 @@ public class BookingServiceTest extends BaseServiceTest {
     public void createInvoice_withExistingPayment_shouldReturnBookingWithFirstPayment() {
         var route = routeRepository.save(DefaultRouteEntityBuilder.of().build());
         var walk = walkRepository.save(DefaultWalkEntityBuilder.of().withRoute(route).build());
-        var client = clientRepository.save(DefaultContactEntityBuilder.of().build());
+        var client = clientRepository.save(DefaultClientEntityBuilder.of().build());
         var booking = bookingRepository.save(DefaultBookingEntityBuilder.of()
                 .withClient(client)
                 .withWalk(walk).build());
@@ -140,14 +140,18 @@ public class BookingServiceTest extends BaseServiceTest {
 
     @Test
     public void getBookings_withFilterByStatus_shouldReturnAllBookingDto() {
+        var client = clientRepository.save(DefaultClientEntityBuilder.of().build());
         var booking1 = bookingRepository.save(DefaultBookingEntityBuilder.of()
                 .withStatus(BookingStatus.WAITING_FOR_PAYMENT)
+                .withClient(client)
                 .build());
         var booking2 = bookingRepository.save(DefaultBookingEntityBuilder.of()
                 .withStatus(BookingStatus.COMPLETED)
+                .withClient(client)
                 .build());
         var booking3 = bookingRepository.save(DefaultBookingEntityBuilder.of()
                 .withStatus(BookingStatus.COMPLETED)
+                .withClient(client)
                 .build());
         var request = BookingRequest.of().withStatus(List.of(BookingStatus.COMPLETED));
 
@@ -160,8 +164,8 @@ public class BookingServiceTest extends BaseServiceTest {
 
     @Test
     public void getBookings_withFilterByClientId_shouldReturnAllFilteredBookings() {
-        var client1 = clientRepository.save(DefaultContactEntityBuilder.of().build());
-        var client2 = clientRepository.save(DefaultContactEntityBuilder.of().build());
+        var client1 = clientRepository.save(DefaultClientEntityBuilder.of().build());
+        var client2 = clientRepository.save(DefaultClientEntityBuilder.of().build());
         var booking1 = bookingRepository.save(DefaultBookingEntityBuilder.of()
                 .withClient(client1)
                 .build());
@@ -182,14 +186,18 @@ public class BookingServiceTest extends BaseServiceTest {
         var route = routeRepository.save(DefaultRouteEntityBuilder.of().build());
         var walk = walkRepository.save(DefaultWalkEntityBuilder.of().withRoute(route).build());
         var otherWalk = walkRepository.save(DefaultWalkEntityBuilder.of().withRoute(route).build());
+        var client = clientRepository.save(DefaultClientEntityBuilder.of().build());
         var booking1 = bookingRepository.save(DefaultBookingEntityBuilder.of()
                 .withWalk(walk)
+                .withClient(client)
                 .build());
         var booking2 = bookingRepository.save(DefaultBookingEntityBuilder.of()
                 .withWalk(otherWalk)
+                .withClient(client)
                 .build());
         var booking3 = bookingRepository.save(DefaultBookingEntityBuilder.of()
                 .withWalk(walk)
+                .withClient(client)
                 .build());
         var request = BookingRequest.of().withWalkId(walk.getId());
 
@@ -202,10 +210,10 @@ public class BookingServiceTest extends BaseServiceTest {
 
     @Test
     public void getBookings_withFilterByClientEmail_shouldReturnAllFilteredBookings() {
-        var client1 = clientRepository.save(DefaultContactEntityBuilder.of().withEmail("target@gmail.com").build());
-        var client2 = clientRepository.save(DefaultContactEntityBuilder.of().build());
-        var client3 = clientRepository.save(DefaultContactEntityBuilder.of().withEmail("target@gmail.com").build());
-        var client4 = clientRepository.save(DefaultContactEntityBuilder.of().build());
+        var client1 = clientRepository.save(DefaultClientEntityBuilder.of().withEmail("target@gmail.com").build());
+        var client2 = clientRepository.save(DefaultClientEntityBuilder.of().build());
+        var client3 = clientRepository.save(DefaultClientEntityBuilder.of().withEmail("target@gmail.com").build());
+        var client4 = clientRepository.save(DefaultClientEntityBuilder.of().build());
         var booking1 = bookingRepository.save(DefaultBookingEntityBuilder.of()
                 .withClient(client1)
                 .build());
@@ -230,10 +238,9 @@ public class BookingServiceTest extends BaseServiceTest {
 
     @Test
     public void getBookings_withFilterByClientPhone_shouldReturnAllFilteredBookings() {
-        var client1 = clientRepository.save(DefaultContactEntityBuilder.of().withPhone("71234567890").build());
-        var client2 = clientRepository.save(DefaultContactEntityBuilder.of().build());
-        var client3 = clientRepository.save(DefaultContactEntityBuilder.of().build());
-        var client4 = clientRepository.save(DefaultContactEntityBuilder.of().withPhone("71234567890").build());
+        var client1 = clientRepository.save(DefaultClientEntityBuilder.of().withPhone("71234567890").build());
+        var client2 = clientRepository.save(DefaultClientEntityBuilder.of().build());
+        var client3 = clientRepository.save(DefaultClientEntityBuilder.of().build());
         var booking1 = bookingRepository.save(DefaultBookingEntityBuilder.of()
                 .withClient(client1)
                 .build());
@@ -244,7 +251,7 @@ public class BookingServiceTest extends BaseServiceTest {
                 .withClient(client3)
                 .build());
         var booking4 = bookingRepository.save(DefaultBookingEntityBuilder.of()
-                .withClient(client4)
+                .withClient(client1)
                 .build());
 
         var request = BookingRequest.of().withClientPhone("71234567890");
@@ -254,5 +261,21 @@ public class BookingServiceTest extends BaseServiceTest {
         assertThat(found.getTotalElements()).isEqualTo(2);
         assertThat(found.getContent().get(0).getId()).isEqualTo(booking4.getId());
         assertThat(found.getContent().get(1).getId()).isEqualTo(booking1.getId());
+    }
+
+    @Test
+    public void getBookingById_shouldReturnCompositeBookingDto() {
+        var route = routeRepository.save(DefaultRouteEntityBuilder.of().build());
+        var client = clientRepository.save(DefaultClientEntityBuilder.of().build());
+        var walk = walkRepository.save(DefaultWalkEntityBuilder.of().withRoute(route).build());
+        var booking = bookingRepository.save(DefaultBookingEntityBuilder.of()
+                .withClient(client)
+                .withWalk(walk)
+                .build());
+
+        var found = bookingService.getBookingById(booking.getId());
+
+        assertThat(found).isNotNull();
+        assertThat(found.getId()).isEqualTo(booking.getId());
     }
 }

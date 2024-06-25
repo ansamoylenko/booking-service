@@ -1,6 +1,5 @@
 package com.samoylenko.bookingservice.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.samoylenko.bookingservice.model.dto.payment.InvoiceCreateDto;
 import com.samoylenko.bookingservice.model.dto.payment.paykeeper.InvoiceDto;
@@ -72,7 +71,7 @@ public class PayKeeperClient {
             body.add("service_name", serviceData);
             body.add("client_email", data.getClientEmail());
             body.add("client_phone", data.getClientPhone());
-            body.add("expiry", formatter.format(data.getExpiry()));
+//            body.add("expiry", formatter.format(data.getExpiry()));
             body.add("token", token);
 
             var request = new HttpEntity<>(body, headers);
@@ -86,7 +85,8 @@ public class PayKeeperClient {
             Assert.notNull(invoiceUrl, "Not found invoice url");
 
             return new InvoiceResponse(invoiceId, invoiceUrl);
-        } catch (JsonProcessingException e) {
+        } catch (Exception e) {
+            log.error("Error creating invoice", e);
             throw new RuntimeException(e);
         }
     }

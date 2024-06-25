@@ -19,6 +19,11 @@ public enum BookingStatus {
 
     private final String description;
 
+    @Override
+    public String toString() {
+        return description;
+    }
+
     @JsonValue
     public String getDescription() {
         return description;

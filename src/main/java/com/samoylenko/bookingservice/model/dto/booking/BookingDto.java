@@ -1,17 +1,16 @@
 package com.samoylenko.bookingservice.model.dto.booking;
 
 import com.samoylenko.bookingservice.model.status.BookingStatus;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import java.io.Serializable;
 import java.time.Instant;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
+@ToString
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -20,7 +19,17 @@ public class BookingDto implements Serializable {
     private Instant createdDate;
     private Instant lastModifiedDate;
     private BookingStatus status;
-    private String walkId;
     private Integer numberOfPeople;
     private Instant endTime;
+
+    private String clientId;
+    private String clientFirstName;
+    private String clientLastName;
+
+    private String walkId;
+    private LocalDateTime walkStartTime;
+
+
+    private String routeName;
+    private Double totalCost;
 }

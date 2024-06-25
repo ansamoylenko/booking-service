@@ -11,12 +11,14 @@ import com.samoylenko.bookingservice.model.dto.payment.PaymentDto;
 import com.samoylenko.bookingservice.model.dto.request.BookingRequest;
 import com.samoylenko.bookingservice.model.entity.BookingEntity;
 import com.samoylenko.bookingservice.model.exception.BookingNotFoundException;
+import com.samoylenko.bookingservice.model.exception.LimitExceededException;
+import com.samoylenko.bookingservice.model.exception.WalkNotFoundException;
 import com.samoylenko.bookingservice.model.spec.BookingSpecification;
 import com.samoylenko.bookingservice.model.status.BookingStatus;
 import com.samoylenko.bookingservice.model.status.PaymentStatus;
 import com.samoylenko.bookingservice.repository.BookingRepository;
-import com.samoylenko.bookingservice.repository.ClientRepository;
 import com.samoylenko.bookingservice.repository.PaymentRepository;
+import jakarta.annotation.PostConstruct;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
@@ -47,29 +49,49 @@ public class BookingService {
     private final ClientService clientService;
     private final BookingRepository bookingRepository;
     private final PaymentRepository paymentRepository;
-    private final ClientRepository clientRepository;
-    private final ModelMapper modelMapper;
+    private final ModelMapper mapper;
+
+    @PostConstruct
+    public void init() {
+        mapper.createTypeMap(BookingEntity.class, BookingDto.class)
+                .addMappings(mapper -> mapper.map(src -> src.getClient().getId(), BookingDto::setClientId))
+                .addMappings(mapper -> mapper.map(src -> src.getClient().getFirstName(), BookingDto::setClientFirstName))
+                .addMappings(mapper -> mapper.map(src -> src.getClient().getLastName(), BookingDto::setClientLastName))
+                .addMappings(mapper -> mapper.map(src -> src.getWalk().getId(), BookingDto::setWalkId))
+                .addMappings(mapper -> mapper.map(src -> src.getWalk().getStartTime(), BookingDto::setWalkStartTime))
+                .addMappings(mapper -> mapper.map(src -> src.getWalk().getRoute().getName(), BookingDto::setRouteName))
+                .addMappings(mapper -> mapper.map(src -> src.getPayment().getTotalCost(), BookingDto::setTotalCost));
+    }
 
     @Transactional
     public CompositeBookingDto create(@Valid BookingCreateDto dto) {
-        log.info("Creating booking: {}", dto);
-        walkService.decreaseAvailablePlaces(dto.getWalkId(), dto.getNumberOfPeople());
-        var walk = walkService.getWalkEntityById(dto.getWalkId());
-        var client = clientService.create(dto.getClient());
-        var endTime = now().plus(properties.getBookingLifetime(), MINUTES);
-        var booking = bookingRepository.save(BookingEntity.builder()
-                .walk(walk)
-                .status(BookingStatus.ACTIVE)
-                .client(clientRepository.findById(client.getId()).orElse(null))
-                .numberOfPeople(dto.getNumberOfPeople())
-                .comment(dto.getBookingInfo().getComment())
-                .hasChildren(dto.getBookingInfo().isHasChildren())
-                .agreementConfirmed(dto.getBookingInfo().isAgreementConfirmed())
-                .endTime(endTime)
-                .build());
-        booking = bookingRepository.save(booking);
-        log.info("Booking created with id: {}, status: {}", booking.getId(), booking.getStatus());
-        return getBookingById(booking.getId());
+        try {
+            log.info("Creating booking: {}", dto);
+            walkService.decreaseAvailablePlaces(dto.getWalkId(), dto.getNumberOfPeople());
+            var walk = walkService.getWalkEntityById(dto.getWalkId());
+            var client = clientService.createIfNotExist(dto.getClient());
+            var endTime = now().plus(properties.getBookingLifetime(), MINUTES);
+            var booking = bookingRepository.save(BookingEntity.builder()
+                    .walk(walk)
+                    .status(BookingStatus.ACTIVE)
+                    .client(client)
+                    .numberOfPeople(dto.getNumberOfPeople())
+                    .comment(dto.getBookingInfo().getComment())
+                    .hasChildren(dto.getBookingInfo().isHasChildren())
+                    .agreementConfirmed(dto.getBookingInfo().isAgreementConfirmed())
+                    .endTime(endTime)
+                    .build());
+            booking = bookingRepository.save(booking);
+            var bookingDto = getBookingById(booking.getId());
+            log.info("Booking created with id: {}, status: {}", booking.getId(), booking.getStatus());
+            return bookingDto;
+        } catch (LimitExceededException e) {
+            throw e;
+        } catch (WalkNotFoundException e) {
+            throw new IllegalArgumentException("Failed to create booking for walk " + dto.getWalkId(), e);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to create booking for walk " + dto.getWalkId(), e);
+        }
     }
 
     @Transactional
@@ -79,7 +101,7 @@ public class BookingService {
             var booking = getBookingEntity(id);
             var walk = booking.getWalk();
             log.info("Walk:  {}", walk.getId());
-            var client = modelMapper.map(booking.getClient(), ClientDto.class);
+            var client = mapper.map(booking.getClient(), ClientDto.class);
             log.info("Client: {}", client);
 
             if (booking.getPayment() != null) {
@@ -105,13 +127,17 @@ public class BookingService {
                 booking.setStatus(BookingStatus.WAITING_FOR_PAYMENT);
             }
             bookingRepository.save(booking);
+            var bookingDto = getBookingById(booking.getId());
             log.info("Updating status for booking:  {}, status:  {}", booking.getId(), booking.getStatus());
-            return getBookingById(booking.getId());
+            return bookingDto;
         } catch (BookingNotFoundException e) {
-            throw new IllegalArgumentException(e);
+            throw new IllegalArgumentException("Failed to create invoice for booking: " + id, e);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to create invoice for booking: " + id, e);
         }
     }
 
+    @Transactional
     public Page<BookingDto> getBookings(BookingRequest request) {
         var spec = BookingSpecification
                 .withClientId(request.getClientId())
@@ -122,9 +148,10 @@ public class BookingService {
         var pageRequest = request.getPageRequest();
 
         return bookingRepository.findAll(spec, pageRequest)
-                .map(booking -> modelMapper.map(booking, BookingDto.class));
+                .map(booking -> mapper.map(booking, BookingDto.class));
     }
 
+    @Transactional
     public List<BookingDto> getBookingList(BookingRequest request) {
         var spec = BookingSpecification
                 .withClientId(request.getClientId())
@@ -133,10 +160,11 @@ public class BookingService {
                 .and(withWalk(request.getWalkId()))
                 .and(withStatus(request.getStatus()));
         return bookingRepository.findAll(spec).stream()
-                .map(booking -> modelMapper.map(booking, BookingDto.class))
+                .map(booking -> mapper.map(booking, BookingDto.class))
                 .toList();
     }
 
+    @Transactional
     public CompositeBookingDto getBookingById(@NotBlank String id) {
         var booking = bookingRepository.findById(id)
                 .orElseThrow(() -> new BookingNotFoundException(id));
@@ -146,8 +174,8 @@ public class BookingService {
             payment = paymentService.getPaymentForUser(booking.getPayment().getId());
         }
 
-        var client = modelMapper.map(booking.getClient(), ClientDto.class);
-        var bookingInfo = modelMapper.map(booking, BookingInfo.class);
+        var client = mapper.map(booking.getClient(), ClientDto.class);
+        var bookingInfo = mapper.map(booking, BookingInfo.class);
         var timeLeft = between(now(), booking.getEndTime()).compareTo(Duration.ofMinutes(0)) > 0 ?
                 between(Instant.now(), booking.getEndTime()) :
                 Duration.ofMinutes(0);

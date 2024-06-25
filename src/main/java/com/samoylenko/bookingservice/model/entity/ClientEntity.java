@@ -1,11 +1,9 @@
 package com.samoylenko.bookingservice.model.entity;
 
-import com.samoylenko.bookingservice.annotations.Phone;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.proxy.HibernateProxy;
@@ -24,13 +22,16 @@ import java.util.Objects;
 @Table(name = "client")
 @EntityListeners(AuditingEntityListener.class)
 public class ClientEntity extends BaseEntity {
+    @Column(name = "first_name", nullable = false)
     private String firstName;
+
+    @Column(name = "last_name", nullable = false)
     private String lastName;
-    @NotBlank
-    @Email
+
+    @Column(name = "email", nullable = false)
     private String email;
-    @NotBlank
-    @Phone
+
+    @Column(name = "phone", nullable = false, unique = true)
     private String phone;
     private LocalDateTime dateOfBirth;
 

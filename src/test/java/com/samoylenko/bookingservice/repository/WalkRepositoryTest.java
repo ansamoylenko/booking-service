@@ -1,9 +1,6 @@
 package com.samoylenko.bookingservice.repository;
 
-import com.samoylenko.bookingservice.model.entity.DefaultBookingEntityBuilder;
-import com.samoylenko.bookingservice.model.entity.DefaultEmployeeEntityBuilder;
-import com.samoylenko.bookingservice.model.entity.DefaultRouteEntityBuilder;
-import com.samoylenko.bookingservice.model.entity.DefaultWalkEntityBuilder;
+import com.samoylenko.bookingservice.model.entity.*;
 import com.samoylenko.bookingservice.model.spec.WalkSpecification;
 import com.samoylenko.bookingservice.model.status.WalkStatus;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,6 +24,8 @@ public class WalkRepositoryTest extends BaseRepositoryTest {
     private BookingRepository bookingRepository;
     @Autowired
     private EmployeeRepository employeeRepository;
+    @Autowired
+    private ClientRepository clientRepository;
 
     @BeforeEach
     public void setUp() {
@@ -34,6 +33,7 @@ public class WalkRepositoryTest extends BaseRepositoryTest {
         walkRepository.deleteAll();
         routeRepository.deleteAll();
         employeeRepository.deleteAll();
+        clientRepository.deleteAll();
     }
 
     @Test
@@ -70,7 +70,11 @@ public class WalkRepositoryTest extends BaseRepositoryTest {
     public void delete_shouldDeleteAllBookings() {
         var savedRoute = routeRepository.save(DefaultRouteEntityBuilder.of().build());
         var savedWalk = walkRepository.save(DefaultWalkEntityBuilder.of().withRoute(savedRoute).build());
-        var savedBooking = bookingRepository.save(DefaultBookingEntityBuilder.of().withWalk(savedWalk).build());
+        var client = clientRepository.save(DefaultClientEntityBuilder.of().build());
+        var savedBooking = bookingRepository.save(DefaultBookingEntityBuilder.of()
+                .withClient(client)
+                .withWalk(savedWalk)
+                .build());
 
         var bookingsBefore = bookingRepository.findAll();
         walkRepository.deleteById(savedWalk.getId());

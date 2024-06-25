@@ -1,13 +1,11 @@
 package com.samoylenko.bookingservice.repository;
 
-import com.samoylenko.bookingservice.model.entity.DefaultContactEntityBuilder;
+import com.samoylenko.bookingservice.model.entity.DefaultClientEntityBuilder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.TransactionSystemException;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class ClientRepositoryTest extends BaseRepositoryTest {
     @Autowired
@@ -20,7 +18,7 @@ public class ClientRepositoryTest extends BaseRepositoryTest {
 
     @Test
     public void save_shouldSaveContact() {
-        var contact = DefaultContactEntityBuilder.of().build();
+        var contact = DefaultClientEntityBuilder.of().build();
 
         var saved = repository.save(contact);
 
@@ -31,17 +29,8 @@ public class ClientRepositoryTest extends BaseRepositoryTest {
     }
 
     @Test
-    public void saveSave_withIncorrectPhone_shouldThrowException() {
-        var contact = DefaultContactEntityBuilder.of().withPhone("123").build();
-
-        assertThatThrownBy(
-                () -> repository.save(contact)
-        ).isInstanceOf(TransactionSystemException.class);
-    }
-
-    @Test
     public void findById_shouldReturnContact() {
-        var contact = DefaultContactEntityBuilder.of().build();
+        var contact = DefaultClientEntityBuilder.of().build();
         var saved = repository.save(contact);
 
         var found = repository.findById(saved.getId());
@@ -52,7 +41,7 @@ public class ClientRepositoryTest extends BaseRepositoryTest {
 
     @Test
     public void deleteById_shouldDeleteContact() {
-        var contact = DefaultContactEntityBuilder.of().build();
+        var contact = DefaultClientEntityBuilder.of().build();
         var saved = repository.save(contact);
 
         repository.deleteById(saved.getId());

@@ -10,6 +10,7 @@ import com.samoylenko.bookingservice.model.status.ValidateResult;
 import com.samoylenko.bookingservice.model.voucher.VoucherType;
 import com.samoylenko.bookingservice.repository.*;
 import jakarta.validation.ValidationException;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.modelmapper.ModelMapper;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -34,6 +35,15 @@ public class PaymentServiceTest extends BaseServiceTest {
 
     @MockBean
     private PayKeeperClient payKeeperClient;
+
+    @BeforeEach
+    public void setUp() {
+        bookingRepository.deleteAll();
+        walkRepository.deleteAll();
+        routeRepository.deleteAll();
+        employeeRepository.deleteAll();
+        clientRepository.deleteAll();
+    }
 
 
     public PaymentServiceTest(PaymentService paymentService, WalkRepository walkRepository, RouteRepository routeRepository, EmployeeRepository employeeRepository, BookingRepository bookingRepository, ClientRepository clientRepository, PaymentRepository paymentRepository) {
@@ -222,9 +232,11 @@ public class PaymentServiceTest extends BaseServiceTest {
         var payment = paymentRepository.save(DefaultPaymentEntityBuilder.of()
                 .withLatestPaymentTime(Instant.now().plus(15, ChronoUnit.MINUTES))
                 .build());
+        var client = clientRepository.save(DefaultClientEntityBuilder.of().build());
         var booking = bookingRepository.save(DefaultBookingEntityBuilder.of()
                 .withPayment(payment)
                 .withWalk(walk)
+                .withClient(client)
                 .build());
 
         var found = paymentService.getPaymentForAdmin(payment.getId());

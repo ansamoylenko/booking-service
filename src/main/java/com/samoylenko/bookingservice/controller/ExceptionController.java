@@ -59,6 +59,7 @@ public class ExceptionController {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<String> handleException(IllegalArgumentException e) {
         log.warn(e.getMessage());
+        log.warn(e.getCause().getMessage());
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .contentType(MediaType.TEXT_PLAIN)
@@ -114,6 +115,7 @@ public class ExceptionController {
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ResponseEntity<String> handleException(Exception e, Locale locale) {
         log.warn(e.getMessage());
+        log.warn(e.getCause().getMessage());
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .contentType(MediaType.TEXT_PLAIN)

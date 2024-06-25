@@ -18,6 +18,7 @@ services:
       - "0.0.0.0:${BOOKING_SERVICE_DEBUG_PORT}:5005"
     volumes:
       - ./config:/app/config
+      - ./logs:/app/logs
     networks:
       - booking-network
 
