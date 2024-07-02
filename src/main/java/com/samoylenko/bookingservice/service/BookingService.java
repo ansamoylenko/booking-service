@@ -1,21 +1,13 @@
 package com.samoylenko.bookingservice.service;
 
 import com.samoylenko.bookingservice.config.ServiceProperties;
-import com.samoylenko.bookingservice.model.dto.booking.BookingCreateDto;
-import com.samoylenko.bookingservice.model.dto.booking.BookingDto;
-import com.samoylenko.bookingservice.model.dto.booking.BookingInfo;
-import com.samoylenko.bookingservice.model.dto.booking.CompositeBookingDto;
-import com.samoylenko.bookingservice.model.dto.client.ClientDto;
-import com.samoylenko.bookingservice.model.dto.payment.PaymentCreateDto;
-import com.samoylenko.bookingservice.model.dto.payment.PaymentDto;
-import com.samoylenko.bookingservice.model.dto.request.BookingRequest;
-import com.samoylenko.bookingservice.model.entity.BookingEntity;
-import com.samoylenko.bookingservice.model.exception.BookingNotFoundException;
-import com.samoylenko.bookingservice.model.exception.LimitExceededException;
-import com.samoylenko.bookingservice.model.exception.WalkNotFoundException;
-import com.samoylenko.bookingservice.model.spec.BookingSpecification;
-import com.samoylenko.bookingservice.model.status.BookingStatus;
-import com.samoylenko.bookingservice.model.status.PaymentStatus;
+import com.samoylenko.bookingservice.model.booking.*;
+import com.samoylenko.bookingservice.model.client.ClientDto;
+import com.samoylenko.bookingservice.model.exception.EntityCreateException;
+import com.samoylenko.bookingservice.model.exception.EntityNotFoundException;
+import com.samoylenko.bookingservice.model.payment.PaymentCreateDto;
+import com.samoylenko.bookingservice.model.payment.PaymentDto;
+import com.samoylenko.bookingservice.model.payment.PaymentStatus;
 import com.samoylenko.bookingservice.repository.BookingRepository;
 import com.samoylenko.bookingservice.repository.PaymentRepository;
 import jakarta.annotation.PostConstruct;
@@ -35,7 +27,9 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 
-import static com.samoylenko.bookingservice.model.spec.BookingSpecification.*;
+import static com.samoylenko.bookingservice.model.booking.BookingSpecification.*;
+import static com.samoylenko.bookingservice.model.exception.EntityType.BOOKING;
+import static com.samoylenko.bookingservice.model.exception.EntityType.PAYMENT;
 import static java.time.Duration.between;
 import static java.time.Instant.now;
 import static java.time.temporal.ChronoUnit.MINUTES;
@@ -51,6 +45,7 @@ public class BookingService {
     private final ClientService clientService;
     private final BookingRepository bookingRepository;
     private final PaymentRepository paymentRepository;
+    private final EmployeeService employeeService;
     private final ModelMapper mapper;
 
     @PostConstruct
@@ -63,6 +58,14 @@ public class BookingService {
                 .addMappings(mapper -> mapper.map(src -> src.getWalk().getStartTime(), BookingDto::setWalkStartTime))
                 .addMappings(mapper -> mapper.map(src -> src.getWalk().getRoute().getName(), BookingDto::setRouteName))
                 .addMappings(mapper -> mapper.map(src -> src.getPayment().getTotalCost(), BookingDto::setTotalCost));
+
+        mapper.createTypeMap(BookingEntity.class, CompositeBookingDto.class)
+                .addMappings(mapper -> mapper.map(BookingEntity::getId, CompositeBookingDto::setId))
+                .addMappings(mapper -> mapper.map(BookingEntity::getCreatedDate, CompositeBookingDto::setCreatedDate))
+                .addMappings(mapper -> mapper.map(BookingEntity::getLastModifiedDate, CompositeBookingDto::setLastModifiedDate))
+                .addMappings(mapper -> mapper.map(BookingEntity::getStatus, CompositeBookingDto::setStatus))
+                .addMappings(mapper -> mapper.map(src -> src.getWalk().getId(), CompositeBookingDto::setStatus))
+                .addMappings(mapper -> mapper.map(BookingEntity::getNumberOfPeople, CompositeBookingDto::setNumberOfPeople));
     }
 
     @Transactional
@@ -84,15 +87,11 @@ public class BookingService {
                     .endTime(endTime)
                     .build());
             booking = bookingRepository.save(booking);
-            var bookingDto = getBookingById(booking.getId());
+            var bookingDto = getBookingForUser(booking.getId());
             log.info("Booking created with id: {}, status: {}", booking.getId(), booking.getStatus());
             return bookingDto;
-        } catch (LimitExceededException e) {
-            throw e;
-        } catch (WalkNotFoundException e) {
-            throw new IllegalArgumentException("Failed to create booking for walk " + dto.getWalkId(), e);
         } catch (Exception e) {
-            throw new RuntimeException("Failed to create booking for walk " + dto.getWalkId(), e);
+            throw new EntityCreateException(BOOKING, e);
         }
     }
 
@@ -101,6 +100,7 @@ public class BookingService {
         log.info("Creating invoice for booking: {}", id);
         try {
             var booking = getBookingEntity(id);
+            var oldStatus = booking.getStatus();
             var walk = booking.getWalk();
             log.info("Walk:  {}", walk.getId());
             var client = mapper.map(booking.getClient(), ClientDto.class);
@@ -108,7 +108,7 @@ public class BookingService {
 
             if (booking.getPayment() != null) {
                 log.info("Attempting to create second invoice for booking: {}", booking.getId());
-                return getBookingById(booking.getId());
+                return getBookingForUser(booking.getId());
             }
 
             var payment = paymentService.createPaymentDocument(PaymentCreateDto.builder()
@@ -129,13 +129,11 @@ public class BookingService {
                 booking.setStatus(BookingStatus.WAITING_FOR_PAYMENT);
             }
             bookingRepository.save(booking);
-            var bookingDto = getBookingById(booking.getId());
-            log.info("Updating status for booking:  {}, status:  {}", booking.getId(), booking.getStatus());
+            var bookingDto = getBookingForUser(booking.getId());
+            log.info("Updating status for booking {} from {} to {}", booking.getId(), oldStatus, booking.getStatus());
             return bookingDto;
-        } catch (BookingNotFoundException e) {
-            throw new IllegalArgumentException("Failed to create invoice for booking: " + id, e);
         } catch (Exception e) {
-            throw new RuntimeException("Failed to create invoice for booking: " + id, e);
+            throw new EntityCreateException(PAYMENT, e);
         }
     }
 
@@ -167,9 +165,8 @@ public class BookingService {
     }
 
     @Transactional
-    public CompositeBookingDto getBookingById(@NotBlank String id) {
-        var booking = bookingRepository.findById(id)
-                .orElseThrow(() -> new BookingNotFoundException(id));
+    public CompositeBookingDto getBookingForUser(@NotBlank String id) {
+        var booking = getBookingEntity(id);
 
         PaymentDto payment = null;
         if (booking.getPayment() != null) {
@@ -196,16 +193,35 @@ public class BookingService {
                 .build();
     }
 
-    public void deleteOrder(String id) {
+    @Transactional
+    public AdminBookingDto getBookingForAdmin(@NotBlank String id) {
+        var bookingEntity = getBookingEntity(id);
+        var client = mapper.map(bookingEntity.getClient(), ClientDto.class);
+        var bookingInfo = mapper.map(bookingEntity, BookingInfo.class);
+        var timeLeft = between(now(), bookingEntity.getEndTime()).compareTo(Duration.ofMinutes(0)) > 0 ?
+                between(Instant.now(), bookingEntity.getEndTime()) :
+                Duration.ofMinutes(0);
+        var dto = mapper.map(bookingEntity, AdminBookingDto.class);
+        dto.setClient(client);
+        dto.setInfo(bookingInfo);
+        dto.setTimeLeft(timeLeft);
+        if (bookingEntity.getPayment() != null) {
+            var payment = paymentService.getPaymentById(bookingEntity.getPayment().getId());
+            dto.setPayment(payment);
+        }
+        var employees = bookingEntity.getEmployees().stream()
+                .map(employeeService::toDto)
+                .toList();
+        dto.setEmployees(employees);
+        return dto;
     }
 
-    public CompositeBookingDto updateOrder(String id, CompositeBookingDto dto) {
-        return null;
+    public void deleteOrder(String id) {
     }
 
     private BookingEntity getBookingEntity(@NotBlank String id) {
         return bookingRepository.findById(id)
-                .orElseThrow(() -> new BookingNotFoundException(id));
+                .orElseThrow(() -> new EntityNotFoundException(BOOKING, id));
     }
 
     @Transactional
@@ -215,5 +231,25 @@ public class BookingService {
         booking.setStatus(status);
         bookingRepository.save(booking);
         log.info("Updated status of booking {} from {} to {}", bookingId, oldStatus, status);
+    }
+
+    @Transactional
+    public AdminBookingDto addEmployee(@NotBlank String id, @NotBlank String employeeId) {
+        log.info("Adding employee {} to booking {}", employeeId, id);
+        var employee = employeeService.getReferenceById(employeeId);
+        var booking = getBookingEntity(id);
+        booking.getEmployees().add(employee);
+        booking = bookingRepository.save(booking);
+        return getBookingForAdmin(id);
+    }
+
+    @Transactional
+    public AdminBookingDto removeEmployee(@NotBlank String id, @NotNull String employeeId) {
+        log.info("Removing employee {} from booking {}", employeeId, id);
+        var booking = getBookingEntity(id);
+        var employee = employeeService.getReferenceById(employeeId);
+        booking.getEmployees().remove(employee);
+        booking = bookingRepository.save(booking);
+        return getBookingForAdmin(id);
     }
 }

@@ -1,13 +1,13 @@
 package com.samoylenko.bookingservice.service;
 
-import com.samoylenko.bookingservice.model.dto.request.VoucherRequest;
+import com.samoylenko.bookingservice.model.discount.DiscountRequest;
 import com.samoylenko.bookingservice.model.entity.DefaultVoucherEntityBuilder;
-import com.samoylenko.bookingservice.model.promotion.DiscountRequest;
-import com.samoylenko.bookingservice.model.promotion.VoucherStatus;
+import com.samoylenko.bookingservice.model.exception.EntityNotFoundException;
 import com.samoylenko.bookingservice.model.voucher.DiscountType;
 import com.samoylenko.bookingservice.model.voucher.VoucherCreateDto;
+import com.samoylenko.bookingservice.model.voucher.VoucherRequest;
+import com.samoylenko.bookingservice.model.voucher.VoucherStatus;
 import com.samoylenko.bookingservice.repository.VoucherRepository;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

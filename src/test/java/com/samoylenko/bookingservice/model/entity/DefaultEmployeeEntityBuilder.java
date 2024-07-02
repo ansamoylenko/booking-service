@@ -1,5 +1,7 @@
 package com.samoylenko.bookingservice.model.entity;
 
+import com.samoylenko.bookingservice.model.employee.EmployeeEntity;
+import com.samoylenko.bookingservice.model.employee.EmployeeRole;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.With;
@@ -11,7 +13,6 @@ public class DefaultEmployeeEntityBuilder implements DefaultEntityBuilder<Employ
     private EmployeeRole role = EmployeeRole.INSTRUCTOR;
     private String firstName = "Иван";
     private String lastName = "Иванов";
-    private String email = "ivan@mail.ru";
     private String phone = "77777777777";
 
     @Override
@@ -20,7 +21,6 @@ public class DefaultEmployeeEntityBuilder implements DefaultEntityBuilder<Employ
                 .role(role)
                 .firstName(firstName)
                 .lastName(lastName)
-                .email(email)
                 .phone(phone)
                 .build();
     }

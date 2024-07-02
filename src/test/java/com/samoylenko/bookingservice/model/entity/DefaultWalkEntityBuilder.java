@@ -1,15 +1,14 @@
 package com.samoylenko.bookingservice.model.entity;
 
-import com.samoylenko.bookingservice.model.dto.walk.WalkEntity;
-import com.samoylenko.bookingservice.model.status.WalkStatus;
+import com.samoylenko.bookingservice.model.route.RouteEntity;
+import com.samoylenko.bookingservice.model.walk.WalkEntity;
+import com.samoylenko.bookingservice.model.walk.WalkStatus;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.With;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.HashSet;
-import java.util.Set;
 
 @With
 @AllArgsConstructor
@@ -24,7 +23,6 @@ public class DefaultWalkEntityBuilder implements DefaultEntityBuilder<WalkEntity
     private Instant startTime = Instant.parse("2024-05-01T00:00:00.00Z");
     private Instant endTime = startTime.plus(2, ChronoUnit.HOURS);
     private Integer duration = 120;
-    private Set<EmployeeEntity> employees = new HashSet<>();
 
     @Override
     public WalkEntity build() {
@@ -38,7 +36,6 @@ public class DefaultWalkEntityBuilder implements DefaultEntityBuilder<WalkEntity
                 .startTime(startTime)
                 .endTime(endTime)
                 .duration(duration)
-                .employees(employees)
                 .build();
     }
 }

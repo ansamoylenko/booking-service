@@ -1,9 +1,9 @@
 package com.samoylenko.bookingservice.controller.admin;
 
-import com.samoylenko.bookingservice.model.dto.request.VoucherRequest;
-import com.samoylenko.bookingservice.model.promotion.VoucherStatus;
 import com.samoylenko.bookingservice.model.voucher.VoucherCreateDto;
 import com.samoylenko.bookingservice.model.voucher.VoucherDto;
+import com.samoylenko.bookingservice.model.voucher.VoucherRequest;
+import com.samoylenko.bookingservice.model.voucher.VoucherStatus;
 import com.samoylenko.bookingservice.service.PromotionService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

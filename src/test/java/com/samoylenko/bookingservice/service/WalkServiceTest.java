@@ -1,11 +1,12 @@
 package com.samoylenko.bookingservice.service;
 
-import com.samoylenko.bookingservice.model.dto.request.WalkRequest;
-import com.samoylenko.bookingservice.model.dto.walk.WalkCreateDto;
-import com.samoylenko.bookingservice.model.dto.walk.WalkUpdateDto;
 import com.samoylenko.bookingservice.model.entity.*;
-import com.samoylenko.bookingservice.model.exception.WalkNotFoundException;
-import com.samoylenko.bookingservice.model.status.WalkStatus;
+import com.samoylenko.bookingservice.model.exception.EntityCreateException;
+import com.samoylenko.bookingservice.model.exception.EntityNotFoundException;
+import com.samoylenko.bookingservice.model.walk.WalkCreateDto;
+import com.samoylenko.bookingservice.model.walk.WalkRequest;
+import com.samoylenko.bookingservice.model.walk.WalkStatus;
+import com.samoylenko.bookingservice.model.walk.WalkUpdateDto;
 import com.samoylenko.bookingservice.repository.*;
 import jakarta.validation.ConstraintViolationException;
 import org.junit.jupiter.api.Test;
@@ -16,7 +17,6 @@ import org.springframework.test.context.TestConstructor;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
-import java.util.Set;
 
 import static java.time.Instant.now;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -59,7 +59,6 @@ public class WalkServiceTest extends BaseServiceTest {
         assertThat(createdWalk.getStartTime()).isEqualTo(walkDto.getStartTime());
         assertThat(createdWalk.getEndTime().isAfter(createdWalk.getStartTime())).isTrue();
         assertThat(createdWalk.getBookings()).isEmpty();
-        assertThat(createdWalk.getEmployees()).isEmpty();
     }
 
     @Test
@@ -73,8 +72,7 @@ public class WalkServiceTest extends BaseServiceTest {
                 .build();
 
         assertThatThrownBy(() -> walkService.createWalk(walkDto))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("notExistingRoute");
+                .isInstanceOf(EntityCreateException.class);
     }
 
     @Test
@@ -114,7 +112,7 @@ public class WalkServiceTest extends BaseServiceTest {
     @Test
     public void getWalkForUser_withNotExistingWalk_shouldReturnNotFoundException() {
         assertThatThrownBy(() -> walkService.getWalkForUser("notExistingWalk"))
-                .isInstanceOf(WalkNotFoundException.class)
+                .isInstanceOf(EntityNotFoundException.class)
                 .hasMessageContaining("notExistingWalk");
     }
 
@@ -129,7 +127,6 @@ public class WalkServiceTest extends BaseServiceTest {
                 .withDuration(120)
                 .withAvailablePlaces(20)
                 .withRoute(savedRoute)
-                .withEmployees(Set.of(employee1, employee2))
                 .build());
         var client = clientRepository.save(DefaultClientEntityBuilder.of().build());
         var booking1 = bookingRepository.save(DefaultBookingEntityBuilder.of()
@@ -158,7 +155,6 @@ public class WalkServiceTest extends BaseServiceTest {
         assertThat(found.getBookings()).hasSize(2);
         assertThat(found.getBookings().get(0).getId()).isEqualTo(booking1.getId());
         assertThat(found.getBookings().get(1).getId()).isEqualTo(booking2.getId());
-        assertThat(found.getEmployees()).hasSize(2);
     }
 
     @Test
@@ -193,39 +189,6 @@ public class WalkServiceTest extends BaseServiceTest {
         assertThat(found).hasSize(2);
         assertThat(found.get(0).getId()).isEqualTo(savedWalk1.getId());
         assertThat(found.get(1).getId()).isEqualTo(savedWalk2.getId());
-    }
-
-    @Test
-    public void getAllForAdmin_shouldReturnWalkAdminDtos() {
-        var savedRoute = routeRepository.save(DefaultRouteEntityBuilder.of().build());
-        var employee1 = employeeRepository.save(DefaultEmployeeEntityBuilder.of().build());
-        var employee2 = employeeRepository.save(DefaultEmployeeEntityBuilder.of().build());
-        var walkBuilder = DefaultWalkEntityBuilder.of()
-                .withRoute(savedRoute)
-                .withStatus(WalkStatus.BOOKING_IN_PROGRESS)
-                .withStartTime(Instant.parse("2024-06-02T06:00:00.00Z"))
-                .withEmployees(Set.of(employee1));
-        var walk1 = walkRepository.save(walkBuilder.build());
-        var walk2 = walkRepository.save(walkBuilder
-                .withEmployees(Set.of(employee2))
-                .build());
-        var walk3 = walkRepository.save(walkBuilder
-                .withEmployees(Set.of(employee1, employee2))
-                .withStartTime(Instant.parse("2024-06-01T06:00:00.00Z"))
-                .build());
-        var walk4 = walkRepository.save(walkBuilder
-                .withStatus(WalkStatus.BOOKING_FINISHED)
-                .build());
-        var request = WalkRequest.builder()
-                .employeeId(employee1.getId())
-                .status(WalkStatus.BOOKING_IN_PROGRESS)
-                .build();
-
-        var found = walkService.getWalksForAdmin(request);
-
-        assertThat(found.getContent()).hasSize(2);
-        assertThat(found.getContent().get(0).getId()).isEqualTo(walk3.getId());
-        assertThat(found.getContent().get(1).getId()).isEqualTo(walk1.getId());
     }
 
     @Test
@@ -269,7 +232,7 @@ public class WalkServiceTest extends BaseServiceTest {
         var updateDto = WalkUpdateDto.builder().build();
 
         assertThatThrownBy(() -> walkService.updateWalk("notExistingWalk", updateDto))
-                .isInstanceOf(WalkNotFoundException.class)
+                .isInstanceOf(EntityNotFoundException.class)
                 .hasMessageContaining("notExistingWalk");
     }
 

@@ -1,11 +1,11 @@
 package com.samoylenko.bookingservice.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.samoylenko.bookingservice.model.dto.payment.InvoiceCreateDto;
-import com.samoylenko.bookingservice.model.dto.payment.paykeeper.InvoiceInfo;
-import com.samoylenko.bookingservice.model.dto.payment.paykeeper.InvoiceResponse;
-import com.samoylenko.bookingservice.model.dto.payment.paykeeper.ServiceData;
-import com.samoylenko.bookingservice.model.dto.payment.paykeeper.ServiceObject;
+import com.samoylenko.bookingservice.model.payment.InvoiceCreateDto;
+import com.samoylenko.bookingservice.model.payment.paykeeper.InvoiceInfo;
+import com.samoylenko.bookingservice.model.payment.paykeeper.InvoiceResponse;
+import com.samoylenko.bookingservice.model.payment.paykeeper.ServiceData;
+import com.samoylenko.bookingservice.model.payment.paykeeper.ServiceObject;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpEntity;

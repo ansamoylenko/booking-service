@@ -1,19 +1,12 @@
 package com.samoylenko.bookingservice.service;
 
 import com.samoylenko.bookingservice.config.ServiceProperties;
-import com.samoylenko.bookingservice.model.dto.payment.InvoiceCreateDto;
-import com.samoylenko.bookingservice.model.dto.payment.PaymentCreateDto;
-import com.samoylenko.bookingservice.model.dto.payment.PaymentDto;
-import com.samoylenko.bookingservice.model.dto.payment.paykeeper.InvoiceDto;
-import com.samoylenko.bookingservice.model.dto.request.PaymentRequest;
-import com.samoylenko.bookingservice.model.entity.PaymentEntity;
+import com.samoylenko.bookingservice.model.discount.DiscountDto;
+import com.samoylenko.bookingservice.model.discount.DiscountRequest;
 import com.samoylenko.bookingservice.model.exception.EntityCreateException;
-import com.samoylenko.bookingservice.model.exception.PaymentException;
-import com.samoylenko.bookingservice.model.exception.PaymentNotFoundException;
-import com.samoylenko.bookingservice.model.promotion.DiscountDto;
-import com.samoylenko.bookingservice.model.promotion.DiscountRequest;
-import com.samoylenko.bookingservice.model.spec.PaymentSpecification;
-import com.samoylenko.bookingservice.model.status.PaymentStatus;
+import com.samoylenko.bookingservice.model.exception.EntityNotFoundException;
+import com.samoylenko.bookingservice.model.payment.*;
+import com.samoylenko.bookingservice.model.payment.paykeeper.InvoiceDto;
 import com.samoylenko.bookingservice.repository.BookingRepository;
 import com.samoylenko.bookingservice.repository.PaymentRepository;
 import com.samoylenko.bookingservice.service.discount.DiscountHandler;
@@ -33,8 +26,8 @@ import java.time.Duration;
 import java.time.Instant;
 
 import static com.samoylenko.bookingservice.model.exception.EntityType.PAYMENT;
-import static com.samoylenko.bookingservice.model.status.PaymentStatus.PAID;
-import static com.samoylenko.bookingservice.model.status.PaymentStatus.PENDING;
+import static com.samoylenko.bookingservice.model.payment.PaymentStatus.PAID;
+import static com.samoylenko.bookingservice.model.payment.PaymentStatus.PENDING;
 import static java.math.BigDecimal.ZERO;
 import static java.time.Duration.between;
 import static java.time.Instant.now;
@@ -97,7 +90,7 @@ public class PaymentService {
     }
 
     @Transactional
-    public PaymentDto createPaymentDocument(@Valid PaymentCreateDto createDto) throws PaymentException {
+    public PaymentDto createPaymentDocument(@Valid PaymentCreateDto createDto) {
         try {
             log.info("Attempting to create payment document: {}", createDto);
             var discountRequest = mapper.map(createDto, DiscountRequest.class);
@@ -182,7 +175,7 @@ public class PaymentService {
 
     private PaymentEntity getPaymentEntity(String id) {
         return paymentRepository.findById(id)
-                .orElseThrow(() -> new PaymentNotFoundException(id));
+                .orElseThrow(() -> new EntityNotFoundException(PAYMENT, id));
     }
 
     private Duration getTimeToPay(Instant latestPaymentTime) {

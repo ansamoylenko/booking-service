@@ -1,6 +1,6 @@
 package com.samoylenko.bookingservice.model.dto;
 
-import com.samoylenko.bookingservice.model.dto.client.ClientCreateDto;
+import com.samoylenko.bookingservice.model.client.ClientCreateDto;
 import com.samoylenko.bookingservice.model.entity.DefaultEntityBuilder;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;

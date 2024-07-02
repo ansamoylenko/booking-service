@@ -1,8 +1,8 @@
 package com.samoylenko.bookingservice.repository;
 
+import com.samoylenko.bookingservice.model.booking.BookingSpecification;
+import com.samoylenko.bookingservice.model.booking.BookingStatus;
 import com.samoylenko.bookingservice.model.entity.*;
-import com.samoylenko.bookingservice.model.spec.BookingSpecification;
-import com.samoylenko.bookingservice.model.status.BookingStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

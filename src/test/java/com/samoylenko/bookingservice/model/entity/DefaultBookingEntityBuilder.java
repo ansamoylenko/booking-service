@@ -1,7 +1,10 @@
 package com.samoylenko.bookingservice.model.entity;
 
-import com.samoylenko.bookingservice.model.dto.walk.WalkEntity;
-import com.samoylenko.bookingservice.model.status.BookingStatus;
+import com.samoylenko.bookingservice.model.booking.BookingEntity;
+import com.samoylenko.bookingservice.model.booking.BookingStatus;
+import com.samoylenko.bookingservice.model.client.ClientEntity;
+import com.samoylenko.bookingservice.model.payment.PaymentEntity;
+import com.samoylenko.bookingservice.model.walk.WalkEntity;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.With;

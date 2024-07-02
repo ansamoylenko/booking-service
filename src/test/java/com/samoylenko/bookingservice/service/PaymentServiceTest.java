@@ -1,18 +1,18 @@
 package com.samoylenko.bookingservice.service;
 
-import com.samoylenko.bookingservice.model.dto.client.ClientDto;
-import com.samoylenko.bookingservice.model.dto.payment.InvoiceCreateDto;
-import com.samoylenko.bookingservice.model.dto.payment.PaymentCreateDto;
-import com.samoylenko.bookingservice.model.dto.payment.paykeeper.InvoiceResponse;
+import com.samoylenko.bookingservice.model.client.ClientDto;
+import com.samoylenko.bookingservice.model.discount.DiscountRequest;
+import com.samoylenko.bookingservice.model.discount.DiscountStatus;
 import com.samoylenko.bookingservice.model.entity.DefaultBookingEntityBuilder;
 import com.samoylenko.bookingservice.model.entity.DefaultClientEntityBuilder;
 import com.samoylenko.bookingservice.model.entity.DefaultPaymentEntityBuilder;
-import com.samoylenko.bookingservice.model.promotion.DiscountRequest;
-import com.samoylenko.bookingservice.model.promotion.DiscountStatus;
-import com.samoylenko.bookingservice.model.promotion.VoucherStatus;
-import com.samoylenko.bookingservice.model.status.PaymentStatus;
+import com.samoylenko.bookingservice.model.payment.InvoiceCreateDto;
+import com.samoylenko.bookingservice.model.payment.PaymentCreateDto;
+import com.samoylenko.bookingservice.model.payment.PaymentStatus;
+import com.samoylenko.bookingservice.model.payment.paykeeper.InvoiceResponse;
 import com.samoylenko.bookingservice.model.voucher.DiscountType;
 import com.samoylenko.bookingservice.model.voucher.VoucherDto;
+import com.samoylenko.bookingservice.model.voucher.VoucherStatus;
 import com.samoylenko.bookingservice.repository.*;
 import jakarta.validation.ValidationException;
 import org.junit.jupiter.api.BeforeEach;

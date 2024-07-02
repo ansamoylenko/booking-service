@@ -1,10 +1,10 @@
 package com.samoylenko.bookingservice.service;
 
 import com.samoylenko.bookingservice.config.ServiceProperties;
-import com.samoylenko.bookingservice.model.dto.request.BookingRequest;
-import com.samoylenko.bookingservice.model.dto.request.WalkRequest;
-import com.samoylenko.bookingservice.model.status.BookingStatus;
-import com.samoylenko.bookingservice.model.status.PaymentStatus;
+import com.samoylenko.bookingservice.model.booking.BookingRequest;
+import com.samoylenko.bookingservice.model.booking.BookingStatus;
+import com.samoylenko.bookingservice.model.payment.PaymentStatus;
+import com.samoylenko.bookingservice.model.walk.WalkRequest;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-import static com.samoylenko.bookingservice.model.status.WalkStatus.*;
+import static com.samoylenko.bookingservice.model.walk.WalkStatus.*;
 import static java.time.Instant.now;
 import static java.time.temporal.ChronoUnit.MINUTES;
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -57,8 +57,9 @@ public class Scheduler {
         for (var booking : bookings) {
             if (booking.getEndTime() == null || booking.getEndTime().isBefore(now())) {
                 bookingService.setStatus(booking.getId(), BookingStatus.EXPIRED);
+                walkService.increaseAvailablePlaces(booking.getWalkId(), booking.getNumberOfPeople());
                 if (booking.getStatus().equals(BookingStatus.WAITING_FOR_PAYMENT)) {
-                    var payment = bookingService.getBookingById(booking.getId()).getPayment();
+                    var payment = bookingService.getBookingForUser(booking.getId()).getPayment();
                     paymentService.setStatus(payment.getId(), PaymentStatus.EXPIRED);
                 }
             }
@@ -70,7 +71,7 @@ public class Scheduler {
         var bookingRequest = BookingRequest.of().withStatus(List.of(BookingStatus.WAITING_FOR_PAYMENT));
         var bookings = bookingService.getBookingList(bookingRequest);
         for (var booking : bookings) {
-            var payment = bookingService.getBookingById(booking.getId()).getPayment();
+            var payment = bookingService.getBookingForUser(booking.getId()).getPayment();
             var result = paymentService.checkPaymentDocument(payment.getId());
             if (result.equals(PaymentStatus.PAID)) {
                 bookingService.setStatus(booking.getId(), BookingStatus.PAID);

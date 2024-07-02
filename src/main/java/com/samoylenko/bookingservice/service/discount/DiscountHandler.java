@@ -1,7 +1,7 @@
 package com.samoylenko.bookingservice.service.discount;
 
-import com.samoylenko.bookingservice.model.promotion.DiscountDto;
-import com.samoylenko.bookingservice.model.promotion.DiscountRequest;
+import com.samoylenko.bookingservice.model.discount.DiscountDto;
+import com.samoylenko.bookingservice.model.discount.DiscountRequest;
 
 public interface DiscountHandler {
     DiscountHandler next();

@@ -1,9 +1,9 @@
 package com.samoylenko.bookingservice.service.discount;
 
 import com.samoylenko.bookingservice.config.ServiceProperties;
-import com.samoylenko.bookingservice.model.dto.request.BookingRequest;
-import com.samoylenko.bookingservice.model.promotion.DiscountRequest;
-import com.samoylenko.bookingservice.model.promotion.DiscountStatus;
+import com.samoylenko.bookingservice.model.booking.BookingRequest;
+import com.samoylenko.bookingservice.model.discount.DiscountRequest;
+import com.samoylenko.bookingservice.model.discount.DiscountStatus;
 import com.samoylenko.bookingservice.service.BookingService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

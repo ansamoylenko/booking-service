@@ -1,9 +1,9 @@
 package com.samoylenko.bookingservice.service;
 
-import com.samoylenko.bookingservice.model.dto.route.RouteCreateDto;
-import com.samoylenko.bookingservice.model.dto.route.RouteUpdateDto;
 import com.samoylenko.bookingservice.model.entity.DefaultRouteEntityBuilder;
-import com.samoylenko.bookingservice.model.exception.RouteNotFoundException;
+import com.samoylenko.bookingservice.model.exception.EntityNotFoundException;
+import com.samoylenko.bookingservice.model.route.RouteCreateDto;
+import com.samoylenko.bookingservice.model.route.RouteUpdateDto;
 import com.samoylenko.bookingservice.repository.*;
 import jakarta.validation.ConstraintViolationException;
 import org.junit.jupiter.api.Test;
@@ -121,7 +121,7 @@ public class RouteServiceTest extends BaseServiceTest {
     @Test
     public void getRouteById_withUnknownId_shouldReturnRouteNotFoundException() {
         assertThatThrownBy(() -> routeService.getRouteById("unknown"))
-                .isInstanceOf(RouteNotFoundException.class)
+                .isInstanceOf(EntityNotFoundException.class)
                 .hasMessageContaining("unknown");
     }
 

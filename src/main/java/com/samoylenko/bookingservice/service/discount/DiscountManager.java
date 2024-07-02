@@ -1,9 +1,9 @@
 package com.samoylenko.bookingservice.service.discount;
 
 import com.samoylenko.bookingservice.config.ServiceProperties;
-import com.samoylenko.bookingservice.model.promotion.DiscountDto;
-import com.samoylenko.bookingservice.model.promotion.DiscountRequest;
-import com.samoylenko.bookingservice.model.promotion.DiscountStatus;
+import com.samoylenko.bookingservice.model.discount.DiscountDto;
+import com.samoylenko.bookingservice.model.discount.DiscountRequest;
+import com.samoylenko.bookingservice.model.discount.DiscountStatus;
 import com.samoylenko.bookingservice.model.voucher.DiscountType;
 import com.samoylenko.bookingservice.service.BookingService;
 import com.samoylenko.bookingservice.service.PromotionService;

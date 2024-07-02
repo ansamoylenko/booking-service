@@ -24,7 +24,7 @@ service:
   # Период проверки бронирований в секундах
   bookingCheckPeriod: 5
   # Период проверки оплаты в секундах
-  invoiceCheckPeriod: 5000
+  invoiceCheckPeriod: 5
 
   # DISCOUNT
   # Активировать скидку для групп

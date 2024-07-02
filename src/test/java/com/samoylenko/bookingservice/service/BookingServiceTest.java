@@ -1,18 +1,19 @@
 package com.samoylenko.bookingservice.service;
 
-import com.samoylenko.bookingservice.model.dto.booking.BookingCreateDto;
-import com.samoylenko.bookingservice.model.dto.booking.BookingInfo;
-import com.samoylenko.bookingservice.model.dto.client.ClientCreateDto;
-import com.samoylenko.bookingservice.model.dto.payment.InvoiceCreateDto;
-import com.samoylenko.bookingservice.model.dto.payment.paykeeper.InvoiceResponse;
-import com.samoylenko.bookingservice.model.dto.request.BookingRequest;
+import com.samoylenko.bookingservice.model.booking.BookingCreateDto;
+import com.samoylenko.bookingservice.model.booking.BookingInfo;
+import com.samoylenko.bookingservice.model.booking.BookingRequest;
+import com.samoylenko.bookingservice.model.booking.BookingStatus;
+import com.samoylenko.bookingservice.model.client.ClientCreateDto;
 import com.samoylenko.bookingservice.model.entity.DefaultBookingEntityBuilder;
 import com.samoylenko.bookingservice.model.entity.DefaultClientEntityBuilder;
 import com.samoylenko.bookingservice.model.entity.DefaultRouteEntityBuilder;
 import com.samoylenko.bookingservice.model.entity.DefaultWalkEntityBuilder;
+import com.samoylenko.bookingservice.model.exception.EntityCreateException;
 import com.samoylenko.bookingservice.model.exception.LimitExceededException;
-import com.samoylenko.bookingservice.model.status.BookingStatus;
-import com.samoylenko.bookingservice.model.status.PaymentStatus;
+import com.samoylenko.bookingservice.model.payment.InvoiceCreateDto;
+import com.samoylenko.bookingservice.model.payment.PaymentStatus;
+import com.samoylenko.bookingservice.model.payment.paykeeper.InvoiceResponse;
 import com.samoylenko.bookingservice.repository.*;
 import org.junit.jupiter.api.Test;
 import org.modelmapper.ModelMapper;
@@ -85,7 +86,8 @@ public class BookingServiceTest extends BaseServiceTest {
                 .build();
 
         assertThatThrownBy(() -> bookingService.create(createDto))
-                .isInstanceOf(LimitExceededException.class);
+                .isInstanceOf(EntityCreateException.class)
+                .hasCauseInstanceOf(LimitExceededException.class);
     }
 
     @Test
@@ -113,7 +115,7 @@ public class BookingServiceTest extends BaseServiceTest {
     @Test
     public void createInvoice_withNotExistBooking_shouldThrowIllegalArgumentException() {
         assertThatThrownBy(() -> bookingService.createInvoice("notExistBooking", null))
-                .isInstanceOf(IllegalArgumentException.class);
+                .isInstanceOf(EntityCreateException.class);
     }
 
     @Test
@@ -273,7 +275,7 @@ public class BookingServiceTest extends BaseServiceTest {
                 .withWalk(walk)
                 .build());
 
-        var found = bookingService.getBookingById(booking.getId());
+        var found = bookingService.getBookingForUser(booking.getId());
 
         assertThat(found).isNotNull();
         assertThat(found.getId()).isEqualTo(booking.getId());

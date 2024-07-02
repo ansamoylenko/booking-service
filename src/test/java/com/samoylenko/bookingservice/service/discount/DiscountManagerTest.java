@@ -1,11 +1,11 @@
 package com.samoylenko.bookingservice.service.discount;
 
-import com.samoylenko.bookingservice.model.dto.request.BookingRequest;
-import com.samoylenko.bookingservice.model.promotion.DiscountRequest;
-import com.samoylenko.bookingservice.model.promotion.DiscountStatus;
-import com.samoylenko.bookingservice.model.promotion.VoucherStatus;
+import com.samoylenko.bookingservice.model.booking.BookingRequest;
+import com.samoylenko.bookingservice.model.discount.DiscountRequest;
+import com.samoylenko.bookingservice.model.discount.DiscountStatus;
 import com.samoylenko.bookingservice.model.voucher.DiscountType;
 import com.samoylenko.bookingservice.model.voucher.VoucherDto;
+import com.samoylenko.bookingservice.model.voucher.VoucherStatus;
 import com.samoylenko.bookingservice.service.BookingService;
 import com.samoylenko.bookingservice.service.PromotionService;
 import lombok.AllArgsConstructor;

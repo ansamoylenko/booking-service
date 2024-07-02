@@ -1,6 +1,6 @@
 package com.samoylenko.bookingservice.repository;
 
-import com.samoylenko.bookingservice.model.entity.ClientEntity;
+import com.samoylenko.bookingservice.model.client.ClientEntity;
 
 import java.util.Optional;
 

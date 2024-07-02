@@ -1,7 +1,7 @@
 package com.samoylenko.bookingservice.controller.user;
 
-import com.samoylenko.bookingservice.model.promotion.DiscountDto;
-import com.samoylenko.bookingservice.model.promotion.DiscountRequest;
+import com.samoylenko.bookingservice.model.discount.DiscountDto;
+import com.samoylenko.bookingservice.model.discount.DiscountRequest;
 import com.samoylenko.bookingservice.service.WalkService;
 import com.samoylenko.bookingservice.service.discount.DiscountManager;
 import io.swagger.v3.oas.annotations.Operation;

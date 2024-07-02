@@ -1,5 +1,6 @@
 package com.samoylenko.bookingservice.model.entity;
 
+import com.samoylenko.bookingservice.model.client.ClientEntity;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.With;

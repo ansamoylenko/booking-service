@@ -1,7 +1,6 @@
 package com.samoylenko.bookingservice.model.voucher;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.samoylenko.bookingservice.model.promotion.VoucherStatus;
 import lombok.*;
 
 import java.time.Instant;

@@ -1,6 +1,6 @@
 package com.samoylenko.bookingservice.repository;
 
-import com.samoylenko.bookingservice.model.entity.BaseEntity;
+import com.samoylenko.bookingservice.model.BaseEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;

@@ -1,10 +1,6 @@
 package com.samoylenko.bookingservice.controller.admin;
 
-import com.samoylenko.bookingservice.model.dto.booking.BookingCreateDto;
-import com.samoylenko.bookingservice.model.dto.booking.BookingDto;
-import com.samoylenko.bookingservice.model.dto.booking.CompositeBookingDto;
-import com.samoylenko.bookingservice.model.dto.request.BookingRequest;
-import com.samoylenko.bookingservice.model.status.BookingStatus;
+import com.samoylenko.bookingservice.model.booking.*;
 import com.samoylenko.bookingservice.service.BookingService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -36,6 +32,20 @@ public class AdminBookingController {
         return ResponseEntity.created(location).body(crated);
     }
 
+    @Operation(summary = "Добавить сотрудника")
+    @PostMapping(value = "/{id}/employee", produces = APPLICATION_JSON_VALUE)
+    @ResponseStatus(HttpStatus.OK)
+    public AdminBookingDto addEmployee(@PathVariable String id, @RequestBody String employeeId) {
+        return bookingService.addEmployee(id, employeeId);
+    }
+
+    @Operation(summary = "Удалить сотрудника")
+    @DeleteMapping(value = "/{id}/employee", produces = APPLICATION_JSON_VALUE)
+    @ResponseStatus(HttpStatus.OK)
+    public AdminBookingDto removeEmployee(@PathVariable String id, @RequestBody String employeeId) {
+        return bookingService.removeEmployee(id, employeeId);
+    }
+
     @Operation(summary = "Получить страницу записей")
     @GetMapping(produces = APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
@@ -63,15 +73,8 @@ public class AdminBookingController {
     @Operation(summary = "Получить запись по id")
     @GetMapping(value = "/{id}", produces = APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
-    public CompositeBookingDto getOrder(@PathVariable String id) {
-        return bookingService.getBookingById(id);
-    }
-
-    @Operation(summary = "Обновить запись", hidden = true)
-    @PatchMapping(value = "/{id}", produces = APPLICATION_JSON_VALUE)
-    @ResponseStatus(HttpStatus.OK)
-    public CompositeBookingDto updateOrder(@PathVariable String id, @RequestBody CompositeBookingDto dto) {
-        return bookingService.updateOrder(id, dto);
+    public AdminBookingDto getBookingById(@PathVariable String id) {
+        return bookingService.getBookingForAdmin(id);
     }
 
     @Operation(summary = "Отметить запись как удаленную")

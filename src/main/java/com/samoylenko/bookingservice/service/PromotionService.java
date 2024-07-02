@@ -1,17 +1,10 @@
 package com.samoylenko.bookingservice.service;
 
-import com.samoylenko.bookingservice.model.dto.request.VoucherRequest;
-import com.samoylenko.bookingservice.model.exception.VoucherNotFoundException;
-import com.samoylenko.bookingservice.model.promotion.DiscountRequest;
-import com.samoylenko.bookingservice.model.promotion.VoucherStatus;
-import com.samoylenko.bookingservice.model.spec.VoucherSpecification;
-import com.samoylenko.bookingservice.model.voucher.DiscountType;
-import com.samoylenko.bookingservice.model.voucher.VoucherCreateDto;
-import com.samoylenko.bookingservice.model.voucher.VoucherDto;
-import com.samoylenko.bookingservice.model.voucher.VoucherEntity;
+import com.samoylenko.bookingservice.model.discount.DiscountRequest;
+import com.samoylenko.bookingservice.model.exception.EntityNotFoundException;
+import com.samoylenko.bookingservice.model.voucher.*;
 import com.samoylenko.bookingservice.repository.VoucherRepository;
 import com.samoylenko.bookingservice.service.utils.CodeGenerator;
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
@@ -22,6 +15,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
 import java.util.List;
+
+import static com.samoylenko.bookingservice.model.exception.EntityType.VOUCHER;
 
 @Slf4j
 @Service
@@ -54,7 +49,7 @@ public class PromotionService {
     public VoucherDto getVoucherById(@NotBlank String id) {
         return voucherRepository.findById(id)
                 .map(voucher -> modelMapper.map(voucher, VoucherDto.class))
-                .orElseThrow(() -> new VoucherNotFoundException(id));
+                .orElseThrow(() -> new EntityNotFoundException(VOUCHER, id));
     }
 
     public List<VoucherDto> getVouchers(VoucherRequest request) {
@@ -70,7 +65,7 @@ public class PromotionService {
 
     public void applyVoucher(DiscountRequest discountRequest) {
         var voucher = voucherRepository.findByCode(discountRequest.getCode())
-                .orElseThrow(() -> new EntityNotFoundException(discountRequest.getCode()));
+                .orElseThrow(() -> new EntityNotFoundException(VOUCHER, discountRequest.getCode()));
         voucher.setCount(voucher.getCount() + 1);
         if (voucher.getType().equals(DiscountType.CERTIFICATE)) {
             voucher.setStatus(VoucherStatus.APPLIED);

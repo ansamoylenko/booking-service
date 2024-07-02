@@ -1,8 +1,8 @@
 package com.samoylenko.bookingservice.repository;
 
 import com.samoylenko.bookingservice.model.entity.DefaultPaymentEntityBuilder;
-import com.samoylenko.bookingservice.model.spec.PaymentSpecification;
-import com.samoylenko.bookingservice.model.status.PaymentStatus;
+import com.samoylenko.bookingservice.model.payment.PaymentSpecification;
+import com.samoylenko.bookingservice.model.payment.PaymentStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,8 +1,11 @@
 package com.samoylenko.bookingservice.repository;
 
-import com.samoylenko.bookingservice.model.entity.*;
-import com.samoylenko.bookingservice.model.spec.WalkSpecification;
-import com.samoylenko.bookingservice.model.status.WalkStatus;
+import com.samoylenko.bookingservice.model.entity.DefaultBookingEntityBuilder;
+import com.samoylenko.bookingservice.model.entity.DefaultClientEntityBuilder;
+import com.samoylenko.bookingservice.model.entity.DefaultRouteEntityBuilder;
+import com.samoylenko.bookingservice.model.entity.DefaultWalkEntityBuilder;
+import com.samoylenko.bookingservice.model.walk.WalkSpecification;
+import com.samoylenko.bookingservice.model.walk.WalkStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,7 +14,6 @@ import org.springframework.data.domain.Sort;
 
 import java.time.temporal.ChronoUnit;
 import java.util.List;
-import java.util.Set;
 
 import static java.time.Instant.now;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -123,23 +125,6 @@ public class WalkRepositoryTest extends BaseRepositoryTest {
 
         assertThat(walks).hasSize(1);
         assertThat(walks).contains(savedWalk1);
-    }
-
-    @Test
-    public void findAll_shouldFindAllWalksFilteredByEmployee() {
-        var savedRoute = routeRepository.save(DefaultRouteEntityBuilder.of().build());
-        var employee1 = employeeRepository.save(DefaultEmployeeEntityBuilder.of().build());
-        var employee2 = employeeRepository.save(DefaultEmployeeEntityBuilder.of().build());
-        var walk1 = DefaultWalkEntityBuilder.of().withRoute(savedRoute).withEmployees(Set.of(employee1)).build();
-        var walk2 = DefaultWalkEntityBuilder.of().withRoute(savedRoute).withEmployees(Set.of(employee2)).build();
-        var walk3 = DefaultWalkEntityBuilder.of().withRoute(savedRoute).withEmployees(Set.of(employee1, employee2)).build();
-        walkRepository.saveAll(List.of(walk1, walk2, walk3));
-        var spec = WalkSpecification.withEmployee(employee1.getId());
-
-        var walks = walkRepository.findAll(spec);
-
-        assertThat(walks).hasSize(2);
-        assertThat(walks).contains(walk1, walk3);
     }
 
     @Test

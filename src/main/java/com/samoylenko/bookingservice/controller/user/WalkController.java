@@ -1,9 +1,9 @@
 package com.samoylenko.bookingservice.controller.user;
 
-import com.samoylenko.bookingservice.model.dto.request.WalkRequest;
-import com.samoylenko.bookingservice.model.dto.walk.CompositeUserWalkDto;
-import com.samoylenko.bookingservice.model.dto.walk.WalkDto;
-import com.samoylenko.bookingservice.model.status.WalkStatus;
+import com.samoylenko.bookingservice.model.walk.CompositeUserWalkDto;
+import com.samoylenko.bookingservice.model.walk.WalkDto;
+import com.samoylenko.bookingservice.model.walk.WalkRequest;
+import com.samoylenko.bookingservice.model.walk.WalkStatus;
 import com.samoylenko.bookingservice.service.WalkService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

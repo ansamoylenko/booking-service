@@ -1,8 +1,8 @@
 package com.samoylenko.bookingservice.repository;
 
+import com.samoylenko.bookingservice.model.employee.EmployeeRole;
+import com.samoylenko.bookingservice.model.employee.EmployeeSpecification;
 import com.samoylenko.bookingservice.model.entity.DefaultEmployeeEntityBuilder;
-import com.samoylenko.bookingservice.model.entity.EmployeeRole;
-import com.samoylenko.bookingservice.model.spec.EmployeeSpecification;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +39,6 @@ public class EmployeeRepositoryTest extends BaseRepositoryTest {
         var employee = DefaultEmployeeEntityBuilder.of()
                 .withFirstName("")
                 .withLastName(null)
-                .withEmail("invalidEmail")
                 .withPhone("777")
                 .build();
 

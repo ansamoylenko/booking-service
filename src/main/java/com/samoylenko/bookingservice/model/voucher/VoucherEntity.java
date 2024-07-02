@@ -1,7 +1,6 @@
 package com.samoylenko.bookingservice.model.voucher;
 
-import com.samoylenko.bookingservice.model.entity.BaseEntity;
-import com.samoylenko.bookingservice.model.promotion.VoucherStatus;
+import com.samoylenko.bookingservice.model.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;

@@ -1,7 +1,7 @@
 package com.samoylenko.bookingservice.service;
 
-import com.samoylenko.bookingservice.model.dto.client.ClientCreateDto;
-import com.samoylenko.bookingservice.model.entity.ClientEntity;
+import com.samoylenko.bookingservice.model.client.ClientCreateDto;
+import com.samoylenko.bookingservice.model.client.ClientEntity;
 import com.samoylenko.bookingservice.repository.ClientRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

@@ -1,7 +1,7 @@
 package com.samoylenko.bookingservice.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.samoylenko.bookingservice.model.dto.payment.InvoiceCreateDto;
+import com.samoylenko.bookingservice.model.payment.InvoiceCreateDto;
 import org.junit.jupiter.api.Test;
 import org.springframework.web.client.RestTemplate;
 

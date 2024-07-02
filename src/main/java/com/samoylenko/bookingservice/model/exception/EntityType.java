@@ -6,4 +6,6 @@ public enum EntityType {
     BOOKING,
     PAYMENT,
     CLIENT,
+    EMPLOYEE,
+    VOUCHER
 }

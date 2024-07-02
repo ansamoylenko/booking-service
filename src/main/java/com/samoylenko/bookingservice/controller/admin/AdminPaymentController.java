@@ -1,8 +1,8 @@
 package com.samoylenko.bookingservice.controller.admin;
 
-import com.samoylenko.bookingservice.model.dto.payment.PaymentDto;
-import com.samoylenko.bookingservice.model.dto.request.PaymentRequest;
-import com.samoylenko.bookingservice.model.status.PaymentStatus;
+import com.samoylenko.bookingservice.model.payment.PaymentDto;
+import com.samoylenko.bookingservice.model.payment.PaymentRequest;
+import com.samoylenko.bookingservice.model.payment.PaymentStatus;
 import com.samoylenko.bookingservice.service.PaymentService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

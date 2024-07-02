@@ -1,6 +1,6 @@
 package com.samoylenko.bookingservice.repository;
 
-import com.samoylenko.bookingservice.model.entity.RouteEntity;
+import com.samoylenko.bookingservice.model.route.RouteEntity;
 import org.springframework.data.domain.Sort;
 
 import java.util.List;

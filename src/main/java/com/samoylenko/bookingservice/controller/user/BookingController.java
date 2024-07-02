@@ -1,8 +1,8 @@
 package com.samoylenko.bookingservice.controller.user;
 
 
-import com.samoylenko.bookingservice.model.dto.booking.BookingCreateDto;
-import com.samoylenko.bookingservice.model.dto.booking.CompositeBookingDto;
+import com.samoylenko.bookingservice.model.booking.BookingCreateDto;
+import com.samoylenko.bookingservice.model.booking.CompositeBookingDto;
 import com.samoylenko.bookingservice.service.BookingService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -46,6 +46,6 @@ public class BookingController {
     @GetMapping(value = "/{id}", produces = APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public CompositeBookingDto getOrder(@PathVariable String id) {
-        return bookingService.getBookingById(id);
+        return bookingService.getBookingForUser(id);
     }
 }

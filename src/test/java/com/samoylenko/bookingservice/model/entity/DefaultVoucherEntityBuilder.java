@@ -1,8 +1,8 @@
 package com.samoylenko.bookingservice.model.entity;
 
-import com.samoylenko.bookingservice.model.promotion.VoucherStatus;
 import com.samoylenko.bookingservice.model.voucher.DiscountType;
 import com.samoylenko.bookingservice.model.voucher.VoucherEntity;
+import com.samoylenko.bookingservice.model.voucher.VoucherStatus;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.With;

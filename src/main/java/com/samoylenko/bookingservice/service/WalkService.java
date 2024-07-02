@@ -1,12 +1,9 @@
 package com.samoylenko.bookingservice.service;
 
-import com.samoylenko.bookingservice.model.dto.request.WalkRequest;
-import com.samoylenko.bookingservice.model.dto.walk.*;
+import com.samoylenko.bookingservice.model.exception.EntityCreateException;
+import com.samoylenko.bookingservice.model.exception.EntityNotFoundException;
 import com.samoylenko.bookingservice.model.exception.LimitExceededException;
-import com.samoylenko.bookingservice.model.exception.RouteNotFoundException;
-import com.samoylenko.bookingservice.model.exception.WalkNotFoundException;
-import com.samoylenko.bookingservice.model.spec.WalkSpecification;
-import com.samoylenko.bookingservice.model.status.WalkStatus;
+import com.samoylenko.bookingservice.model.walk.*;
 import com.samoylenko.bookingservice.repository.WalkRepository;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -23,7 +20,8 @@ import org.springframework.validation.annotation.Validated;
 import java.util.List;
 import java.util.function.Consumer;
 
-import static com.samoylenko.bookingservice.model.spec.WalkSpecification.*;
+import static com.samoylenko.bookingservice.model.exception.EntityType.WALK;
+import static com.samoylenko.bookingservice.model.walk.WalkSpecification.*;
 import static java.time.temporal.ChronoUnit.MINUTES;
 
 @Slf4j
@@ -35,7 +33,9 @@ public class WalkService {
     private final WalkRepository walkRepository;
     private final ModelMapper modelMapper;
 
+    @Transactional
     public CompositeAdminWalkDto createWalk(@Valid WalkCreateDto walk) {
+        log.info("Creating walk: {}", walk);
         try {
             var route = routeService.getRouteEntityById(walk.getRouteId());
             var entity = WalkEntity.builder()
@@ -52,13 +52,12 @@ public class WalkService {
 
             var saved = walkRepository.save(entity);
             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-            return modelMapper.map(saved, CompositeAdminWalkDto.class)
-                    .withBookings(List.of())
-                    .withEmployees(List.of());
-        } catch (RouteNotFoundException e) {
-            throw new IllegalArgumentException(e.getMessage());
+            var dto = modelMapper.map(saved, CompositeAdminWalkDto.class)
+                    .withBookings(List.of());
+            log.info("Walk has been created with id {}", dto.getId());
+            return dto;
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new EntityCreateException(WALK, e);
         }
     }
 
@@ -74,7 +73,7 @@ public class WalkService {
 
     public void increaseAvailablePlaces(@NotBlank String walkId, int numberOfPlaces) {
         var walk = walkRepository.findById(walkId)
-                .orElseThrow(() -> new WalkNotFoundException(walkId));
+                .orElseThrow(() -> new EntityNotFoundException(WALK, walkId));
         walk.setAvailablePlaces(walk.getAvailablePlaces() + numberOfPlaces);
         walkRepository.save(walk);
         log.info("Unlocked {} places of walk {}, available: {}", numberOfPlaces, walkId, walk.getAvailablePlaces());
@@ -82,14 +81,13 @@ public class WalkService {
 
     @Transactional
     public CompositeAdminWalkDto getWalkForAdmin(@NotBlank String id) {
-        var entity = walkRepository.findById(id)
-                .orElseThrow(() -> new WalkNotFoundException(id));
+        var entity = getWalkEntityById(id);
         return modelMapper.map(entity, CompositeAdminWalkDto.class);
     }
 
     public WalkEntity getWalkEntityById(@NotBlank String id) {
         return walkRepository.findById(id)
-                .orElseThrow(() -> new WalkNotFoundException(id));
+                .orElseThrow(() -> new EntityNotFoundException(WALK, id));
     }
 
     @Transactional
@@ -125,15 +123,13 @@ public class WalkService {
 
     @Transactional
     public CompositeUserWalkDto getWalkForUser(@NotBlank String id) {
-        var found = walkRepository.findById(id)
-                .orElseThrow(() -> new WalkNotFoundException(id));
+        var found = getWalkEntityById(id);
         return modelMapper.map(found, CompositeUserWalkDto.class);
     }
 
     @Transactional
     public CompositeAdminWalkDto updateWalk(@NotBlank String walkId, @Valid WalkUpdateDto walkDto) {
-        var walkEntity = walkRepository.findById(walkId)
-                .orElseThrow(() -> new WalkNotFoundException(walkId));
+        var walkEntity = getWalkEntityById(walkId);
         updateIfNotNull(walkDto.getStatus(), walkEntity::setStatus);
         updateIfNotNull(walkDto.getMaxPlaces(), walkEntity::setMaxPlaces);
         updateIfNotNull(walkDto.getPriceForOne(), walkEntity::setPriceForOne);
@@ -154,8 +150,7 @@ public class WalkService {
     }
 
     public void markDeleted(String id) {
-        var found = walkRepository.findById(id)
-                .orElseThrow(() -> new WalkNotFoundException(id));
+        var found = getWalkEntityById(id);
         found.setStatus(WalkStatus.DELETED);
         walkRepository.save(found);
     }

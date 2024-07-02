@@ -1,10 +1,10 @@
 package com.samoylenko.bookingservice.service;
 
-import com.samoylenko.bookingservice.model.dto.route.RouteCreateDto;
-import com.samoylenko.bookingservice.model.dto.route.RouteDto;
-import com.samoylenko.bookingservice.model.dto.route.RouteUpdateDto;
-import com.samoylenko.bookingservice.model.entity.RouteEntity;
-import com.samoylenko.bookingservice.model.exception.RouteNotFoundException;
+import com.samoylenko.bookingservice.model.exception.EntityNotFoundException;
+import com.samoylenko.bookingservice.model.route.RouteCreateDto;
+import com.samoylenko.bookingservice.model.route.RouteDto;
+import com.samoylenko.bookingservice.model.route.RouteEntity;
+import com.samoylenko.bookingservice.model.route.RouteUpdateDto;
 import com.samoylenko.bookingservice.repository.RouteRepository;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -15,6 +15,8 @@ import org.springframework.validation.annotation.Validated;
 
 import java.util.List;
 import java.util.function.Consumer;
+
+import static com.samoylenko.bookingservice.model.exception.EntityType.ROUTE;
 
 @Service
 @Validated
@@ -30,19 +32,17 @@ public class RouteService {
     }
 
     public RouteDto getRouteById(String id) {
-        var found = routeRepository.findById(id)
-                .orElseThrow(() -> new RouteNotFoundException(id));
+        var found = getRouteEntityById(id);
         return modelMapper.map(found, RouteDto.class);
     }
 
     public RouteEntity getRouteEntityById(String id) {
         return routeRepository.findById(id)
-                .orElseThrow(() -> new RouteNotFoundException(id));
+                .orElseThrow(() -> new EntityNotFoundException(ROUTE, id));
     }
 
     public RouteDto updateRoute(String id, @Valid RouteUpdateDto route) {
-        RouteEntity existingRoute = routeRepository.findById(id)
-                .orElseThrow(() -> new RouteNotFoundException(id));
+        RouteEntity existingRoute = getRouteEntityById(id);
         updateIfNotNull(route.getName(), existingRoute::setName);
         updateIfNotNull(route.getDescription(), existingRoute::setDescription);
         updateIfNotNull(route.getPriceForOne(), existingRoute::setPriceForOne);
@@ -58,7 +58,7 @@ public class RouteService {
 
     public void markDeleted(String id) {
         var found = routeRepository.findById(id)
-                .orElseThrow(() -> new RouteNotFoundException(id));
+                .orElseThrow(() -> new EntityNotFoundException(ROUTE, id));
         found.setDeleted(true);
         routeRepository.save(found);
     }
