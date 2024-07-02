@@ -142,6 +142,7 @@ public class PaymentService {
 
     public PaymentStatus checkPaymentDocument(@NotBlank String paymentId) {
         var payment = getPaymentEntity(paymentId);
+        var oldStatus = payment.getStatus();
         Assert.hasText(payment.getInvoiceId(), "Invoice id has not been found for payment " + paymentId);
         var invoice = payKeeper.getInvoiceInfo(payment.getInvoiceId());
 
@@ -151,9 +152,11 @@ public class PaymentService {
                             .formatted(payment.getInvoiceId(), invoice.getOrderId()));
             payment.setStatus(PAID);
             paymentRepository.save(payment);
+            log.info("Updated status of payment {} from {} to {}", paymentId, oldStatus, payment.getStatus());
         } else if (payment.getLatestPaymentTime().isBefore(now())) {
             payment.setStatus(PaymentStatus.EXPIRED);
             paymentRepository.save(payment);
+            log.info("Updated status of payment {} from {} to {}", paymentId, oldStatus, payment.getStatus());
         }
         return payment.getStatus();
     }

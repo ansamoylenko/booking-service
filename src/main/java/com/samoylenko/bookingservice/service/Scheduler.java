@@ -35,6 +35,12 @@ public class Scheduler {
                 .build());
         walkPage.get().forEach(walk -> {
             walkService.setStatus(walk.getId(), BOOKING_FINISHED);
+            var bookings = bookingService.getBookingList(BookingRequest.of()
+                    .withWalkId(walk.getId())
+                    .withStatus(List.of(BookingStatus.PAID)));
+            bookings.forEach(booking -> {
+                bookingService.setStatus(booking.getId(), BookingStatus.COMPLETED);
+            });
         });
     }
 
@@ -75,7 +81,6 @@ public class Scheduler {
             var result = paymentService.checkPaymentDocument(payment.getId());
             if (result.equals(PaymentStatus.PAID)) {
                 bookingService.setStatus(booking.getId(), BookingStatus.PAID);
-                paymentService.setStatus(payment.getId(), PaymentStatus.PAID);
             }
         }
     }
