@@ -20,21 +20,21 @@ public class BaseServiceTest {
 
     @BeforeEach
     public void setUp() {
+        paymentRepository.deleteAll();
         walkRepository.deleteAll();
         routeRepository.deleteAll();
         bookingRepository.deleteAll();
         employeeRepository.deleteAll();
         clientRepository.deleteAll();
-        paymentRepository.deleteAll();
     }
 
     @AfterEach
     public void tearDown() {
+        paymentRepository.deleteAll();
         walkRepository.deleteAll();
         routeRepository.deleteAll();
         employeeRepository.deleteAll();
         bookingRepository.deleteAll();
         clientRepository.deleteAll();
-        paymentRepository.deleteAll();
     }
 }

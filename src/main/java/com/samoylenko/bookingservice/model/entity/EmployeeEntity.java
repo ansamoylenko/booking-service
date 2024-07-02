@@ -1,6 +1,7 @@
 package com.samoylenko.bookingservice.model.entity;
 
 import com.samoylenko.bookingservice.annotations.Phone;
+import com.samoylenko.bookingservice.model.dto.walk.WalkEntity;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.ManyToMany;

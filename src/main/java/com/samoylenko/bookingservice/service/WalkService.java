@@ -2,7 +2,6 @@ package com.samoylenko.bookingservice.service;
 
 import com.samoylenko.bookingservice.model.dto.request.WalkRequest;
 import com.samoylenko.bookingservice.model.dto.walk.*;
-import com.samoylenko.bookingservice.model.entity.WalkEntity;
 import com.samoylenko.bookingservice.model.exception.LimitExceededException;
 import com.samoylenko.bookingservice.model.exception.RouteNotFoundException;
 import com.samoylenko.bookingservice.model.exception.WalkNotFoundException;
@@ -11,12 +10,12 @@ import com.samoylenko.bookingservice.model.status.WalkStatus;
 import com.samoylenko.bookingservice.repository.WalkRepository;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -25,6 +24,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import static com.samoylenko.bookingservice.model.spec.WalkSpecification.*;
+import static java.time.temporal.ChronoUnit.MINUTES;
 
 @Slf4j
 @Service
@@ -43,7 +43,7 @@ public class WalkService {
                     .status(WalkStatus.BOOKING_IN_PROGRESS)
                     .startTime(walk.getStartTime())
                     .duration(walk.getDurationInMinutes())
-                    .endTime(walk.getStartTime().plusMinutes(walk.getDurationInMinutes()))
+                    .endTime(walk.getStartTime().plus(walk.getDurationInMinutes(), MINUTES))
                     .maxPlaces(walk.getMaxPlaces())
                     .availablePlaces(walk.getMaxPlaces())
                     .reservedPlaces(0)
@@ -111,9 +111,11 @@ public class WalkService {
     public Page<WalkDto> getWalksForUser(WalkRequest request) {
         var spec = WalkSpecification
                 .withRoute(request.getRouteId())
-                .and(withStatus(WalkStatus.BOOKING_IN_PROGRESS))
+                .and(withStatus(request.getStatus()))
                 .and(startTimeAfter(request.getStartAfter()))
                 .and(startTimeBefore(request.getStartBefore()))
+                .and(endTimeAfter(request.getEndAfter()))
+                .and(endTimeBefore(request.getEndBefore()))
                 .and(withAvailablePlacesMoreOrEqualTo(request.getAvailablePlaces()));
 
         return walkRepository
@@ -138,7 +140,7 @@ public class WalkService {
         updateIfNotNull(walkDto.getDurationInMinutes(), walkEntity::setDuration);
         updateIfNotNull(walkDto.getStartTime(), startTime -> {
             walkEntity.setStartTime(startTime);
-            walkEntity.setEndTime(startTime.plusMinutes(walkEntity.getDuration()));
+            walkEntity.setEndTime(startTime.plus(walkEntity.getDuration(), MINUTES));
         });
 
         var updated = walkRepository.save(walkEntity);
@@ -158,8 +160,11 @@ public class WalkService {
         walkRepository.save(found);
     }
 
-    //todo getRecordsForAdmin with filter by walk
-    public Page<WalkDto> getOrdersByWalk(String id, PageRequest pageRequest) {
-        return null;
+    public void setStatus(@NotBlank String id, @NotNull WalkStatus walkStatus) {
+        var walk = getWalkEntityById(id);
+        var oldStatus = walk.getStatus();
+        walk.setStatus(walkStatus);
+        walkRepository.save(walk);
+        log.info("Updated status of walk {} from {} to {}", id, oldStatus, walkStatus);
     }
 }

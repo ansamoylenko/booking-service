@@ -1,8 +1,8 @@
 package com.samoylenko.bookingservice.repository;
 
+import com.samoylenko.bookingservice.model.dto.walk.WalkEntity;
 import com.samoylenko.bookingservice.model.entity.DefaultRouteEntityBuilder;
 import com.samoylenko.bookingservice.model.entity.DefaultWalkEntityBuilder;
-import com.samoylenko.bookingservice.model.entity.WalkEntity;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

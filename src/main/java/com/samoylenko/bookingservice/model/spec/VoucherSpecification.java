@@ -1,6 +1,6 @@
 package com.samoylenko.bookingservice.model.spec;
 
-import com.samoylenko.bookingservice.model.status.VoucherStatus;
+import com.samoylenko.bookingservice.model.promotion.VoucherStatus;
 import com.samoylenko.bookingservice.model.voucher.VoucherEntity;
 import org.springframework.data.jpa.domain.Specification;
 

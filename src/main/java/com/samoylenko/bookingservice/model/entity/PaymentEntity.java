@@ -1,6 +1,8 @@
 package com.samoylenko.bookingservice.model.entity;
 
+import com.samoylenko.bookingservice.model.promotion.DiscountStatus;
 import com.samoylenko.bookingservice.model.status.PaymentStatus;
+import com.samoylenko.bookingservice.model.voucher.DiscountType;
 import com.samoylenko.bookingservice.model.voucher.VoucherEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -8,6 +10,7 @@ import lombok.experimental.SuperBuilder;
 import org.hibernate.proxy.HibernateProxy;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Objects;
 
@@ -24,20 +27,29 @@ public class PaymentEntity extends BaseEntity {
     @Column(name = "payment_status", nullable = false)
     private PaymentStatus status;
 
-    @Column(name = "order_id", nullable = false)
-    private String orderId;
-
-    @Column(name = "service_name", nullable = false)
-    private String serviceName;
-
-    @Column(name = "amount", nullable = false)
-    private Integer amount;
+    @Column(name = "quantity", nullable = false)
+    private Integer quantity;
 
     @Column(name = "pricae_for_one", nullable = false)
-    private Integer priceForOne;
+    private BigDecimal priceForOne;
 
     @Column(name = "total_cost", nullable = false)
-    private Integer totalCost;
+    private BigDecimal totalCost;
+
+    @Column(name = "discount_type", nullable = false)
+    private DiscountType discountType;
+
+    @Column(name = "discount_status", nullable = false)
+    private DiscountStatus discountStatus;
+
+    @Column(name = "discount_code")
+    private String discountCode;
+
+    @Column(name = "discount_percent", nullable = false)
+    private Integer discountPercent;
+
+    @Column(name = "discount_absolute", nullable = false)
+    private Integer discountAbsolute;
 
     @Column(name = "invoice_url")
     private String invoiceUrl;
@@ -48,7 +60,8 @@ public class PaymentEntity extends BaseEntity {
     @Column(name = "latest_payment_time")
     private Instant latestPaymentTime;
 
-    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+
+    @OneToOne(cascade = CascadeType.ALL, mappedBy = "payment")
     @JoinColumn(name = "booking_id")
     private BookingEntity booking;
 
@@ -75,10 +88,10 @@ public class PaymentEntity extends BaseEntity {
     @Override
     public String toString() {
         return getClass().getSimpleName() + "(" +
-                "id = " + getId() + ", " +
-                "createdDate = " + getCreatedDate() + ", " +
-                "lastModifiedDate = " + getLastModifiedDate() + ", " +
-                "status = " + getStatus() + ", " +
-                "amount = " + getAmount() + ")";
+               "id = " + getId() + ", " +
+               "createdDate = " + getCreatedDate() + ", " +
+               "lastModifiedDate = " + getLastModifiedDate() + ", " +
+               "status = " + getStatus() + ", " +
+               "amount = " + getQuantity() + ")";
     }
 }

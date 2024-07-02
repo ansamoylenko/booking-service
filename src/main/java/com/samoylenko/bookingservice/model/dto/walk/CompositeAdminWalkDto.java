@@ -3,14 +3,12 @@ package com.samoylenko.bookingservice.model.dto.walk;
 import com.samoylenko.bookingservice.model.dto.booking.CompositeBookingDto;
 import com.samoylenko.bookingservice.model.dto.route.RouteDto;
 import com.samoylenko.bookingservice.model.entity.EmployeeEntity;
-import com.samoylenko.bookingservice.model.entity.WalkEntity;
 import com.samoylenko.bookingservice.model.status.WalkStatus;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import java.io.Serializable;
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -27,8 +25,8 @@ public class CompositeAdminWalkDto implements Serializable {
     private Integer availablePlaces;
     private Integer priceForOne;
     private Integer duration;
-    private LocalDateTime startTime;
-    private LocalDateTime endTime;
+    private Instant startTime;
+    private Instant endTime;
 
     private RouteDto route;
 

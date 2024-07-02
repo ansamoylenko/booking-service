@@ -1,7 +1,7 @@
 package com.samoylenko.bookingservice.model.voucher;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.samoylenko.bookingservice.model.status.VoucherStatus;
+import com.samoylenko.bookingservice.model.promotion.VoucherStatus;
 import lombok.*;
 
 import java.time.Instant;
@@ -15,11 +15,11 @@ import java.time.Instant;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class VoucherDto {
     private String id;
-    private VoucherType type;
+    private DiscountType type;
     private VoucherStatus status;
     private String code;
     private String distributor;
-    private String routeId;
+    private String expectedRouteId;
     private Instant expiredAt;
     private int discountPercent;
     private int discountAbsolute;

@@ -9,10 +9,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Set;
 
-import static java.time.LocalDateTime.now;
+import static java.time.Instant.now;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class WalkRepositoryTest extends BaseRepositoryTest {
@@ -90,13 +91,13 @@ public class WalkRepositoryTest extends BaseRepositoryTest {
         var walk1 = walkRepository.save(DefaultWalkEntityBuilder.of()
                 .withRoute(savedRoute)
                 .withAvailablePlaces(2)
-                .withStartTime(now().plusHours(2))
+                .withStartTime(now().plus(2, ChronoUnit.HOURS))
                 .build());
         var walk2 = walkRepository.save(DefaultWalkEntityBuilder.of().withRoute(savedRoute).withAvailablePlaces(0).build());
         var walk3 = walkRepository.save(DefaultWalkEntityBuilder.of()
                 .withRoute(savedRoute)
                 .withAvailablePlaces(1)
-                .withStartTime(now().plusHours(1))
+                .withStartTime(now().plus(1, ChronoUnit.HOURS))
                 .build());
         var spec = WalkSpecification.withAvailablePlacesMoreOrEqualTo(1);
         var pageRequest = PageRequest.of(0, 10, Sort.by("startTime").ascending());
@@ -145,20 +146,20 @@ public class WalkRepositoryTest extends BaseRepositoryTest {
     public void findAll_shouldFindAllFilteredByStartTime() {
         var savedRoute = routeRepository.save(DefaultRouteEntityBuilder.of().build());
         var savedWalk1 = walkRepository.save(DefaultWalkEntityBuilder.of()
-                .withStartTime(now().minusDays(3))
+                .withStartTime(now().minus(3, ChronoUnit.DAYS))
                 .withRoute(savedRoute)
                 .build());
         var savedWalk2 = walkRepository.save(DefaultWalkEntityBuilder.of()
-                .withStartTime(now().minusDays(1))
+                .withStartTime(now().minus(1, ChronoUnit.DAYS))
                 .withRoute(savedRoute)
                 .build());
         var savedWalk3 = walkRepository.save(DefaultWalkEntityBuilder.of()
-                .withStartTime(now().plusDays(1))
+                .withStartTime(now().plus(1, ChronoUnit.DAYS))
                 .withRoute(savedRoute)
                 .build());
         var spec = WalkSpecification
-                .startTimeAfter(now().minusDays(2))
-                .and(WalkSpecification.startTimeBefore(now().plusDays(2)));
+                .startTimeAfter(now().minus(2, ChronoUnit.DAYS))
+                .and(WalkSpecification.startTimeBefore(now().plus(2, ChronoUnit.DAYS)));
 
         var walks = walkRepository.findAll(spec);
 

@@ -8,9 +8,12 @@ import lombok.ToString;
 @ToString
 @Generated
 @AllArgsConstructor
-public enum VoucherType {
+public enum DiscountType {
+    NONE("Без скидки"),
     PROMO_CODE("Промокод"),
-    CERTIFICATE("Сертификат");
+    CERTIFICATE("Сертификат"),
+    REPEATED_BOOKING("Повторное бронирование"),
+    GROUP_BOOKING("Групповое бронирование");
 
     private final String description;
 

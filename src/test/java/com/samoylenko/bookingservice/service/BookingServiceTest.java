@@ -106,7 +106,7 @@ public class BookingServiceTest extends BaseServiceTest {
         assertThat(updated.getWalkId()).isEqualTo(walk.getId());
         assertThat(updated.getStatus()).isEqualTo(BookingStatus.WAITING_FOR_PAYMENT);
         assertThat(updated.getPayment()).isNotNull();
-        assertThat(updated.getPayment().getInvoiceUrl()).isEqualTo("invoiceUrl");
+        assertThat(updated.getPayment().getInvoice().getInvoiceUrl()).isEqualTo("invoiceUrl");
         assertThat(updated.getPayment().getStatus()).isEqualTo(PaymentStatus.PENDING);
     }
 

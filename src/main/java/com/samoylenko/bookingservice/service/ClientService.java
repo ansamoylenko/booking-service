@@ -26,6 +26,7 @@ public class ClientService {
         clientEntity.setFirstName(clientDto.getFirstName());
         clientEntity.setLastName(clientDto.getLastName());
         clientEntity.setEmail(clientDto.getEmail());
+        clientEntity.setDateOfBirth(clientDto.getDateOfBirth());
         return clientRepository.save(clientEntity);
     }
 
@@ -36,6 +37,7 @@ public class ClientService {
                 .lastName(clientDto.getLastName())
                 .email(clientDto.getEmail())
                 .phone(clientDto.getPhone())
+                .dateOfBirth(clientDto.getDateOfBirth())
                 .build());
     }
 }

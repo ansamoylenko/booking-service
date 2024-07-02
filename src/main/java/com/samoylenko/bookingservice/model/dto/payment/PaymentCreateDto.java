@@ -5,23 +5,22 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.time.Instant;
 
 @Getter
 @Setter
+@ToString
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
 public class PaymentCreateDto implements Serializable {
     @NotBlank
-    private String orderId;
+    private String bookingId;
 
     @NotBlank
     private String routeId;
@@ -31,16 +30,17 @@ public class PaymentCreateDto implements Serializable {
 
     @NotNull
     @Positive
-    private Integer amount;
+    private Integer quantity;
 
     @NotNull
     @PositiveOrZero
-    private Integer priceForOne;
+    private BigDecimal priceForOne;
 
     private String voucher;
 
     @NotNull
     private ClientDto client;
-    private Instant expiryTime;
 
+    @NotNull
+    private Instant expiryTime;
 }

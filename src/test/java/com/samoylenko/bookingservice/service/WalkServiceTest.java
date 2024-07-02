@@ -13,12 +13,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestConstructor;
 
-import java.time.Month;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Set;
 
-import static java.time.LocalDateTime.now;
-import static java.time.LocalDateTime.of;
+import static java.time.Instant.now;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -41,7 +41,7 @@ public class WalkServiceTest extends BaseServiceTest {
                 .maxPlaces(20)
                 .priceForOne(3500)
                 .durationInMinutes(120)
-                .startTime(now().plusHours(1))
+                .startTime(now().plus(1, ChronoUnit.HOURS))
                 .build();
 
         var createdWalk = walkService.createWalk(walkDto);
@@ -69,7 +69,7 @@ public class WalkServiceTest extends BaseServiceTest {
                 .maxPlaces(20)
                 .priceForOne(3500)
                 .durationInMinutes(120)
-                .startTime(now().plusDays(1))
+                .startTime(now().plus(1, ChronoUnit.DAYS))
                 .build();
 
         assertThatThrownBy(() -> walkService.createWalk(walkDto))
@@ -167,19 +167,20 @@ public class WalkServiceTest extends BaseServiceTest {
         var otherRoute = routeRepository.save(DefaultRouteEntityBuilder.of().build());
         var walk1 = DefaultWalkEntityBuilder.of()
                 .withAvailablePlaces(10)
-                .withStartTime(of(2024, Month.JUNE, 1, 6, 0))
+                .withStartTime(Instant.parse("2024-06-01T06:00:00.00Z"))
                 .withStatus(WalkStatus.BOOKING_IN_PROGRESS)
                 .withRoute(savedRoute);
         var savedWalk1 = walkRepository.save(walk1.build());
         var walk2 = walk1
                 .withAvailablePlaces(5)
-                .withStartTime(of(2024, Month.JUNE, 2, 6, 0));
+                .withStartTime(Instant.parse("2024-06-02T06:00:00.00Z"));
         var savedWalk2 = walkRepository.save(walk2.build());
         var walk3 = walk1.withRoute(otherRoute);
         var walk4 = walk1.withAvailablePlaces(1);
         var walk5 = walk1.withStatus(WalkStatus.BOOKING_FINISHED);
         var saved = walkRepository.saveAll(List.of(walk3.build(), walk4.build(), walk5.build()));
         var request = WalkRequest.builder()
+                .status(WalkStatus.BOOKING_IN_PROGRESS)
                 .availablePlaces(3)
                 .routeId(savedRoute.getId())
                 .pageNumber(0)
@@ -202,7 +203,7 @@ public class WalkServiceTest extends BaseServiceTest {
         var walkBuilder = DefaultWalkEntityBuilder.of()
                 .withRoute(savedRoute)
                 .withStatus(WalkStatus.BOOKING_IN_PROGRESS)
-                .withStartTime(of(2024, Month.JUNE, 2, 6, 0))
+                .withStartTime(Instant.parse("2024-06-02T06:00:00.00Z"))
                 .withEmployees(Set.of(employee1));
         var walk1 = walkRepository.save(walkBuilder.build());
         var walk2 = walkRepository.save(walkBuilder
@@ -210,7 +211,7 @@ public class WalkServiceTest extends BaseServiceTest {
                 .build());
         var walk3 = walkRepository.save(walkBuilder
                 .withEmployees(Set.of(employee1, employee2))
-                .withStartTime(of(2024, Month.JUNE, 1, 6, 0))
+                .withStartTime(Instant.parse("2024-06-01T06:00:00.00Z"))
                 .build());
         var walk4 = walkRepository.save(walkBuilder
                 .withStatus(WalkStatus.BOOKING_FINISHED)
@@ -248,7 +249,7 @@ public class WalkServiceTest extends BaseServiceTest {
                 .durationInMinutes(30)
                 .priceForOne(2222)
                 .maxPlaces(100)
-                .startTime(of(2034, Month.JUNE, 1, 6, 0))
+                .startTime(Instant.parse("2025-06-01T06:00:00.00Z"))
                 .build();
 
         var updatedWalk = walkService.updateWalk(savedWalk.getId(), updateDto);
@@ -280,7 +281,7 @@ public class WalkServiceTest extends BaseServiceTest {
                 .durationInMinutes(0)
                 .priceForOne(-100)
                 .maxPlaces(0)
-                .startTime(of(2020, Month.JUNE, 1, 6, 0))
+                .startTime(Instant.parse("2022-06-01T06:00:00.00Z"))
                 .build();
 
         assertThatThrownBy(() -> walkService.updateWalk(savedWalk.getId(), updateDto))

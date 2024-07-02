@@ -1,22 +1,34 @@
 package com.samoylenko.bookingservice.model.spec;
 
-import com.samoylenko.bookingservice.model.entity.WalkEntity;
+import com.samoylenko.bookingservice.model.dto.walk.WalkEntity;
 import com.samoylenko.bookingservice.model.status.WalkStatus;
 import org.springframework.data.jpa.domain.Specification;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 public class WalkSpecification {
-    public static Specification<WalkEntity> startTimeAfter(LocalDateTime time) {
+    public static Specification<WalkEntity> startTimeAfter(Instant time) {
         return (root, query, cb) -> time == null ?
                 cb.conjunction() :
                 cb.greaterThanOrEqualTo(root.get("startTime"), time);
     }
 
-    public static Specification<WalkEntity> startTimeBefore(LocalDateTime time) {
+    public static Specification<WalkEntity> startTimeBefore(Instant time) {
         return (root, query, cb) -> time == null ?
                 cb.conjunction() :
                 cb.lessThanOrEqualTo(root.get("startTime"), time);
+    }
+
+    public static Specification<WalkEntity> endTimeAfter(Instant time) {
+        return (root, query, cb) -> time == null ?
+                cb.conjunction() :
+                cb.greaterThanOrEqualTo(root.get("endTime"), time);
+    }
+
+    public static Specification<WalkEntity> endTimeBefore(Instant time) {
+        return (root, query, cb) -> time == null ?
+                cb.conjunction() :
+                cb.lessThanOrEqualTo(root.get("endTime"), time);
     }
 
     public static Specification<WalkEntity> withRoute(String routeId) {

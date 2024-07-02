@@ -1,10 +1,10 @@
 package com.samoylenko.bookingservice.controller.admin;
 
 import com.samoylenko.bookingservice.model.dto.request.VoucherRequest;
-import com.samoylenko.bookingservice.model.status.VoucherStatus;
+import com.samoylenko.bookingservice.model.promotion.VoucherStatus;
 import com.samoylenko.bookingservice.model.voucher.VoucherCreateDto;
 import com.samoylenko.bookingservice.model.voucher.VoucherDto;
-import com.samoylenko.bookingservice.service.VoucherService;
+import com.samoylenko.bookingservice.service.PromotionService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
@@ -20,12 +20,12 @@ import java.util.List;
 @Tag(name = "Промокоды и сертификаты (для администратора)")
 @AllArgsConstructor
 public class AdminVoucherController {
-    private final VoucherService voucherService;
+    private final PromotionService promotionService;
 
     @Operation(summary = "Создание промокода")
     @PostMapping
     public ResponseEntity<VoucherDto> createVoucher(@RequestBody VoucherCreateDto dto, UriComponentsBuilder uriBuilder) {
-        VoucherDto voucher = voucherService.create(dto);
+        VoucherDto voucher = promotionService.createVoucher(dto);
         var uri = uriBuilder.path("/api/v1/admin/vouchers/{id}")
                 .buildAndExpand(voucher.getId())
                 .toUri();
@@ -36,7 +36,7 @@ public class AdminVoucherController {
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public VoucherDto getVoucher(@PathVariable String id) {
-        return voucherService.getById(id);
+        return promotionService.getVoucherById(id);
     }
 
     @Operation(summary = "Получить список промокодов")
@@ -50,6 +50,6 @@ public class AdminVoucherController {
                 .route(route)
                 .status(status)
                 .build();
-        return voucherService.getVouchers(request);
+        return promotionService.getVouchers(request);
     }
 }

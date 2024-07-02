@@ -19,6 +19,11 @@ public enum WalkStatus {
 
     private final String description;
 
+    @Override
+    public String toString() {
+        return this.name();
+    }
+
     @JsonValue
     public String getDescription() {
         return description;

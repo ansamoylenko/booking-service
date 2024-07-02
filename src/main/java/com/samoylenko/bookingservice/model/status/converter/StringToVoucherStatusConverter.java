@@ -1,6 +1,6 @@
 package com.samoylenko.bookingservice.model.status.converter;
 
-import com.samoylenko.bookingservice.model.status.VoucherStatus;
+import com.samoylenko.bookingservice.model.promotion.VoucherStatus;
 import lombok.AllArgsConstructor;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;

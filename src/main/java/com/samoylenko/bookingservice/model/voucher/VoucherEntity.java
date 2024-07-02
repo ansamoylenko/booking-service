@@ -1,7 +1,7 @@
 package com.samoylenko.bookingservice.model.voucher;
 
 import com.samoylenko.bookingservice.model.entity.BaseEntity;
-import com.samoylenko.bookingservice.model.status.VoucherStatus;
+import com.samoylenko.bookingservice.model.promotion.VoucherStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
@@ -24,7 +24,7 @@ import java.time.Instant;
 public class VoucherEntity extends BaseEntity {
 
     @Column(name = "type", nullable = false)
-    private VoucherType type;
+    private DiscountType type;
 
     @Column(name = "status", nullable = false)
     private VoucherStatus status;

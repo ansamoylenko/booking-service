@@ -4,7 +4,7 @@ import com.samoylenko.bookingservice.model.dto.route.RouteDto;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Getter
 @Setter
@@ -18,6 +18,6 @@ public class CompositeUserWalkDto {
     private Integer availablePlaces;
     private Integer priceForOne;
     private Integer duration;
-    private LocalDateTime startTime;
-    private LocalDateTime endTime;
+    private Instant startTime;
+    private Instant endTime;
 }

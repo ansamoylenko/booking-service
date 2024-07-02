@@ -21,7 +21,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
@@ -51,9 +51,9 @@ public class AdminWalkController {
             @Schema(description = "Идентификатор маршрута", example = "3f5d6702-8554-4137-85e0-4ada615e7253")
             @RequestParam(value = "routeId", required = false) String routeId,
             @Schema(description = "Минимальное время начала прогулки", example = "2024-01-01T00:00:00")
-            @RequestParam(value = "startAfter", required = false) LocalDateTime startAfter,
+            @RequestParam(value = "startAfter", required = false) Instant startAfter,
             @Schema(description = "Максимальное время начала прогулки", example = "2024-12-01T00:00:00")
-            @RequestParam(value = "startBefore", required = false) LocalDateTime startBefore,
+            @RequestParam(value = "startBefore", required = false) Instant startBefore,
             @Schema(description = "Количество доступных мест", example = "2")
             @RequestParam(value = "availablePlaces", required = false) Integer availablePlaces,
             @Schema(description = "Номер страницы", example = "0")

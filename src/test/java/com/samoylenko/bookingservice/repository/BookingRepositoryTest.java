@@ -30,7 +30,6 @@ public class BookingRepositoryTest extends BaseRepositoryTest {
         bookingRepository.deleteAll();
         clientRepository.deleteAll();
         paymentRepository.deleteAll();
-        clientRepository.deleteAll();
     }
 
     @Test

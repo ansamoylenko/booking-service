@@ -7,6 +7,14 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
 
+//    @Bean
+//    public ObjectMapper objectMapper() {
+//        ObjectMapper objectMapper = new ObjectMapper();
+//        JavaTimeModule javaTimeModule = new JavaTimeModule();
+//        objectMapper.registerModule(javaTimeModule);
+//        return objectMapper;
+//    }
+
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")

@@ -10,6 +10,12 @@ spring:
       hibernate.format_sql: true
     hibernate.ddl-auto: create
 
+  datasource:
+    url: jdbc:postgresql://localhost:5436/booking-test
+    driver-class-name: org.postgresql.Driver
+    username: ts-admin
+    password: ts-password
+
 logging:
   level:
     org.springframework.orm.jpa.JpaTransactionManager: DEBUG

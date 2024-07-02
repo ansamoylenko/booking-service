@@ -6,7 +6,7 @@ import lombok.experimental.SuperBuilder;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @With
 @Getter
@@ -16,8 +16,10 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class WalkRequest extends BaseRequest {
     private String routeId;             // for user
-    private LocalDateTime startAfter;   // for user
-    private LocalDateTime startBefore;  // for user
+    private Instant startAfter;   // for user
+    private Instant startBefore;  // for user
+    private Instant endAfter;    // for user
+    private Instant endBefore;   // for user
     private Integer availablePlaces;    // for user
     private String employeeId;          // for admin
     private WalkStatus status;          // for admin

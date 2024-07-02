@@ -1,4 +1,3 @@
-<!-- src/main/resources/logback.xml -->
 <configuration>
     <conversionRule conversionWord="clr" converterClass="org.springframework.boot.logging.logback.ColorConverter"/>
     <conversionRule conversionWord="wex"
@@ -6,8 +5,9 @@
 
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
-            <pattern>%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(%highlight(%-5level)) %clr(%cyan(%logger{15})) -
-                %clr(%msg){faint}%n%wex
+            <pattern>
+                %clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(%highlight(%-5level)) %clr(%cyan(%logger{15}))
+                %clr(%magenta([%thread])) - %clr(%msg){faint}%n%wex
             </pattern>
         </encoder>
     </appender>
@@ -22,11 +22,9 @@
             <totalSizeCap>3GB</totalSizeCap>
         </rollingPolicy>
         <encoder>
-            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level %logger{15} - %msg%n%wex</pattern>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level %logger{15} [%thread] - %msg%n%wex</pattern>
         </encoder>
     </appender>
-
-    <logger name="com.samoylenko.bookingservice.service" level="DEBUG"/>
 
     <root level="INFO">
         <appender-ref ref="STDOUT"/>

@@ -4,8 +4,11 @@ import com.samoylenko.bookingservice.annotations.Phone;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import lombok.*;
+
+import java.time.LocalDate;
 
 @Getter
 @Setter
@@ -33,4 +36,8 @@ public class ClientCreateDto {
     @NotBlank(message = "{invalid.notBlank}")
     @Phone(message = "Номер телефона должен быть валидным")
     private String phone;
+
+    @Schema(description = "Дата рождения клиента", example = "1990-01-01")
+    @NotNull
+    private LocalDate dateOfBirth;
 }

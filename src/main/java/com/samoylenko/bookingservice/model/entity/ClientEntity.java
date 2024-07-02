@@ -9,7 +9,7 @@ import lombok.experimental.SuperBuilder;
 import org.hibernate.proxy.HibernateProxy;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.Objects;
 
 @Getter
@@ -33,7 +33,9 @@ public class ClientEntity extends BaseEntity {
 
     @Column(name = "phone", nullable = false, unique = true)
     private String phone;
-    private LocalDateTime dateOfBirth;
+
+    @Column(name = "date_of_birth", nullable = false)
+    private LocalDate dateOfBirth;
 
     @Override
     public final boolean equals(Object o) {
@@ -54,13 +56,13 @@ public class ClientEntity extends BaseEntity {
     @Override
     public String toString() {
         return getClass().getSimpleName() + "(" +
-                "id = " + getId() + ", " +
-                "createdDate = " + getCreatedDate() + ", " +
-                "lastModifiedDate = " + getLastModifiedDate() + ", " +
-                "firstName = " + getFirstName() + ", " +
-                "lastName = " + getLastName() + ", " +
-                "email = " + getEmail() + ", " +
-                "phone = " + getPhone() + ", " +
-                "dateOfBirth = " + getDateOfBirth() + ")";
+               "id = " + getId() + ", " +
+               "createdDate = " + getCreatedDate() + ", " +
+               "lastModifiedDate = " + getLastModifiedDate() + ", " +
+               "firstName = " + getFirstName() + ", " +
+               "lastName = " + getLastName() + ", " +
+               "email = " + getEmail() + ", " +
+               "phone = " + getPhone() + ", " +
+               "dateOfBirth = " + getDateOfBirth() + ")";
     }
 }

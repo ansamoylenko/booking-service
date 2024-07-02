@@ -1,8 +1,8 @@
 package com.samoylenko.bookingservice.model.entity;
 
-import com.samoylenko.bookingservice.model.status.VoucherStatus;
+import com.samoylenko.bookingservice.model.promotion.VoucherStatus;
+import com.samoylenko.bookingservice.model.voucher.DiscountType;
 import com.samoylenko.bookingservice.model.voucher.VoucherEntity;
-import com.samoylenko.bookingservice.model.voucher.VoucherType;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.With;
@@ -14,7 +14,7 @@ import java.util.Random;
 @AllArgsConstructor
 @NoArgsConstructor(staticName = "of")
 public class DefaultVoucherEntityBuilder implements DefaultEntityBuilder<VoucherEntity> {
-    private VoucherType type = VoucherType.PROMO_CODE;
+    private DiscountType type = DiscountType.PROMO_CODE;
     private VoucherStatus status = VoucherStatus.ACTIVE;
     private String code = String.valueOf(new Random().nextInt(100000));
     private Integer discountPercent = 0;

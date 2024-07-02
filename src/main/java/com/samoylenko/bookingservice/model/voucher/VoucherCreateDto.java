@@ -19,7 +19,7 @@ import java.time.Instant;
 public class VoucherCreateDto {
     @NotNull
     @Schema(description = "Тип ваучера", requiredMode = Schema.RequiredMode.REQUIRED)
-    private VoucherType type;
+    private DiscountType type;
 
     @Schema(description = "Код", requiredMode = Schema.RequiredMode.REQUIRED)
     private String code;

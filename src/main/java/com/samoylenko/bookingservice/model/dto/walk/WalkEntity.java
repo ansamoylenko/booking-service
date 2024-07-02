@@ -1,5 +1,9 @@
-package com.samoylenko.bookingservice.model.entity;
+package com.samoylenko.bookingservice.model.dto.walk;
 
+import com.samoylenko.bookingservice.model.entity.BaseEntity;
+import com.samoylenko.bookingservice.model.entity.BookingEntity;
+import com.samoylenko.bookingservice.model.entity.EmployeeEntity;
+import com.samoylenko.bookingservice.model.entity.RouteEntity;
 import com.samoylenko.bookingservice.model.status.WalkStatus;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -10,7 +14,7 @@ import lombok.experimental.SuperBuilder;
 import org.hibernate.proxy.HibernateProxy;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -54,10 +58,10 @@ public class WalkEntity extends BaseEntity {
     private Integer priceForOne;
 
     @NotNull
-    private LocalDateTime startTime;
+    private Instant startTime;
 
     @NotNull
-    private LocalDateTime endTime;
+    private Instant endTime;
 
     @NotNull
     @Positive

@@ -40,7 +40,7 @@ public class AdminPaymentController {
     @GetMapping(value = "/{id}", produces = APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public PaymentDto getPaymentById(@PathVariable String id) {
-        return paymentService.getPaymentForAdmin(id);
+        return paymentService.getPaymentById(id);
     }
 
 }

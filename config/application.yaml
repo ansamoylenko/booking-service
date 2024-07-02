@@ -8,13 +8,40 @@ spring:
   jpa:
     open-in-view: false
 
-  datasource:
-    url: jdbc:postgresql://${DB_HOSTNAME}:${DB_PORT}/${DB_NAME}
-    driver-class-name: org.postgresql.Driver
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
-
 service:
+
+  # WALK
+  # Период проверки прогулок для перевода в статус BOOKING_FINISHED в формате cron
+  checkWalkToCompleteBooking: "0 */15 * * * *"
+  # Период проверки прогулки для перевода в статус FINISHED в формате cron
+  checkWalksToFinish: "30 */30 * * * *"
+  # Крайнее время бронирования до начала прогулки в минутах
+  walkInBookingStatusDeadLine: 120
+
+  # BOOKING
+  # Время жизни бронирования без оплаты в минутах
   bookingLifeTime: 15
-  bookingCheckPeriodImMs: 5000
-  invoiceCheckPeriodImMs: 5000
+  # Период проверки бронирований в секундах
+  bookingCheckPeriod: 5
+  # Период проверки оплаты в секундах
+  invoiceCheckPeriod: 5000
+
+  # DISCOUNT
+  # Активировать скидку для групп
+  groupDiscountEnabled: true
+  # Процент скидки для групп
+  groupDiscountValuePercent: 15
+  # Абсолютное значение скидки для групп
+  groupDiscountValueAbsolute: 0
+  # Минимальный размер группы
+  groupDiscountMinPlaces: 5
+
+  # Активировать скидку для повторных бронирований
+  repeatedBookingDiscountEnabled: true
+  # Процент скидки для повторных бронирований
+  repeatedBookingDiscountPercent: 15
+  # Абсолютное значение скидки для повторных бронирований
+  repeatedBookingDiscountAbsolute: 0
+
+logging:
+  config: config/logback.xml

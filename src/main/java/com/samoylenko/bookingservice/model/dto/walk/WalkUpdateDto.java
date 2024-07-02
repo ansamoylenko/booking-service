@@ -1,6 +1,5 @@
 package com.samoylenko.bookingservice.model.dto.walk;
 
-import com.samoylenko.bookingservice.model.entity.WalkEntity;
 import com.samoylenko.bookingservice.model.status.WalkStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.FutureOrPresent;
@@ -8,7 +7,7 @@ import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
 import lombok.*;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 /**
  * DTO for updating {@link WalkEntity}
@@ -32,7 +31,7 @@ public class WalkUpdateDto {
 
     @Schema(description = "Время начала прогулки", example = "2024-06-01T06:00:00")
     @FutureOrPresent(message = "{invalid.future}")
-    private LocalDateTime startTime;
+    private Instant startTime;
 
     @Schema(description = "Длительность прогулки в минутах", example = "150")
     @Positive(message = "{invalid.positive}")

@@ -6,7 +6,6 @@ import lombok.experimental.SuperBuilder;
 
 import java.io.Serializable;
 import java.time.Instant;
-import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -27,7 +26,7 @@ public class BookingDto implements Serializable {
     private String clientLastName;
 
     private String walkId;
-    private LocalDateTime walkStartTime;
+    private Instant walkStartTime;
 
 
     private String routeName;

@@ -21,6 +21,7 @@ import com.samoylenko.bookingservice.repository.PaymentRepository;
 import jakarta.annotation.PostConstruct;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -29,6 +30,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
+import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
@@ -109,12 +111,12 @@ public class BookingService {
                 return getBookingById(booking.getId());
             }
 
-            var payment = paymentService.createInvoice(PaymentCreateDto.builder()
-                    .orderId(booking.getId())
+            var payment = paymentService.createPaymentDocument(PaymentCreateDto.builder()
+                    .bookingId(booking.getId())
                     .routeId(walk.getRoute().getId())
                     .serviceName(walk.getRoute().getServiceName())
-                    .amount(booking.getNumberOfPeople())
-                    .priceForOne(walk.getPriceForOne())
+                    .quantity(booking.getNumberOfPeople())
+                    .priceForOne(BigDecimal.valueOf(walk.getPriceForOne()))
                     .voucher(voucher)
                     .client(client)
                     .expiryTime(booking.getEndTime())
@@ -171,7 +173,7 @@ public class BookingService {
 
         PaymentDto payment = null;
         if (booking.getPayment() != null) {
-            payment = paymentService.getPaymentForUser(booking.getPayment().getId());
+            payment = paymentService.getPaymentById(booking.getPayment().getId());
         }
 
         var client = mapper.map(booking.getClient(), ClientDto.class);
@@ -207,20 +209,11 @@ public class BookingService {
     }
 
     @Transactional
-    public void setExpired(@NotBlank String id) {
-        log.info("Setting expired for booking:  {}", id);
-        var booking = getBookingEntity(id);
-        booking.setStatus(BookingStatus.EXPIRED);
-        bookingRepository.save(booking);
-        walkService.increaseAvailablePlaces(booking.getWalk().getId(), booking.getNumberOfPeople());
-    }
-
-    @Transactional
-    public CompositeBookingDto setPaid(String bookingId) {
-        log.info("Setting paid for booking:  {}", bookingId);
+    public void setStatus(@NotBlank String bookingId, @NotNull BookingStatus status) {
         var booking = getBookingEntity(bookingId);
-        booking.setStatus(BookingStatus.PAID);
+        var oldStatus = booking.getStatus();
+        booking.setStatus(status);
         bookingRepository.save(booking);
-        return getBookingById(booking.getId());
+        log.info("Updated status of booking {} from {} to {}", bookingId, oldStatus, status);
     }
 }

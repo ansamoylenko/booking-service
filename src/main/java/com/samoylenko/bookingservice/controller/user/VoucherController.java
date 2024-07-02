@@ -1,37 +1,42 @@
 package com.samoylenko.bookingservice.controller.user;
 
+import com.samoylenko.bookingservice.model.promotion.DiscountDto;
+import com.samoylenko.bookingservice.model.promotion.DiscountRequest;
 import com.samoylenko.bookingservice.service.WalkService;
-import com.samoylenko.bookingservice.service.handler.VoucherHandler;
-import com.samoylenko.bookingservice.service.handler.VoucherHandlerFactory;
+import com.samoylenko.bookingservice.service.discount.DiscountManager;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
+
 @RestController
 @RequestMapping("/api/v1/vouchers")
 @Tag(name = "Промокоды и сертификаты (для пользователя)")
 @AllArgsConstructor
 public class VoucherController {
-    private final VoucherHandlerFactory voucherHandlerFactory;
+    private final DiscountManager discountManager;
     private final WalkService walkService;
 
-    @Operation(summary = "Провалидировать промокод")
-    @GetMapping("/validate")
+    @Operation(summary = "Получить итоговую стоймость бронирования")
+    @GetMapping("/calculate")
     @ResponseStatus(HttpStatus.OK)
-    public VoucherHandler.AppliementResponse validateVoucher(
-            @RequestParam String code,
+    public DiscountDto calculate(
+            @RequestParam(value = "code", required = false) String code,
             @RequestParam(value = "walk", required = false) String walkId,
-            @RequestParam Integer quantity
+            @RequestParam(value = "quantity", required = false) Integer quantity,
+            @RequestParam(value = "phone", required = false) String phone
     ) {
         var walk = walkService.getWalkForUser(walkId);
-        var request = VoucherHandler.AppliementRequest.builder()
-                .voucherCode(code)
+        var request = DiscountRequest.builder()
+                .code(code)
                 .routeId(walk.getRoute().getId())
                 .quantity(quantity)
-                .price(walk.getPriceForOne())
+                .price(BigDecimal.valueOf(walk.getPriceForOne()))
+                .phone(phone)
                 .build();
-        return voucherHandlerFactory.getVoucherHandler().validate(request);
+        return discountManager.calculateDiscount(request);
     }
 }

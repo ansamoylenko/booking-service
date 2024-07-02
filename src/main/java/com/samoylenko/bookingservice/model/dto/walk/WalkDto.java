@@ -1,10 +1,11 @@
 package com.samoylenko.bookingservice.model.dto.walk;
 
+import com.samoylenko.bookingservice.model.status.WalkStatus;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import java.io.Serializable;
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Getter
 @Setter
@@ -14,9 +15,10 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class WalkDto implements Serializable {
     private String id;
+    private WalkStatus status;
     private Integer availablePlaces;
     private Integer priceForOne;
     private Integer duration;
-    private LocalDateTime startTime;
-    private LocalDateTime endTime;
+    private Instant startTime;
+    private Instant endTime;
 }

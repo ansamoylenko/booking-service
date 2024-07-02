@@ -2,8 +2,10 @@ package com.samoylenko.bookingservice.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.samoylenko.bookingservice.model.dto.payment.InvoiceCreateDto;
-import com.samoylenko.bookingservice.model.dto.payment.paykeeper.InvoiceDto;
+import com.samoylenko.bookingservice.model.dto.payment.paykeeper.InvoiceInfo;
 import com.samoylenko.bookingservice.model.dto.payment.paykeeper.InvoiceResponse;
+import com.samoylenko.bookingservice.model.dto.payment.paykeeper.ServiceData;
+import com.samoylenko.bookingservice.model.dto.payment.paykeeper.ServiceObject;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpEntity;
@@ -15,9 +17,11 @@ import org.springframework.util.Assert;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
+import java.math.RoundingMode;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Base64;
+import java.util.List;
 import java.util.Map;
 
 import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VALUE;
@@ -58,17 +62,30 @@ public class PayKeeperClient {
     }
 
     public InvoiceResponse createInvoice(InvoiceCreateDto data) {
+        var price = data.getPrice().setScale(2, RoundingMode.UP);
+        var cost = data.getCost().setScale(2, RoundingMode.UP);
+        var serviceObject = ServiceObject.builder()
+                .name("Прогулка")
+                .price(price.toString())
+                .quantity(data.getQuantity())
+                .sum(cost.toString())
+                .tax("vat0")
+                .itemType("service")
+                .paymentType("prepay")
+                .build();
+        var serviceData = new ServiceData(List.of(serviceObject), "ru");
+
         var formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withZone(ZoneId.systemDefault());
         try {
             var token = getToken();
             var headers = getHeaders();
             var url = fromHttpUrl(baseUrl).path("/change/invoice/preview/").toUriString();
-            var serviceData = mapper.writeValueAsString(data.getServiceData());
+            var serviceDataStr = mapper.writeValueAsString(serviceData);
             var body = new LinkedMultiValueMap<String, String>();
-            body.add("pay_amount", data.getPayAmount().toString());
+            body.add("pay_amount", data.getCost().toString());
             body.add("clientid", data.getClientId());
             body.add("orderid", data.getOrderId());
-            body.add("service_name", serviceData);
+            body.add("service_name", serviceDataStr);
             body.add("client_email", data.getClientEmail());
             body.add("client_phone", data.getClientPhone());
 //            body.add("expiry", formatter.format(data.getExpiry()));
@@ -111,7 +128,7 @@ public class PayKeeperClient {
         }
     }
 
-    public InvoiceDto getInvoiceInfo(String id) {
+    public InvoiceInfo getInvoiceInfo(String id) {
         var headers = getHeaders();
         var url = fromHttpUrl(baseUrl)
                 .path("/info/invoice/byid/")
@@ -119,7 +136,7 @@ public class PayKeeperClient {
                 .toUriString();
 
         var request = new HttpEntity<>(headers);
-        var response = restTemplate.exchange(url, HttpMethod.GET, request, InvoiceDto.class);
+        var response = restTemplate.exchange(url, HttpMethod.GET, request, InvoiceInfo.class);
 
         if (response.getBody() != null) {
             return response.getBody();

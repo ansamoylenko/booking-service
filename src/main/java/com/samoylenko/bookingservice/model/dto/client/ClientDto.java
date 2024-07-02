@@ -6,7 +6,7 @@ import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import java.io.Serializable;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 /**
  * DTO for {@link }
@@ -24,5 +24,5 @@ public class ClientDto extends BaseDto implements Serializable {
     private String lastName;
     private String email;
     private String phone;
-    private LocalDateTime dateOfBirth;
+    private LocalDate dateOfBirth;
 }
