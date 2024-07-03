@@ -65,7 +65,6 @@ public class RepeatedBookingDiscountHandler implements DiscountHandler {
         var resultPrice = resultCost.divide(quantity, 2, RoundingMode.UP);
         return DiscountDto.builder()
                 .type(REPEATED_BOOKING)
-                .code(discountRequest.getCode())
                 .status(DiscountStatus.ACTIVE)
                 .discountPercent(discountPercent)
                 .discountAbsolute(discountAbsolute.intValue())
