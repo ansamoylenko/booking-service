@@ -1,6 +1,6 @@
 package com.samoylenko.bookingservice.model.walk;
 
-import com.samoylenko.bookingservice.model.booking.CompositeBookingDto;
+import com.samoylenko.bookingservice.model.booking.AdminBookingDto;
 import com.samoylenko.bookingservice.model.route.RouteDto;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -33,5 +33,5 @@ public class CompositeAdminWalkDto implements Serializable {
     private Instant lastModifiedDate;
     private Integer maxPlaces;
     private Integer reservedPlaces;
-    private List<CompositeBookingDto> bookings;
+    private List<AdminBookingDto> bookings;
 }

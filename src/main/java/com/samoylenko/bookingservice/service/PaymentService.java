@@ -28,6 +28,8 @@ import java.time.Instant;
 import static com.samoylenko.bookingservice.model.exception.EntityType.PAYMENT;
 import static com.samoylenko.bookingservice.model.payment.PaymentStatus.PAID;
 import static com.samoylenko.bookingservice.model.payment.PaymentStatus.PENDING;
+import static com.samoylenko.bookingservice.model.voucher.DiscountType.CERTIFICATE;
+import static com.samoylenko.bookingservice.model.voucher.DiscountType.PROMO_CODE;
 import static java.math.BigDecimal.ZERO;
 import static java.time.Duration.between;
 import static java.time.Instant.now;
@@ -42,6 +44,7 @@ public class PaymentService {
     private final DiscountHandler discountManager;
     private final PayKeeperClient payKeeper;
     private final ServiceProperties properties;
+    private final PromotionService promotionService;
 
     @PostConstruct
     public void init() {
@@ -79,7 +82,8 @@ public class PaymentService {
             DiscountManager discountManager,
             PayKeeperClient payKeeper,
             ServiceProperties properties,
-            BookingRepository bookingRepository
+            BookingRepository bookingRepository,
+            PromotionService promotionService
     ) {
         this.paymentRepository = paymentRepository;
         this.mapper = mapper;
@@ -87,6 +91,7 @@ public class PaymentService {
         this.payKeeper = payKeeper;
         this.properties = properties;
         this.bookingRepository = bookingRepository;
+        this.promotionService = promotionService;
     }
 
     @Transactional
@@ -130,6 +135,10 @@ public class PaymentService {
                 paymentBuilder.invoiceUrl(invoiceResponse.url());
             } else {
                 paymentBuilder.status(PAID);
+            }
+            if (discount.getType().equals(CERTIFICATE) || discount.getType().equals(PROMO_CODE)) {
+                var voucher = promotionService.getEntityByCode(discount.getCode());
+                paymentBuilder.voucher(voucher);
             }
             var payment = paymentRepository.save(paymentBuilder.build());
             var paymentDto = toPaymentDto(payment);

@@ -79,4 +79,9 @@ public class PromotionService {
                 .map(voucher -> modelMapper.map(voucher, VoucherDto.class))
                 .orElse(null);
     }
+
+    public VoucherEntity getEntityByCode(@NotBlank String code) {
+        return voucherRepository.findByCode(code)
+                .orElseThrow(() -> new EntityNotFoundException(VOUCHER, code));
+    }
 }

@@ -8,10 +8,10 @@ import com.samoylenko.bookingservice.repository.WalkRepository;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,11 +27,18 @@ import static java.time.temporal.ChronoUnit.MINUTES;
 @Slf4j
 @Service
 @Validated
-@AllArgsConstructor
 public class WalkService {
     private final RouteService routeService;
+    private final BookingService bookingService;
     private final WalkRepository walkRepository;
     private final ModelMapper modelMapper;
+
+    public WalkService(RouteService routeService, @Lazy BookingService bookingService, WalkRepository walkRepository, ModelMapper modelMapper) {
+        this.routeService = routeService;
+        this.bookingService = bookingService;
+        this.walkRepository = walkRepository;
+        this.modelMapper = modelMapper;
+    }
 
     @Transactional
     public CompositeAdminWalkDto createWalk(@Valid WalkCreateDto walk) {
@@ -82,7 +89,12 @@ public class WalkService {
     @Transactional
     public CompositeAdminWalkDto getWalkForAdmin(@NotBlank String id) {
         var entity = getWalkEntityById(id);
-        return modelMapper.map(entity, CompositeAdminWalkDto.class);
+        var dto = modelMapper.map(entity, CompositeAdminWalkDto.class);
+        var bookings = dto.getBookings().stream()
+                .map(booking -> bookingService.getBookingForAdmin(booking.getId()))
+                .toList();
+        dto.setBookings(bookings);
+        return dto;
     }
 
     public WalkEntity getWalkEntityById(@NotBlank String id) {
