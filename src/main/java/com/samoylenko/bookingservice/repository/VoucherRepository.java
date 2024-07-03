@@ -11,4 +11,6 @@ public interface VoucherRepository extends BaseEntityRepository<VoucherEntity> {
     Optional<VoucherEntity> findByCode(String code);
 
     List<VoucherEntity> findAll(Specification spec, Sort sort);
+
+    boolean existsByCode(String code);
 }

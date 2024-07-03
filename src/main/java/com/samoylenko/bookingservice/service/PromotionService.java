@@ -1,6 +1,7 @@
 package com.samoylenko.bookingservice.service;
 
 import com.samoylenko.bookingservice.model.discount.DiscountRequest;
+import com.samoylenko.bookingservice.model.exception.EntityCreateException;
 import com.samoylenko.bookingservice.model.exception.EntityNotFoundException;
 import com.samoylenko.bookingservice.model.voucher.*;
 import com.samoylenko.bookingservice.repository.VoucherRepository;
@@ -24,26 +25,40 @@ import static com.samoylenko.bookingservice.model.exception.EntityType.VOUCHER;
 @AllArgsConstructor
 public class PromotionService {
     private final VoucherRepository voucherRepository;
+    private final RouteService routeService;
     private final CodeGenerator codeGenerator;
     private final ModelMapper modelMapper;
 
     public VoucherDto createVoucher(@Valid VoucherCreateDto createDto) {
-        if (createDto.getCode() == null) {
-            createDto.setCode(codeGenerator.getCode());
-        }
-        var entity = voucherRepository.save(VoucherEntity.builder()
-                .type(createDto.getType())
-                .status(VoucherStatus.ACTIVE)
-                .code(createDto.getCode())
-                .distributor(createDto.getDistributor())
-                .routeId(createDto.getRouteId())
-                .expiredAt(createDto.getExpiredAt())
-                .discountAbsolute(createDto.getDiscountAbsolute())
-                .discountPercent(createDto.getDiscountPercent())
-                .count(0)
-                .build());
+        log.info("Creating voucher: {}", createDto);
+        try {
+            routeService.checkExists(createDto.getRouteId());
+            if (createDto.getCode() == null) {
+                createDto.setCode(codeGenerator.getCode());
+            }
+            checkUniqueness(createDto.getCode());
+            var entity = voucherRepository.save(VoucherEntity.builder()
+                    .type(createDto.getType())
+                    .status(VoucherStatus.ACTIVE)
+                    .code(createDto.getCode())
+                    .distributor(createDto.getDistributor())
+                    .routeId(createDto.getRouteId())
+                    .expiredAt(createDto.getExpiredAt())
+                    .discountAbsolute(createDto.getDiscountAbsolute())
+                    .discountPercent(createDto.getDiscountPercent())
+                    .count(0)
+                    .build());
 
-        return modelMapper.map(entity, VoucherDto.class);
+            return modelMapper.map(entity, VoucherDto.class);
+        } catch (Exception e) {
+            throw new EntityCreateException(VOUCHER, e);
+        }
+    }
+
+    private void checkUniqueness(String code) {
+        if (voucherRepository.existsByCode(code)) {
+            throw new RuntimeException("The voucher with the specified code %s already exists".formatted(code));
+        }
     }
 
     public VoucherDto getVoucherById(@NotBlank String id) {

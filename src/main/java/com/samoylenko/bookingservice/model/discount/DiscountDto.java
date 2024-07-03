@@ -13,6 +13,7 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 public class DiscountDto {
+    private String requiredRouteId;
     private DiscountType type;
     private DiscountStatus status;
     private String code;

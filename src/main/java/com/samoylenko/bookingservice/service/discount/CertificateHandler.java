@@ -61,6 +61,19 @@ public class CertificateHandler implements DiscountHandler {
         var voucher = promotionService.getVoucherByCode(discountRequest.getCode());
         if (voucher == null) return null;
         if (!voucher.getType().equals(CERTIFICATE)) return null;
+        if (voucher.getExpectedRouteId() != null &&
+            !voucher.getExpectedRouteId().equals(discountRequest.getRouteId())
+        ) {
+            return DiscountDto.builder()
+                    .type(CERTIFICATE)
+                    .code(discountRequest.getCode())
+                    .status(DiscountStatus.NOT_APPLIED)
+                    .requiredRouteId(voucher.getExpectedRouteId())
+                    .priceForOne(discountRequest.getPrice())
+                    .totalCost(discountRequest.getPrice().multiply(valueOf(discountRequest.getQuantity())))
+                    .quantity(discountRequest.getQuantity())
+                    .build();
+        }
         if (!voucher.getStatus().isValid()) {
             var discountStatus = voucher.getStatus().equals(VoucherStatus.EXPIRED) ?
                     DiscountStatus.EXPIRED :

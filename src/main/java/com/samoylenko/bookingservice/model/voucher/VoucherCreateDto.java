@@ -13,6 +13,7 @@ import java.time.Instant;
 @Setter
 @Generated
 @Builder
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)

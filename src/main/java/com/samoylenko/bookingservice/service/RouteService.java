@@ -11,6 +11,7 @@ import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 
 import java.util.List;
@@ -24,6 +25,12 @@ import static com.samoylenko.bookingservice.model.exception.EntityType.ROUTE;
 public class RouteService {
     private final RouteRepository routeRepository;
     private final ModelMapper modelMapper;
+
+    public void checkExists(String id) {
+        if (!StringUtils.hasText(id)) return;
+        if (routeRepository.existsById(id)) return;
+        throw new EntityNotFoundException(ROUTE, id);
+    }
 
     public RouteDto createRoute(@Valid RouteCreateDto routeDto) {
         var routeEntity = modelMapper.map(routeDto, RouteEntity.class);

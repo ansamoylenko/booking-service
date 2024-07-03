@@ -26,7 +26,7 @@ public class CertificateHandlerTest {
     private CertificateHandler certificateHandler;
 
     @Test
-    public void calculate_withPromocode_shouldReturnAppliementResponse() {
+    public void calculate_withCertificate_shouldReturnAppliementResponse() {
         var voucherDto = VoucherDto.builder()
                 .type(CERTIFICATE)
                 .status(VoucherStatus.ACTIVE)
@@ -52,6 +52,38 @@ public class CertificateHandlerTest {
         assertThat(response.getQuantity()).isEqualTo(2);
         assertThat(response.getDiscountPercent()).isEqualTo(0);
         assertThat(response.getDiscountAbsolute()).isEqualTo(3500);
+    }
+
+    @Test
+    public void calculate_withCertificateForOtherRoute_shouldReturnAppliementResponse() {
+        var voucherDto = VoucherDto.builder()
+                .type(CERTIFICATE)
+                .expectedRouteId("otherRouteId")
+                .status(VoucherStatus.ACTIVE)
+                .code("certificate")
+                .discountPercent(0)
+                .discountAbsolute(3500)
+                .build();
+        when(promotionService.getVoucherByCode(anyString())).thenReturn(voucherDto);
+        var voucherRequest = DiscountRequest.builder()
+                .code("certificate")
+                .routeId("routeId")
+                .quantity(2)
+                .price(valueOf(3000))
+                .build();
+
+        var response = certificateHandler.calculateDiscount(voucherRequest);
+
+        assertThat(response).isNotNull();
+        assertThat(response.getType()).isEqualTo(CERTIFICATE);
+        assertThat(response.getStatus()).isEqualTo(DiscountStatus.NOT_APPLIED);
+        assertThat(response.getRequiredRouteId()).isEqualTo("otherRouteId");
+        assertThat(response.getCode()).isEqualTo("certificate");
+        assertThat(response.getPriceForOne().compareTo(valueOf(3000))).isEqualTo(0);
+        assertThat(response.getTotalCost().compareTo(valueOf(6000))).isEqualTo(0);
+        assertThat(response.getQuantity()).isEqualTo(2);
+        assertThat(response.getDiscountPercent()).isEqualTo(0);
+        assertThat(response.getDiscountAbsolute()).isEqualTo(0);
     }
 
     @Test

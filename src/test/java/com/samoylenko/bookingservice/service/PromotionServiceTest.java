@@ -2,6 +2,7 @@ package com.samoylenko.bookingservice.service;
 
 import com.samoylenko.bookingservice.model.discount.DiscountRequest;
 import com.samoylenko.bookingservice.model.entity.DefaultVoucherEntityBuilder;
+import com.samoylenko.bookingservice.model.exception.EntityCreateException;
 import com.samoylenko.bookingservice.model.exception.EntityNotFoundException;
 import com.samoylenko.bookingservice.model.voucher.DiscountType;
 import com.samoylenko.bookingservice.model.voucher.VoucherCreateDto;
@@ -54,6 +55,21 @@ public class PromotionServiceTest {
         assertThat(created.getDiscountPercent()).isEqualTo(0);
         assertThat(created.getStatus()).isEqualTo(VoucherStatus.ACTIVE);
         assertThat(created.getCode()).isNotBlank();
+    }
+
+    @Test
+    public void createVoucher_withNotUnique_shouldReturnException() {
+        var createDto = VoucherCreateDto.builder()
+                .type(DiscountType.PROMO_CODE)
+                .code("code")
+                .discountAbsolute(300)
+                .build();
+
+        var created = promotionService.createVoucher(createDto);
+
+        assertThat(created).isNotNull();
+        assertThatThrownBy(() -> promotionService.createVoucher(createDto))
+                .isInstanceOf(EntityCreateException.class);
     }
 
     @Test
