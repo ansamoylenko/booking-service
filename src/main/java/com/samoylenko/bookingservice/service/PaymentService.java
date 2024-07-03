@@ -60,7 +60,7 @@ public class PaymentService {
         mapper.createTypeMap(PaymentEntity.class, DiscountDto.class)
                 .addMappings(mapper -> mapper.map(PaymentEntity::getDiscountType, DiscountDto::setType))
                 .addMappings(mapper -> mapper.map(PaymentEntity::getDiscountStatus, DiscountDto::setStatus))
-                .addMappings(mapper -> mapper.map(src -> src.getVoucher().getCode(), DiscountDto::setCode))
+                .addMappings(mapper -> mapper.map(PaymentEntity::getDiscountCode, DiscountDto::setCode))
                 .addMappings(mapper -> mapper.map(PaymentEntity::getPriceForOne, DiscountDto::setPriceForOne))
                 .addMappings(mapper -> mapper.map(PaymentEntity::getTotalCost, DiscountDto::setTotalCost))
                 .addMappings(mapper -> mapper.map(PaymentEntity::getQuantity, DiscountDto::setQuantity))
