@@ -2,6 +2,7 @@ package com.samoylenko.bookingservice.model.employee;
 
 import com.samoylenko.bookingservice.annotations.Phone;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -29,4 +30,9 @@ public class EmployeeCreateDto {
     @NotBlank(message = "{invalid.notBlank}")
     @Phone(message = "Номер телефона должен быть валидным")
     private String phone;
+
+    @Schema(description = "Почта")
+    @NotBlank
+    @Email(message = "Email должен быть валидным")
+    private String email;
 }

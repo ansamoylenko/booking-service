@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
@@ -20,7 +21,8 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 public class AdminPaymentController {
     private final PaymentService paymentService;
 
-    @Operation(summary = "Получить платежи")
+    @Operation(summary = "Получить платежи", description = "Доступен для роли MANAGER и выше")
+    @PreAuthorize("hasRole('MANAGER')")
     @GetMapping(produces = APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public Page<PaymentDto> getPayments(
@@ -36,7 +38,8 @@ public class AdminPaymentController {
         return paymentService.getPayments(request);
     }
 
-    @Operation(summary = "Получить платеж по id")
+    @Operation(summary = "Получить платеж по id", description = "Доступен для роли MANAGER и выше")
+    @PreAuthorize("hasRole('MANAGER')")
     @GetMapping(value = "/{id}", produces = APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public PaymentDto getPaymentById(@PathVariable String id) {

@@ -13,6 +13,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -29,7 +30,8 @@ public class AdminWalkController {
     private final WalkService walkService;
     private final BookingService bookingService;
 
-    @Operation(summary = "Добавить новую прогулку")
+    @Operation(summary = "Добавить новую прогулку", description = "Доступен для роли ADMIN и выше")
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping(produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<CompositeAdminWalkDto> addWalk(@RequestBody WalkCreateDto walk, UriComponentsBuilder uriBuilder) {
         var created = walkService.createWalk(walk);
@@ -39,7 +41,8 @@ public class AdminWalkController {
         return ResponseEntity.created(location).body(created);
     }
 
-    @Operation(summary = "Получить страницу с прогулками")
+    @Operation(summary = "Получить страницу с прогулками", description = "Доступен для роли MANAGER и выше")
+    @PreAuthorize("hasRole('MANAGER')")
     @GetMapping(produces = APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public Page<WalkDto> getPageOfWalks(
@@ -73,28 +76,32 @@ public class AdminWalkController {
         return walkService.getWalksForAdmin(request);
     }
 
-    @Operation(summary = "Получить прогулку по id")
+    @Operation(summary = "Получить прогулку по id", description = "Доступен для роли MANAGER и выше")
+    @PreAuthorize("hasRole('MANAGER')")
     @GetMapping(value = "/{id}", produces = APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public CompositeAdminWalkDto getWalk(@PathVariable String id) {
         return walkService.getWalkForAdmin(id);
     }
 
-    @Operation(summary = "Обновить параметры прогулки")
+    @Operation(summary = "Обновить параметры прогулки", description = "Доступен для роли ADMIN и выше")
+    @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping(value = "/{id}", produces = APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public CompositeAdminWalkDto updateWalk(@PathVariable String id, @RequestBody WalkUpdateDto walk) {
         return walkService.updateWalk(id, walk);
     }
 
-    @Operation(summary = "Пометить прогулку как удаленную")
+    @Operation(summary = "Пометить прогулку как удаленную", description = "Доступен для роли ADMIN и выше")
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping(value = "/{id}", produces = APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteWalk(@PathVariable String id) {
         walkService.markDeleted(id);
     }
 
-    @Operation(summary = "Получить записи по прогулке")
+    @Operation(summary = "Получить записи по прогулке", description = "Доступен для роли MANAGER и выше")
+    @PreAuthorize("hasRole('MANAGER')")
     @GetMapping(value = "/{walkId}/bookings", produces = APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public Page<BookingDto> getWalkBookings(

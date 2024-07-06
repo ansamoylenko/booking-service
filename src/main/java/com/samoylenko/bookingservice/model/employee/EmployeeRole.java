@@ -4,20 +4,25 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.AllArgsConstructor;
 import lombok.Generated;
 import lombok.Getter;
+import lombok.ToString;
+import org.springframework.security.core.GrantedAuthority;
 
 @Getter
 @Generated
+@ToString
 @AllArgsConstructor
-public enum EmployeeRole {
-    INSTRUCTOR("Инструктор"),
-    ASSISTANT("Ассистент"),
-    MANAGER("Менеджер");
+public enum EmployeeRole implements GrantedAuthority {
+    ROLE_OWNER("Владелец"),
+    ROLE_ADMIN("Администратор"),
+    ROLE_MANAGER("Менеджер"),
+    ROLE_INSTRUCTOR("Инструктор"),
+    ROLE_ASSISTANT("Ассистент");
 
     private final String description;
 
     @Override
-    public String toString() {
-        return description;
+    public String getAuthority() {
+        return this.name();
     }
 
     @JsonValue

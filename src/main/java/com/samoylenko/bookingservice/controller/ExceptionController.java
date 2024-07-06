@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -46,6 +47,13 @@ public class ExceptionController {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ExceptionResponse handleException(ValidationException e, HttpServletRequest request) {
         return handleException(e, request, HttpStatus.BAD_REQUEST);
+    }
+
+    @ResponseBody
+    @ExceptionHandler(AccessDeniedException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ExceptionResponse handleException(AccessDeniedException e, HttpServletRequest request) {
+        return handleException(e, request, HttpStatus.FORBIDDEN);
     }
 
     @ResponseBody

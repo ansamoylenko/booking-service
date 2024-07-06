@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -22,7 +23,8 @@ import java.util.List;
 public class AdminVoucherController {
     private final PromotionService promotionService;
 
-    @Operation(summary = "Создание промокода")
+    @Operation(summary = "Создание промокода", description = "Доступен для роли MANAGER и выше")
+    @PreAuthorize("hasRole('MANAGER')")
     @PostMapping
     public ResponseEntity<VoucherDto> createVoucher(@RequestBody VoucherCreateDto dto, UriComponentsBuilder uriBuilder) {
         VoucherDto voucher = promotionService.createVoucher(dto);
@@ -32,14 +34,16 @@ public class AdminVoucherController {
         return ResponseEntity.created(uri).body(voucher);
     }
 
-    @Operation(summary = "Получить промокод")
+    @Operation(summary = "Получить промокод", description = "Доступен для роли MANAGER и выше")
+    @PreAuthorize("hasRole('MANAGER')")
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public VoucherDto getVoucher(@PathVariable String id) {
         return promotionService.getVoucherById(id);
     }
 
-    @Operation(summary = "Получить список промокодов")
+    @Operation(summary = "Получить список промокодов", description = "Доступен для роли MANAGER и выше")
+    @PreAuthorize("hasRole('MANAGER')")
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public List<VoucherDto> getVouchers(

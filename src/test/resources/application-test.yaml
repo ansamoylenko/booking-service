@@ -19,3 +19,4 @@ spring:
 logging:
   level:
     org.springframework.orm.jpa.JpaTransactionManager: DEBUG
+    org.springframework.web: DEBUG

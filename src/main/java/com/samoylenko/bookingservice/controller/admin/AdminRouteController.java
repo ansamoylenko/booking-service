@@ -13,6 +13,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -28,7 +29,8 @@ public class AdminRouteController {
     private final RouteService routeService;
     private final WalkService walkService;
 
-    @Operation(summary = "Добавить новый маршрут")
+    @Operation(summary = "Добавить новый маршрут", description = "Доступен для роли ADMIN и выше")
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping(produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<RouteDto> createRouteDto(@RequestBody RouteCreateDto route, UriComponentsBuilder uriBuilder) {
         var created = routeService.createRoute(route);
@@ -38,35 +40,40 @@ public class AdminRouteController {
         return ResponseEntity.created(location).body(created);
     }
 
-    @Operation(summary = "Получить все маршруты")
+    @Operation(summary = "Получить все маршруты", description = "Доступен для роли MANAGER и выше")
+    @PreAuthorize("hasRole('MANAGER')")
     @GetMapping(produces = APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public List<RouteDto> getAllRouteDtos() {
         return routeService.getAllRoutes();
     }
 
-    @Operation(summary = "Получить маршрут по id")
+    @Operation(summary = "Получить маршрут по id", description = "Доступен для роли MANAGER и выше")
+    @PreAuthorize("hasRole('MANAGER')")
     @GetMapping(value = "/{id}", produces = APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public RouteDto getRouteDto(@PathVariable String id) {
         return routeService.getRouteById(id);
     }
 
-    @Operation(summary = "Обновить параметры маршрута")
+    @Operation(summary = "Обновить параметры маршрута", description = "Доступен для роли ADMIN и выше")
+    @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping(value = "/{id}", produces = APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public RouteDto updateRouteDto(@PathVariable String id, @RequestBody RouteUpdateDto route) {
         return routeService.updateRoute(id, route);
     }
 
-    @Operation(summary = "Пометить маршрут как удаленный")
+    @Operation(summary = "Пометить маршрут как удаленный", description = "Доступен для роли ADMIN и выше")
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping(value = "/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteRouteDto(@PathVariable String id) {
         routeService.markDeleted(id);
     }
 
-    @Operation(summary = "Получить прогулки по маршруту")
+    @Operation(summary = "Получить прогулки по маршруту", description = "Доступен для роли MANAGER и выше")
+    @PreAuthorize("hasRole('MANAGER')")
     @GetMapping(value = "/{id}/walks", produces = APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public Page<WalkDto> getWalks(@PathVariable String id) {

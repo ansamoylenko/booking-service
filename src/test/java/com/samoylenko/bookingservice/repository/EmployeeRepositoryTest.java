@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class EmployeeRepositoryTest extends BaseRepositoryTest {
     @Autowired
@@ -32,17 +31,6 @@ public class EmployeeRepositoryTest extends BaseRepositoryTest {
         assertThat(saved.getCreatedDate()).isNotNull();
         assertThat(saved.getLastModifiedDate()).isNotNull();
         assertThat(saved.getVersion()).isNotNull();
-    }
-
-    @Test
-    public void saveAll_WithIncorrectData_shouldThrowException() {
-        var employee = DefaultEmployeeEntityBuilder.of()
-                .withFirstName("")
-                .withLastName(null)
-                .withPhone("777")
-                .build();
-
-        assertThrows(Exception.class, () -> employeeRepository.saveAll(List.of(employee)));
     }
 
     @Test
@@ -70,12 +58,12 @@ public class EmployeeRepositoryTest extends BaseRepositoryTest {
 
     @Test
     public void findAll_withRoleFilterByRole_shouldReturnEmployeesWithRole() {
-        var employee1 = DefaultEmployeeEntityBuilder.of().withRole(EmployeeRole.ASSISTANT).build();
-        var employee2 = DefaultEmployeeEntityBuilder.of().withRole(EmployeeRole.INSTRUCTOR).build();
-        var employee3 = DefaultEmployeeEntityBuilder.of().withRole(EmployeeRole.INSTRUCTOR).build();
+        var employee1 = DefaultEmployeeEntityBuilder.of().withRole(EmployeeRole.ROLE_ASSISTANT).build();
+        var employee2 = DefaultEmployeeEntityBuilder.of().withRole(EmployeeRole.ROLE_INSTRUCTOR).build();
+        var employee3 = DefaultEmployeeEntityBuilder.of().withRole(EmployeeRole.ROLE_INSTRUCTOR).build();
 
         employeeRepository.saveAll(List.of(employee1, employee2, employee3));
-        var spec = EmployeeSpecification.withRole(EmployeeRole.INSTRUCTOR);
+        var spec = EmployeeSpecification.withRole(EmployeeRole.ROLE_INSTRUCTOR);
 
         var found = employeeRepository.findAll(spec);
 

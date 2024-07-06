@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -22,9 +23,10 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 public class AdminBookingController {
     private final BookingService bookingService;
 
-    @Operation(summary = "Добавить новую запись")
+    @Operation(summary = "Добавить новую запись", description = "Доступен для роли MANAGER и выше")
+    @PreAuthorize("hasRole('MANAGER')")
     @PostMapping(produces = APPLICATION_JSON_VALUE)
-    public ResponseEntity<CompositeBookingDto> createOrder(@RequestBody BookingCreateDto createDto, UriComponentsBuilder uriBuilder) {
+    public ResponseEntity<CompositeBookingDto> createBooking(@RequestBody BookingCreateDto createDto, UriComponentsBuilder uriBuilder) {
         var crated = bookingService.create(createDto);
         var location = uriBuilder.path("/api/v1/admin/bookings/{id}")
                 .buildAndExpand(crated.getId())
@@ -32,21 +34,24 @@ public class AdminBookingController {
         return ResponseEntity.created(location).body(crated);
     }
 
-    @Operation(summary = "Добавить сотрудника")
+    @Operation(summary = "Добавить сотрудника в бронирование", description = "Доступен для роли MANAGER и выше")
+    @PreAuthorize("hasRole('MANAGER')")
     @PostMapping(value = "/{id}/employee", produces = APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public AdminBookingDto addEmployee(@PathVariable String id, @RequestBody String employeeId) {
         return bookingService.addEmployee(id, employeeId);
     }
 
-    @Operation(summary = "Удалить сотрудника")
+    @Operation(summary = "Удалить сотрудника из бронирования", description = "Доступен для роли MANAGER и выше")
+    @PreAuthorize("hasRole('MANAGER')")
     @DeleteMapping(value = "/{id}/employee", produces = APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public AdminBookingDto removeEmployee(@PathVariable String id, @RequestBody String employeeId) {
         return bookingService.removeEmployee(id, employeeId);
     }
 
-    @Operation(summary = "Получить страницу записей")
+    @Operation(summary = "Получить страницу записей", description = "Доступен для роли MANAGER и выше")
+    @PreAuthorize("hasRole('MANAGER')")
     @GetMapping(produces = APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public Page<BookingDto> getOrders(
@@ -70,14 +75,16 @@ public class AdminBookingController {
         return bookingService.getBookings(request);
     }
 
-    @Operation(summary = "Получить запись по id")
+    @Operation(summary = "Получить запись по id", description = "Доступен для роли MANAGER и выше")
+    @PreAuthorize("hasRole('MANAGER')")
     @GetMapping(value = "/{id}", produces = APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public AdminBookingDto getBookingById(@PathVariable String id) {
         return bookingService.getBookingForAdmin(id);
     }
 
-    @Operation(summary = "Отметить запись как удаленную")
+    @Operation(summary = "Отметить запись как удаленную", description = "Доступен для роли ADMIN и выше")
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping(value = "/{id}", produces = APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteOrder(@PathVariable String id) {

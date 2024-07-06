@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -22,7 +23,8 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 public class AdminEmployeeController {
     private final EmployeeService employeeService;
 
-    @Operation(summary = "Создать нового сотрудника")
+    @Operation(summary = "Создать нового сотрудника", description = "Доступен для роли OWNER и выше")
+    @PreAuthorize("hasRole('OWNER')")
     @PostMapping(produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<EmployeeDto> createEmployee(@RequestBody EmployeeCreateDto createDto, UriComponentsBuilder uriBuilder) {
         var crated = employeeService.create(createDto);
@@ -32,14 +34,16 @@ public class AdminEmployeeController {
         return ResponseEntity.created(location).body(crated);
     }
 
-    @Operation(summary = "Получить сотрудника по id")
+    @Operation(summary = "Получить сотрудника по id", description = "Доступен для роли MANAGER и выше")
+    @PreAuthorize("hasRole('MANAGER')")
     @GetMapping(value = "/{id}", produces = APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public EmployeeDto getEmployee(@PathVariable String id) {
         return employeeService.getEmployeeById(id);
     }
 
-    @Operation(summary = "Получить всех сотрудников")
+    @Operation(summary = "Получить всех сотрудников", description = "Доступен для роли MANAGER и выше")
+    @PreAuthorize("hasRole('MANAGER')")
     @GetMapping(produces = APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public List<EmployeeDto> getAllEmployees() {
