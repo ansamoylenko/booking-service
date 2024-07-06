@@ -1,4 +1,4 @@
-FROM maven
+FROM maven:3.9.7
 WORKDIR /app
 ADD . /app
 RUN mvn package -Dmaven.test.skip=true
