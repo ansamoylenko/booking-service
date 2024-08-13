@@ -34,6 +34,17 @@ public class AdminBookingController {
         return ResponseEntity.created(location).body(crated);
     }
 
+    @Operation(summary = "Создать счет на оплату")
+    @PreAuthorize("hasRole('MANAGER')")
+    @PostMapping(value = "/{id}/invoice", produces = APPLICATION_JSON_VALUE)
+    @ResponseStatus(HttpStatus.OK)
+    public CompositeBookingDto createInvoice(
+            @PathVariable String id,
+            @RequestParam(value = "voucher", required = false) String voucher
+    ) {
+        return bookingService.createInvoice(id, voucher);
+    }
+
     @Operation(summary = "Добавить сотрудника в бронирование", description = "Доступен для роли MANAGER и выше")
     @PreAuthorize("hasRole('MANAGER')")
     @PostMapping(value = "/{id}/employee", produces = APPLICATION_JSON_VALUE)
