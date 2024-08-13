@@ -1,6 +1,10 @@
 server:
   port: 8080
-  servlet.session.timeout: 30m
+  servlet:
+    session:
+      timeout: 30m
+      cookie:
+        secure: false
 
 spring:
   profiles:
