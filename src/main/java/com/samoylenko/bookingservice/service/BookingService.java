@@ -64,7 +64,7 @@ public class BookingService {
                 .addMappings(mapper -> mapper.map(BookingEntity::getCreatedDate, CompositeBookingDto::setCreatedDate))
                 .addMappings(mapper -> mapper.map(BookingEntity::getLastModifiedDate, CompositeBookingDto::setLastModifiedDate))
                 .addMappings(mapper -> mapper.map(BookingEntity::getStatus, CompositeBookingDto::setStatus))
-                .addMappings(mapper -> mapper.map(src -> src.getWalk().getId(), CompositeBookingDto::setStatus))
+                .addMappings(mapper -> mapper.map(src -> src.getWalk().getId(), CompositeBookingDto::setWalkId))
                 .addMappings(mapper -> mapper.map(BookingEntity::getNumberOfPeople, CompositeBookingDto::setNumberOfPeople));
     }
 

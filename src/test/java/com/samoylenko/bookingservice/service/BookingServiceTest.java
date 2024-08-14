@@ -5,13 +5,11 @@ import com.samoylenko.bookingservice.model.booking.BookingInfo;
 import com.samoylenko.bookingservice.model.booking.BookingRequest;
 import com.samoylenko.bookingservice.model.booking.BookingStatus;
 import com.samoylenko.bookingservice.model.client.ClientCreateDto;
-import com.samoylenko.bookingservice.model.entity.DefaultBookingEntityBuilder;
-import com.samoylenko.bookingservice.model.entity.DefaultClientEntityBuilder;
-import com.samoylenko.bookingservice.model.entity.DefaultRouteEntityBuilder;
-import com.samoylenko.bookingservice.model.entity.DefaultWalkEntityBuilder;
+import com.samoylenko.bookingservice.model.entity.*;
 import com.samoylenko.bookingservice.model.exception.EntityCreateException;
 import com.samoylenko.bookingservice.model.exception.LimitExceededException;
 import com.samoylenko.bookingservice.model.payment.InvoiceCreateDto;
+import com.samoylenko.bookingservice.model.payment.PaymentDto;
 import com.samoylenko.bookingservice.model.payment.PaymentStatus;
 import com.samoylenko.bookingservice.model.payment.paykeeper.InvoiceResponse;
 import com.samoylenko.bookingservice.repository.*;
@@ -19,13 +17,14 @@ import org.junit.jupiter.api.Test;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.test.context.TestConstructor;
 
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 @TestConstructor(autowireMode = TestConstructor.AutowireMode.ALL)
@@ -36,6 +35,9 @@ public class BookingServiceTest extends BaseServiceTest {
     private ModelMapper modelMapper;
     @MockBean
     private PayKeeperClient payKeeperClient;
+
+    @SpyBean
+    private PaymentService paymentService;
 
     public BookingServiceTest(BookingService bookingService, WalkRepository walkRepository, RouteRepository routeRepository, EmployeeRepository employeeRepository, BookingRepository bookingRepository, ClientRepository clientRepository, PaymentRepository paymentRepository) {
         super(walkRepository, routeRepository, employeeRepository, bookingRepository, clientRepository, paymentRepository);
@@ -266,7 +268,7 @@ public class BookingServiceTest extends BaseServiceTest {
     }
 
     @Test
-    public void getBookingById_shouldReturnCompositeBookingDto() {
+    public void getBookingForUser_shouldReturnCompositeBookingDto() {
         var route = routeRepository.save(DefaultRouteEntityBuilder.of().build());
         var client = clientRepository.save(DefaultClientEntityBuilder.of().build());
         var walk = walkRepository.save(DefaultWalkEntityBuilder.of().withRoute(route).build());
@@ -279,5 +281,42 @@ public class BookingServiceTest extends BaseServiceTest {
 
         assertThat(found).isNotNull();
         assertThat(found.getId()).isEqualTo(booking.getId());
+    }
+
+    @Test
+    public void getBookingForAdmin_shouldReturnAdminBookingDto() {
+        var route = routeRepository.save(DefaultRouteEntityBuilder.of().build());
+        var client = clientRepository.save(DefaultClientEntityBuilder.of().build());
+        var walk = walkRepository.save(DefaultWalkEntityBuilder.of().withRoute(route).build());
+        var payment = paymentRepository.save(DefaultPaymentEntityBuilder.of().build());
+        var booking = bookingRepository.save(DefaultBookingEntityBuilder.of()
+                .withClient(client)
+                .withWalk(walk)
+                .withPayment(payment)
+                .build());
+        var paymentMock = modelMapper.map(DefaultPaymentEntityBuilder.of().build(), PaymentDto.class);
+        when(paymentService.getPaymentById(payment.getId())).thenReturn(paymentMock);
+
+        var found = bookingService.getBookingForAdmin(booking.getId());
+
+        assertThat(found).isNotNull();
+        assertThat(found.getId()).isEqualTo(booking.getId());
+        assertThat(found.getCreatedDate()).isNotNull();
+        assertThat(found.getLastModifiedDate()).isNotNull();
+        assertThat(found.getStatus()).isNotNull();
+        assertThat(found.getWalkId()).isNotNull();
+        assertThat(found.getNumberOfPeople()).isNotNull();
+        assertThat(found.getInfo()).isNotNull();
+        assertThat(found.getInfo().getComment()).isNotNull();
+        assertThat(found.getInfo().isAgreementConfirmed()).isTrue();
+        assertThat(found.getInfo().isHasChildren()).isFalse();
+        assertThat(found.getClient()).isNotNull();
+        assertThat(found.getClient().getId()).isEqualTo(client.getId());
+        assertThat(found.getPayment()).isNotNull();
+        assertThat(found.getPayment().getStatus()).isNotNull();
+        assertThat(found.getPayment().getPriceForOne()).isNotNull();
+        assertThat(found.getPayment().getTotalCost()).isNotNull();
+        assertThat(found.getPayment().getDiscount()).isNotNull();
+        assertThat(found.getTimeLeft()).isNotNull();
     }
 }
