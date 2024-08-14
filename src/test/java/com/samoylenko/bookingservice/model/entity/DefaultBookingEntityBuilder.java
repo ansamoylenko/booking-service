@@ -35,6 +35,7 @@ public class DefaultBookingEntityBuilder implements DefaultEntityBuilder<Booking
                 .payment(payment)
                 .comment(comment)
                 .hasChildren(hasChildren)
+                .agreementConfirmed(true)
                 .endTime(endTime)
                 .build();
     }
