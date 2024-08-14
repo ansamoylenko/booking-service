@@ -51,9 +51,6 @@ public class BookingService {
     @PostConstruct
     public void init() {
         mapper.createTypeMap(BookingEntity.class, BookingDto.class)
-                .addMappings(mapper -> mapper.map(src -> src.getClient().getId(), BookingDto::setClientId))
-                .addMappings(mapper -> mapper.map(src -> src.getClient().getFirstName(), BookingDto::setClientFirstName))
-                .addMappings(mapper -> mapper.map(src -> src.getClient().getLastName(), BookingDto::setClientLastName))
                 .addMappings(mapper -> mapper.map(src -> src.getWalk().getId(), BookingDto::setWalkId))
                 .addMappings(mapper -> mapper.map(src -> src.getWalk().getStartTime(), BookingDto::setWalkStartTime))
                 .addMappings(mapper -> mapper.map(src -> src.getWalk().getRoute().getName(), BookingDto::setRouteName))

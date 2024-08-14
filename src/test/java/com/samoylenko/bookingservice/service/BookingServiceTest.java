@@ -22,9 +22,9 @@ import org.springframework.test.context.TestConstructor;
 
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 @TestConstructor(autowireMode = TestConstructor.AutowireMode.ALL)
@@ -164,6 +164,10 @@ public class BookingServiceTest extends BaseServiceTest {
         assertThat(found.getTotalElements()).isEqualTo(2);
         assertThat(found.getContent().get(0).getId()).isEqualTo(booking3.getId());
         assertThat(found.getContent().get(1).getId()).isEqualTo(booking2.getId());
+        assertThat(found.getContent().get(0).getClient().getPhone()).isNotNull();
+        assertThat(found.getContent().get(0).getClient().getEmail()).isNotNull();
+        assertThat(found.getContent().get(0).getClient().getId()).isNotNull();
+        assertThat(found.getContent().get(0).getClient().getFirstName()).isNotNull();
     }
 
     @Test

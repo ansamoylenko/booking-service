@@ -1,5 +1,6 @@
 package com.samoylenko.bookingservice.model.booking;
 
+import com.samoylenko.bookingservice.model.client.ClientDto;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
@@ -19,15 +20,9 @@ public class BookingDto implements Serializable {
     private BookingStatus status;
     private Integer numberOfPeople;
     private Instant endTime;
-
-    private String clientId;
-    private String clientFirstName;
-    private String clientLastName;
-
+    private ClientDto client;
     private String walkId;
     private Instant walkStartTime;
-
-
     private String routeName;
     private Double totalCost;
 }
