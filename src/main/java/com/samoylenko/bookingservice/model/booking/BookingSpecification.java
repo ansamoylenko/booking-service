@@ -39,4 +39,11 @@ public class BookingSpecification {
                 cb.conjunction() :
                 root.get("status").in(statusList);
     }
+
+    public static Specification<BookingEntity> withRoute(String routeId) {
+        return (root, query, cb) -> routeId == null ?
+                cb.conjunction() :
+                cb.equal(root.get("walk").get("route").get("id"), routeId);
+    }
+
 }

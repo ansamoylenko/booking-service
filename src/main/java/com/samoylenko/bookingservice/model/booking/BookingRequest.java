@@ -18,4 +18,5 @@ public class BookingRequest extends BaseRequest {
     private String clientPhone;
     private String clientEmail;
     private String clientId;
+    private String routeId;
 }
