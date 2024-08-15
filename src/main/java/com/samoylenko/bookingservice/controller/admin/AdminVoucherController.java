@@ -1,9 +1,6 @@
 package com.samoylenko.bookingservice.controller.admin;
 
-import com.samoylenko.bookingservice.model.voucher.VoucherCreateDto;
-import com.samoylenko.bookingservice.model.voucher.VoucherDto;
-import com.samoylenko.bookingservice.model.voucher.VoucherRequest;
-import com.samoylenko.bookingservice.model.voucher.VoucherStatus;
+import com.samoylenko.bookingservice.model.voucher.*;
 import com.samoylenko.bookingservice.service.PromotionService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -48,9 +45,11 @@ public class AdminVoucherController {
     @ResponseStatus(HttpStatus.OK)
     public List<VoucherDto> getVouchers(
             @RequestParam(value = "route", required = false) String route,
-            @RequestParam(value = "status", required = false) VoucherStatus status
+            @RequestParam(value = "status", required = false) VoucherStatus status,
+            @RequestParam(value = "type", required = false) DiscountType discountType
     ) {
         var request = VoucherRequest.builder()
+                .type(discountType)
                 .route(route)
                 .status(status)
                 .build();
