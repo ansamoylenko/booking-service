@@ -70,7 +70,8 @@ public class PromotionService {
     public List<VoucherDto> getVouchers(VoucherRequest request) {
         var spec = VoucherSpecification
                 .withStatus(request.getStatus())
-                .and(VoucherSpecification.withRoute(request.getRoute()));
+                .and(VoucherSpecification.withRoute(request.getRoute()))
+                .and(VoucherSpecification.withType(request.getType()));
         var sort = Sort.by("createdDate").descending();
 
         return voucherRepository.findAll(spec, sort).stream()

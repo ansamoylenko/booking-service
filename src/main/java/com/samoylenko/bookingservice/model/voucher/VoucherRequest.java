@@ -8,4 +8,5 @@ import lombok.Value;
 public class VoucherRequest {
     String route;
     VoucherStatus status;
+    DiscountType type;
 }

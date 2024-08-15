@@ -114,6 +114,30 @@ public class PromotionServiceTest {
         assertThat(vouchers.size()).isEqualTo(2);
         assertThat(vouchers.get(0).getId()).isEqualTo(promocode3.getId());
         assertThat(vouchers.get(1).getId()).isEqualTo(promocode1.getId());
+        assertThat(vouchers.get(0).getRouteId()).isEqualTo("testRouteId");
+    }
+
+    @Test
+    public void getVouchers_filteredByCertificate_shouldReturnOnlyCertificates() {
+        var voucher1 = voucherRepository.save(DefaultVoucherEntityBuilder.of()
+                .withType(CERTIFICATE)
+                .build());
+        var voucher2 = voucherRepository.save(DefaultVoucherEntityBuilder.of()
+                .withType(PROMO_CODE)
+                .build());
+        var voucher3 = voucherRepository.save(DefaultVoucherEntityBuilder.of()
+                .withType(CERTIFICATE)
+                .build());
+        var request = VoucherRequest.builder()
+                .type(CERTIFICATE)
+                .status(VoucherStatus.ACTIVE)
+                .build();
+
+        var vouchers = promotionService.getVouchers(request);
+
+        assertThat(vouchers.size()).isEqualTo(2);
+        assertThat(vouchers.get(0).getId()).isEqualTo(voucher3.getId());
+        assertThat(vouchers.get(1).getId()).isEqualTo(voucher1.getId());
     }
 
     @Test

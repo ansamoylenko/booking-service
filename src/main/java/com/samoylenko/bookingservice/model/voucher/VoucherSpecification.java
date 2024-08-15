@@ -14,6 +14,12 @@ public class VoucherSpecification {
                 cb.conjunction() :
                 cb.equal(root.get("status"), status);
     }
+
+    public static Specification<VoucherEntity> withType(DiscountType type) {
+        return (root, query, cb) -> type == null ?
+                cb.conjunction() :
+                cb.equal(root.get("type"), type);
+    }
 }
 
 
