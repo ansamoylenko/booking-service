@@ -18,6 +18,7 @@ public class VoucherDto {
     private VoucherStatus status;
     private String code;
     private String distributor;
+    private String routeId;
     private String expectedRouteId;
     private Instant expiredAt;
     private int discountPercent;
