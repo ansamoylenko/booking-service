@@ -141,7 +141,8 @@ public class BookingService {
                 .and(withPhone(request.getClientPhone()))
                 .and(withEmail(request.getClientEmail()))
                 .and(withWalk(request.getWalkId()))
-                .and(withStatus(request.getStatus()));
+                .and(withStatus(request.getStatus()))
+                .and(withRoute(request.getRouteId()));
         var pageRequest = request.getPageRequest();
 
         return bookingRepository.findAll(spec, pageRequest)

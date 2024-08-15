@@ -217,6 +217,34 @@ public class BookingServiceTest extends BaseServiceTest {
     }
 
     @Test
+    public void getBookings_withFilterByRouteId_shouldReturnAllFilteredBookings() {
+        var route1 = routeRepository.save(DefaultRouteEntityBuilder.of().build());
+        var route2 = routeRepository.save(DefaultRouteEntityBuilder.of().build());
+        var walk1 = walkRepository.save(DefaultWalkEntityBuilder.of().withRoute(route1).build());
+        var walk2 = walkRepository.save(DefaultWalkEntityBuilder.of().withRoute(route2).build());
+        var client = clientRepository.save(DefaultClientEntityBuilder.of().build());
+        var booking1 = bookingRepository.save(DefaultBookingEntityBuilder.of()
+                .withWalk(walk1)
+                .withClient(client)
+                .build());
+        var booking2 = bookingRepository.save(DefaultBookingEntityBuilder.of()
+                .withWalk(walk2)
+                .withClient(client)
+                .build());
+        var booking3 = bookingRepository.save(DefaultBookingEntityBuilder.of()
+                .withWalk(walk1)
+                .withClient(client)
+                .build());
+        var request = BookingRequest.of().withRouteId(route1.getId());
+
+        var found = bookingService.getBookings(request);
+
+        assertThat(found.getTotalElements()).isEqualTo(2);
+        assertThat(found.getContent().get(0).getId()).isEqualTo(booking3.getId());
+        assertThat(found.getContent().get(1).getId()).isEqualTo(booking1.getId());
+    }
+
+    @Test
     public void getBookings_withFilterByClientEmail_shouldReturnAllFilteredBookings() {
         var client1 = clientRepository.save(DefaultClientEntityBuilder.of().withEmail("target@gmail.com").build());
         var client2 = clientRepository.save(DefaultClientEntityBuilder.of().build());

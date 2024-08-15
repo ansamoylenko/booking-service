@@ -72,7 +72,8 @@ public class AdminBookingController {
             @RequestParam(value = "phone", required = false) String phone,
             @RequestParam(value = "email", required = false) String email,
             @RequestParam(value = "status", required = false) List<BookingStatus> status,
-            @RequestParam(value = "walkId", required = false) String walkId
+            @RequestParam(value = "walkId", required = false) String walkId,
+            @RequestParam(value = "routeId", required = false) String routeId
     ) {
         var request = BookingRequest.builder()
                 .pageNumber(page)
@@ -82,6 +83,7 @@ public class AdminBookingController {
                 .clientEmail(email)
                 .status(status)
                 .walkId(walkId)
+                .routeId(routeId)
                 .build();
         return bookingService.getBookings(request);
     }
