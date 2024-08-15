@@ -21,4 +21,13 @@ public enum DiscountType {
     public String getDescription() {
         return description;
     }
+
+    public static DiscountType fromDescription(String description) {
+        for (DiscountType discountType : values()) {
+            if (discountType.getDescription().equals(description)) {
+                return discountType;
+            }
+        }
+        return null;
+    }
 }
