@@ -254,5 +254,33 @@ public class WalkServiceTest extends BaseServiceTest {
                 .hasMessageContaining("должно быть больше или равно нулю");
     }
 
+    @Test
+    void getWalksForAdmin_shouldReturnWalkAdminDtos() {
+        var route1 = routeRepository.save(DefaultRouteEntityBuilder.of().build());
+        var walk1 = DefaultWalkEntityBuilder.of()
+                .withAvailablePlaces(10)
+                .withStartTime(Instant.parse("2024-06-01T06:00:00.00Z"))
+                .withStatus(WalkStatus.BOOKING_IN_PROGRESS)
+                .withRoute(route1);
+        var savedWalk1 = walkRepository.save(walk1.build());
+        var walk2 = walk1
+                .withAvailablePlaces(5)
+                .withStartTime(Instant.parse("2024-06-02T06:00:00.00Z"));
+        var savedWalk2 = walkRepository.save(walk2.build());
 
+        var request = WalkRequest.builder()
+                .status(WalkStatus.BOOKING_IN_PROGRESS)
+                .routeId(route1.getId())
+                .pageNumber(0)
+                .pageSize(10)
+                .build();
+
+        var foundPage = walkService.getWalksForAdmin(request);
+        var found = foundPage.getContent();
+
+        assertThat(found).hasSize(2);
+        assertThat(found.get(0).getId()).isEqualTo(savedWalk1.getId());
+        assertThat(found.get(0).getRouteId()).isNotNull();
+        assertThat(found.get(0).getRouteId()).isEqualTo(route1.getId());
+    }
 }

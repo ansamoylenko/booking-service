@@ -5,6 +5,7 @@ import com.samoylenko.bookingservice.model.exception.EntityNotFoundException;
 import com.samoylenko.bookingservice.model.exception.LimitExceededException;
 import com.samoylenko.bookingservice.model.walk.*;
 import com.samoylenko.bookingservice.repository.WalkRepository;
+import jakarta.annotation.PostConstruct;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -38,6 +39,12 @@ public class WalkService {
         this.bookingService = bookingService;
         this.walkRepository = walkRepository;
         this.modelMapper = modelMapper;
+    }
+
+    @PostConstruct
+    public void init() {
+        modelMapper.createTypeMap(WalkEntity.class, WalkDto.class)
+                .addMappings(mapper -> mapper.map(src -> src.getRoute().getId(), WalkDto::setRouteId));
     }
 
     @Transactional

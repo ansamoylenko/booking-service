@@ -14,6 +14,7 @@ import java.time.Instant;
 @AllArgsConstructor
 public class WalkDto implements Serializable {
     private String id;
+    private String routeId;
     private WalkStatus status;
     private Integer availablePlaces;
     private Integer priceForOne;
