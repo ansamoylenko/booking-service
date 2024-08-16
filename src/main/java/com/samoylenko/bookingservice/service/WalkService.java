@@ -2,6 +2,7 @@ package com.samoylenko.bookingservice.service;
 
 import com.samoylenko.bookingservice.model.exception.EntityCreateException;
 import com.samoylenko.bookingservice.model.exception.EntityNotFoundException;
+import com.samoylenko.bookingservice.model.exception.EntityUpdateException;
 import com.samoylenko.bookingservice.model.exception.LimitExceededException;
 import com.samoylenko.bookingservice.model.walk.*;
 import com.samoylenko.bookingservice.repository.WalkRepository;
@@ -15,6 +16,7 @@ import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
@@ -23,6 +25,7 @@ import java.util.function.Consumer;
 
 import static com.samoylenko.bookingservice.model.exception.EntityType.WALK;
 import static com.samoylenko.bookingservice.model.walk.WalkSpecification.*;
+import static java.lang.Math.abs;
 import static java.time.temporal.ChronoUnit.MINUTES;
 
 @Slf4j
@@ -75,7 +78,8 @@ public class WalkService {
         }
     }
 
-    public void decreaseAvailablePlaces(@NotBlank String walkId, int numberOfPlaces) {
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
+    public void reservePlaces(@NotBlank String walkId, int numberOfPlaces) {
         var walk = getWalkEntityById(walkId);
         if (walk.getAvailablePlaces() < numberOfPlaces) {
             throw new LimitExceededException(walkId);
@@ -85,7 +89,8 @@ public class WalkService {
         log.info("Locked {} places of walk {}, available: {}", numberOfPlaces, walkId, walk.getAvailablePlaces());
     }
 
-    public void increaseAvailablePlaces(@NotBlank String walkId, int numberOfPlaces) {
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
+    public void releasePlaces(@NotBlank String walkId, int numberOfPlaces) {
         var walk = walkRepository.findById(walkId)
                 .orElseThrow(() -> new EntityNotFoundException(WALK, walkId));
         walk.setAvailablePlaces(walk.getAvailablePlaces() + numberOfPlaces);
@@ -146,20 +151,36 @@ public class WalkService {
         return modelMapper.map(found, CompositeUserWalkDto.class);
     }
 
-    @Transactional
-    public CompositeAdminWalkDto updateWalk(@NotBlank String walkId, @Valid WalkUpdateDto walkDto) {
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
+    public CompositeAdminWalkDto updateWalk(@NotBlank String walkId, @Valid WalkUpdateDto updateDto) {
+        log.info("Updating walk: {}", updateDto);
         var walkEntity = getWalkEntityById(walkId);
-        updateIfNotNull(walkDto.getStatus(), walkEntity::setStatus);
-        updateIfNotNull(walkDto.getMaxPlaces(), walkEntity::setMaxPlaces);
-        updateIfNotNull(walkDto.getPriceForOne(), walkEntity::setPriceForOne);
-        updateIfNotNull(walkDto.getDurationInMinutes(), walkEntity::setDuration);
-        updateIfNotNull(walkDto.getStartTime(), startTime -> {
-            walkEntity.setStartTime(startTime);
-            walkEntity.setEndTime(startTime.plus(walkEntity.getDuration(), MINUTES));
-        });
+        try {
+            if (updateDto.getMaxPlaces() != null) {
+                var diff = updateDto.getMaxPlaces() - walkEntity.getMaxPlaces();
+                if (diff < 0) {
+                    reservePlaces(walkId, abs(diff));
+                }
+                if (diff > 0) {
+                    releasePlaces(walkId, diff);
+                }
+                walkEntity.setMaxPlaces(updateDto.getMaxPlaces());
+            }
+            updateIfNotNull(updateDto.getStatus(), walkEntity::setStatus);
+            updateIfNotNull(updateDto.getPriceForOne(), walkEntity::setPriceForOne);
+            updateIfNotNull(updateDto.getDurationInMinutes(), walkEntity::setDuration);
+            updateIfNotNull(updateDto.getStartTime(), startTime -> {
+                walkEntity.setStartTime(startTime);
+                walkEntity.setEndTime(startTime.plus(walkEntity.getDuration(), MINUTES));
+            });
 
-        var updated = walkRepository.save(walkEntity);
-        return modelMapper.map(updated, CompositeAdminWalkDto.class);
+            var updated = walkRepository.save(walkEntity);
+            var dto = modelMapper.map(updated, CompositeAdminWalkDto.class);
+            log.info("Walk {} has been successfully updated", walkId);
+            return dto;
+        } catch (Exception e) {
+            throw new EntityUpdateException(WALK, e);
+        }
     }
 
     private <T> void updateIfNotNull(T value, Consumer<T> setter) {

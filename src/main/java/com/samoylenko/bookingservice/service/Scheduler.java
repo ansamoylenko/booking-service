@@ -63,7 +63,7 @@ public class Scheduler {
         for (var booking : bookings) {
             if (booking.getEndTime() == null || booking.getEndTime().isBefore(now())) {
                 bookingService.setStatus(booking.getId(), BookingStatus.EXPIRED);
-                walkService.increaseAvailablePlaces(booking.getWalkId(), booking.getNumberOfPeople());
+                walkService.releasePlaces(booking.getWalkId(), booking.getNumberOfPeople());
                 if (booking.getStatus().equals(BookingStatus.WAITING_FOR_PAYMENT)) {
                     var payment = bookingService.getBookingForUser(booking.getId()).getPayment();
                     paymentService.setStatus(payment.getId(), PaymentStatus.EXPIRED);

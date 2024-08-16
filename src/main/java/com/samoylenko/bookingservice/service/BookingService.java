@@ -69,7 +69,7 @@ public class BookingService {
     public CompositeBookingDto create(@Valid BookingCreateDto dto) {
         try {
             log.info("Creating booking: {}", dto);
-            walkService.decreaseAvailablePlaces(dto.getWalkId(), dto.getNumberOfPeople());
+            walkService.reservePlaces(dto.getWalkId(), dto.getNumberOfPeople());
             var walk = walkService.getWalkEntityById(dto.getWalkId());
             var client = clientService.createIfNotExist(dto.getClient());
             var endTime = now().plus(properties.getBookingLifetime(), MINUTES);

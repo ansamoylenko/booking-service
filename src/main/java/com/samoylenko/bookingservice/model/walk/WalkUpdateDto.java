@@ -35,4 +35,15 @@ public class WalkUpdateDto {
     @Schema(description = "Длительность прогулки в минутах", example = "150")
     @Positive(message = "{invalid.positive}")
     private Integer durationInMinutes;
+
+    @Override
+    public String toString() {
+        return "WalkUpdateDto {\n" +
+               "   status: " + status + '\n' +
+               "   maxPlaces: " + maxPlaces + '\n' +
+               "   priceForOne: " + priceForOne + '\n' +
+               "   startTime: " + startTime + '\n' +
+               "   durationInMinutes: " + durationInMinutes + '\n' +
+               '}';
+    }
 }

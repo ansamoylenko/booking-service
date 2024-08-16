@@ -3,6 +3,7 @@ package com.samoylenko.bookingservice.service;
 import com.samoylenko.bookingservice.model.entity.*;
 import com.samoylenko.bookingservice.model.exception.EntityCreateException;
 import com.samoylenko.bookingservice.model.exception.EntityNotFoundException;
+import com.samoylenko.bookingservice.model.exception.EntityUpdateException;
 import com.samoylenko.bookingservice.model.walk.WalkCreateDto;
 import com.samoylenko.bookingservice.model.walk.WalkRequest;
 import com.samoylenko.bookingservice.model.walk.WalkStatus;
@@ -206,12 +207,16 @@ public class WalkServiceTest extends BaseServiceTest {
     @Test
     void updateWalk_shouldReturnUpdatedWalkDto() {
         var savedRoute = routeRepository.save(DefaultRouteEntityBuilder.of().build());
-        var savedWalk = walkRepository.save(DefaultWalkEntityBuilder.of().withRoute(savedRoute).build());
+        var savedWalk = walkRepository.save(DefaultWalkEntityBuilder.of()
+                .withRoute(savedRoute)
+                .withMaxPlaces(10)
+                .withAvailablePlaces(5)
+                .build());
         var updateDto = WalkUpdateDto.builder()
                 .status(WalkStatus.BOOKING_FINISHED)
                 .durationInMinutes(30)
                 .priceForOne(2222)
-                .maxPlaces(100)
+                .maxPlaces(12)
                 .startTime(Instant.parse("2025-06-01T06:00:00.00Z"))
                 .build();
 
@@ -222,9 +227,26 @@ public class WalkServiceTest extends BaseServiceTest {
         assertThat(updatedWalk.getDuration()).isEqualTo(updateDto.getDurationInMinutes());
         assertThat(updatedWalk.getPriceForOne()).isEqualTo(updateDto.getPriceForOne());
         assertThat(updatedWalk.getMaxPlaces()).isEqualTo(updateDto.getMaxPlaces());
+        assertThat(updatedWalk.getAvailablePlaces()).isEqualTo(7);
         assertThat(updatedWalk.getStartTime()).isEqualTo(updateDto.getStartTime());
         assertThat(updatedWalk.getRoute()).isNotNull();
         assertThat(updatedWalk.getRoute().getId()).isEqualTo(savedRoute.getId());
+    }
+
+    @Test
+    void updateWalk_winIncorrectMaxPlaces_shouldReturnEntityUpdateException() {
+        var savedRoute = routeRepository.save(DefaultRouteEntityBuilder.of().build());
+        var savedWalk = walkRepository.save(DefaultWalkEntityBuilder.of()
+                .withRoute(savedRoute)
+                .withMaxPlaces(10)
+                .withAvailablePlaces(5)
+                .build());
+        var updateDto = WalkUpdateDto.builder()
+                .maxPlaces(4)
+                .build();
+
+        assertThatThrownBy(() -> walkService.updateWalk(savedWalk.getId(), updateDto))
+                .isInstanceOf(EntityUpdateException.class);
     }
 
     @Test
