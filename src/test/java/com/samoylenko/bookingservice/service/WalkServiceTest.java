@@ -17,6 +17,9 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestConstructor;
 
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
@@ -340,5 +343,21 @@ public class WalkServiceTest extends BaseServiceTest {
 
         assertThat(found).hasSize(3);
         assertThat(found.get(0).getId()).isEqualTo(savedWalk2.getId());
+    }
+
+    @Test
+    void getWalksForAdmin_filteredByStartTime_shouldReturnWalkAdminDtos() {
+        var route = routeRepository.save(DefaultRouteEntityBuilder.of().build());
+        var walkBuilder = DefaultWalkEntityBuilder.of().withRoute(route);
+        var walk1 = walkRepository.save(walkBuilder.withStartTime(Instant.parse("2024-06-01T06:00:00.00Z")).build());
+        var walk2 = walkRepository.save(walkBuilder.withStartTime(Instant.parse("2024-06-02T08:00:00.00Z")).build());
+        var walk3 = walkRepository.save(walkBuilder.withStartTime(Instant.parse("2024-06-03T23:59:00.00Z")).build());
+        var request = WalkRequest.builder()
+                .startAfter(LocalDate.of(2024, 6, 2).atTime(LocalTime.MIN).toInstant(ZoneOffset.UTC))
+                .startBefore(LocalDate.of(2024, 6, 3).atTime(LocalTime.MAX).toInstant(ZoneOffset.UTC))
+                .build();
+        var foundPage = walkService.getWalksForAdmin(request);
+        var walks = foundPage.getContent();
+        assertThat(walks).hasSize(2);
     }
 }

@@ -18,7 +18,9 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.ZoneOffset;
 import java.util.List;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
@@ -50,11 +52,11 @@ public class AdminWalkController {
             @Schema(description = "Идентификатор маршрута", example = "3f5d6702-8554-4137-85e0-4ada615e7253")
             @RequestParam(value = "routeId", required = false) String routeId,
 
-            @Schema(description = "Минимальное время начала прогулки", example = "2024-01-01T00:00:00")
-            @RequestParam(value = "startAfter", required = false) Instant startAfter,
+            @Schema(description = "Минимальное время начала прогулки", example = "2024-01-01")
+            @RequestParam(value = "startAfter", required = false) LocalDate startAfter,
 
-            @Schema(description = "Максимальное время начала прогулки", example = "2024-12-01T00:00:00")
-            @RequestParam(value = "startBefore", required = false) Instant startBefore,
+            @Schema(description = "Максимальное время начала прогулки", example = "2024-12-01")
+            @RequestParam(value = "startBefore", required = false) LocalDate startBefore,
 
             @Schema(description = "Количество доступных мест", example = "2")
             @RequestParam(value = "availablePlaces", required = false) Integer availablePlaces,
@@ -72,10 +74,14 @@ public class AdminWalkController {
             @RequestParam(value = "sortBy", required = false, defaultValue = "START_TIME") WalkRequest.SortField sortBy,
             @RequestParam(value = "direction", required = false, defaultValue = "DESC") Sort.Direction direction
     ) {
+        var instantAfter = startAfter == null ? null : startAfter.atTime(LocalTime.MIN).toInstant(ZoneOffset.UTC);
+        var instantBefore = startBefore == null ? null : startBefore.atTime(LocalTime.MAX).toInstant(ZoneOffset.UTC);
+
+
         var request = WalkRequest.builder()
                 .routeId(routeId)
-                .startAfter(startAfter)
-                .startBefore(startBefore)
+                .startAfter(instantAfter)
+                .startBefore(instantBefore)
                 .availablePlaces(availablePlaces)
                 .pageNumber(pageNumber)
                 .pageSize(pageSize)
