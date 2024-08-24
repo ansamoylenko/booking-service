@@ -240,7 +240,7 @@ public class WalkServiceTest extends BaseServiceTest {
         var savedWalk = walkRepository.save(DefaultWalkEntityBuilder.of()
                 .withRoute(savedRoute)
                 .withMaxPlaces(10)
-                .withAvailablePlaces(5)
+                .withReservedPlaces(5)
                 .build());
         var updateDto = WalkUpdateDto.builder()
                 .maxPlaces(4)

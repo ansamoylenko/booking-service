@@ -172,10 +172,9 @@ public class WalkService {
         var walkEntity = getWalkEntityById(walkId);
         try {
             if (updateDto.getMaxPlaces() != null) {
-                var diff = walkEntity.getMaxPlaces() - updateDto.getMaxPlaces();
-                if (diff > walkEntity.getAvailablePlaces()) {
+                if (updateDto.getMaxPlaces() < walkEntity.getReservedPlaces()) {
                     throw new LimitExceededException("Failed to increase max places for walk %s, %s available"
-                            .formatted(walkId, walkEntity.getAvailablePlaces()));
+                            .formatted(walkId, walkEntity.getReservedPlaces()));
                 }
                 walkEntity.setMaxPlaces(updateDto.getMaxPlaces());
             }
