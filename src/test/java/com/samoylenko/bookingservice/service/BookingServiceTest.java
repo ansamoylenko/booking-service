@@ -75,7 +75,8 @@ public class BookingServiceTest extends BaseServiceTest {
     public void create_withEmptyAvailablePlaces_shouldThrowRuntimeException() {
         var route = routeRepository.save(DefaultRouteEntityBuilder.of().build());
         var walk = walkRepository.save(DefaultWalkEntityBuilder.of()
-                .withAvailablePlaces(0)
+                .withMaxPlaces(10)
+                .withReservedPlaces(9)
                 .withRoute(route)
                 .build());
         var contact = modelMapper.map(DefaultClientEntityBuilder.of().build(), ClientCreateDto.class);

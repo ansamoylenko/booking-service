@@ -11,6 +11,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.context.annotation.Lazy;
@@ -25,7 +26,6 @@ import java.util.function.Consumer;
 
 import static com.samoylenko.bookingservice.model.exception.EntityType.WALK;
 import static com.samoylenko.bookingservice.model.walk.WalkSpecification.*;
-import static java.lang.Math.abs;
 import static java.time.temporal.ChronoUnit.MINUTES;
 
 @Slf4j
@@ -46,8 +46,14 @@ public class WalkService {
 
     @PostConstruct
     public void init() {
+        Converter<WalkEntity, Integer> toAvailablePlaces = c -> c.getSource().getMaxPlaces() - c.getSource().getReservedPlaces();
         modelMapper.createTypeMap(WalkEntity.class, WalkDto.class)
-                .addMappings(mapper -> mapper.map(src -> src.getRoute().getId(), WalkDto::setRouteId));
+                .addMappings(mapper -> mapper.map(src -> src.getRoute().getId(), WalkDto::setRouteId))
+                .addMappings(mapper -> mapper.using(toAvailablePlaces).map(src -> src, WalkDto::setAvailablePlaces));
+        modelMapper.createTypeMap(WalkEntity.class, CompositeAdminWalkDto.class)
+                .addMappings(mapper -> mapper.using(toAvailablePlaces).map(src -> src, CompositeAdminWalkDto::setAvailablePlaces));
+        modelMapper.createTypeMap(WalkEntity.class, CompositeUserWalkDto.class)
+                .addMappings(mapper -> mapper.using(toAvailablePlaces).map(src -> src, CompositeUserWalkDto::setAvailablePlaces));
     }
 
     @Transactional
@@ -81,21 +87,30 @@ public class WalkService {
     @Transactional(isolation = Isolation.REPEATABLE_READ)
     public void reservePlaces(@NotBlank String walkId, int numberOfPlaces) {
         var walk = getWalkEntityById(walkId);
-        if (walk.getAvailablePlaces() < numberOfPlaces) {
-            throw new LimitExceededException(walkId);
+        var availablePlaces = walk.getMaxPlaces() - walk.getReservedPlaces();
+        if (availablePlaces < numberOfPlaces) {
+            throw new LimitExceededException("Failed to reserve %s places for walk %s, %s available"
+                    .formatted(numberOfPlaces, walkId, availablePlaces));
         }
-        walk.setAvailablePlaces(walk.getAvailablePlaces() - numberOfPlaces);
+        walk.setReservedPlaces(walk.getReservedPlaces() + numberOfPlaces);
+        walk.setAvailablePlaces(walk.getMaxPlaces() - walk.getReservedPlaces());
         walkRepository.save(walk);
-        log.info("Locked {} places of walk {}, available: {}", numberOfPlaces, walkId, walk.getAvailablePlaces());
+        log.info("Locked {} places of walk {}, available: {}", numberOfPlaces, walkId, availablePlaces);
     }
 
     @Transactional(isolation = Isolation.REPEATABLE_READ)
     public void releasePlaces(@NotBlank String walkId, int numberOfPlaces) {
         var walk = walkRepository.findById(walkId)
                 .orElseThrow(() -> new EntityNotFoundException(WALK, walkId));
-        walk.setAvailablePlaces(walk.getAvailablePlaces() + numberOfPlaces);
+        if (walk.getReservedPlaces() < numberOfPlaces) {
+            throw new LimitExceededException("Failed to release %s places for walk %s, %s reserved"
+                    .formatted(numberOfPlaces, walkId, walk.getReservedPlaces()));
+        }
+        walk.setReservedPlaces(walk.getReservedPlaces() - numberOfPlaces);
+        walk.setAvailablePlaces(walk.getMaxPlaces() - walk.getReservedPlaces());
         walkRepository.save(walk);
-        log.info("Unlocked {} places of walk {}, available: {}", numberOfPlaces, walkId, walk.getAvailablePlaces());
+        var availablePlaces = walk.getMaxPlaces() - walk.getReservedPlaces();
+        log.info("Unlocked {} places of walk {}, available: {}", numberOfPlaces, walkId, availablePlaces);
     }
 
     @Transactional
@@ -157,12 +172,10 @@ public class WalkService {
         var walkEntity = getWalkEntityById(walkId);
         try {
             if (updateDto.getMaxPlaces() != null) {
-                var diff = updateDto.getMaxPlaces() - walkEntity.getMaxPlaces();
-                if (diff < 0) {
-                    reservePlaces(walkId, abs(diff));
-                }
-                if (diff > 0) {
-                    releasePlaces(walkId, diff);
+                var diff = walkEntity.getMaxPlaces() - updateDto.getMaxPlaces();
+                if (diff > walkEntity.getAvailablePlaces()) {
+                    throw new LimitExceededException("Failed to increase max places for walk %s, %s available"
+                            .formatted(walkId, walkEntity.getAvailablePlaces()));
                 }
                 walkEntity.setMaxPlaces(updateDto.getMaxPlaces());
             }
