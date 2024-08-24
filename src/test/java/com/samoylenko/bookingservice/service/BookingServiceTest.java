@@ -5,6 +5,7 @@ import com.samoylenko.bookingservice.model.booking.BookingInfo;
 import com.samoylenko.bookingservice.model.booking.BookingRequest;
 import com.samoylenko.bookingservice.model.booking.BookingStatus;
 import com.samoylenko.bookingservice.model.client.ClientCreateDto;
+import com.samoylenko.bookingservice.model.dto.DefaultClientDtoBuilder;
 import com.samoylenko.bookingservice.model.entity.*;
 import com.samoylenko.bookingservice.model.exception.EntityCreateException;
 import com.samoylenko.bookingservice.model.exception.LimitExceededException;
@@ -48,7 +49,7 @@ public class BookingServiceTest extends BaseServiceTest {
     public void create_shouldReturnCreatedBooking() {
         var route = routeRepository.save(DefaultRouteEntityBuilder.of().build());
         var walk = walkRepository.save(DefaultWalkEntityBuilder.of().withRoute(route).build());
-        var client = modelMapper.map(DefaultClientEntityBuilder.of().build(), ClientCreateDto.class);
+        var client = DefaultClientDtoBuilder.of().build();
         var bookingInfo = BookingInfo.builder().agreementConfirmed(true).hasChildren(false).build();
         var createDto = BookingCreateDto.builder()
                 .walkId(walk.getId())

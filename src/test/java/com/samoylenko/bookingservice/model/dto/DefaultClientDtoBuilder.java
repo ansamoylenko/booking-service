@@ -25,6 +25,7 @@ public class DefaultClientDtoBuilder implements DefaultEntityBuilder<ClientCreat
                 .lastName(lastName)
                 .email(email)
                 .phone(phone)
+                .dateOfBirth(dateOfBirth)
                 .build();
     }
 }

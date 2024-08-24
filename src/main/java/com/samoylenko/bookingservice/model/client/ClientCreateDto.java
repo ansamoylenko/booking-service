@@ -18,12 +18,12 @@ import java.time.LocalDate;
 @AllArgsConstructor
 public class ClientCreateDto {
     @Schema(description = "Имя клиента", example = "Иван")
-    @Pattern(message = "имя должно содержать только буквы", regexp = "^[A-ЯЁ][а-яё]+\\s[A-ЯЁ][а-яё]+$")
+    @Pattern(message = "некорректные данные", regexp = "^[A-Za-zА-ЯЁа-яё]+(-[A-Za-zА-ЯЁа-яё]+)?")
     @NotBlank(message = "{invalid.notBlank}")
     private String firstName;
 
     @Schema(description = "Фамилия клиента", example = "Иванов")
-    @Pattern(message = "фамилия должно содержать только буквы", regexp = "^[A-ЯЁ][а-яё]+\\s[A-ЯЁ][а-яё]+$")
+    @Pattern(message = "некорректные данные", regexp = "^[A-Za-zА-ЯЁа-яё]+(-[A-Za-zА-ЯЁа-яё]+)?")
     @NotBlank(message = "{invalid.notBlank}")
     private String lastName;
 
