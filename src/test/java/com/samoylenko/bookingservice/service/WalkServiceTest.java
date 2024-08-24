@@ -12,6 +12,7 @@ import com.samoylenko.bookingservice.repository.*;
 import jakarta.validation.ConstraintViolationException;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Sort;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestConstructor;
 
@@ -182,6 +183,8 @@ public class WalkServiceTest extends BaseServiceTest {
                 .routeId(savedRoute.getId())
                 .pageNumber(0)
                 .pageSize(10)
+                .sortBy(WalkRequest.SortField.START_TIME)
+                .direction(Sort.Direction.ASC)
                 .build();
 
         var foundPage = walkService.getWalksForUser(request);
@@ -297,6 +300,8 @@ public class WalkServiceTest extends BaseServiceTest {
                 .routeId(route1.getId())
                 .pageNumber(0)
                 .pageSize(10)
+                .sortBy(WalkRequest.SortField.START_TIME)
+                .direction(Sort.Direction.ASC)
                 .build();
 
         var foundPage = walkService.getWalksForAdmin(request);
@@ -309,5 +314,31 @@ public class WalkServiceTest extends BaseServiceTest {
         assertThat(found.get(0).getMaxPlaces()).isEqualTo(10);
         assertThat(found.get(0).getReservedPlaces()).isEqualTo(2);
         assertThat(found.get(0).getAvailablePlaces()).isEqualTo(8);
+    }
+
+    @Test
+    void getWalksForAdmin_withSortByStartTimeDESC_shouldReturnWalkAdminDtos() {
+        var route1 = routeRepository.save(DefaultRouteEntityBuilder.of().build());
+        var walk1 = DefaultWalkEntityBuilder.of()
+                .withStartTime(Instant.parse("2024-06-01T06:00:00.00Z"))
+                .withRoute(route1);
+        var savedWalk1 = walkRepository.save(walk1.build());
+        var walk2 = walk1
+                .withStartTime(Instant.parse("2024-06-03T06:00:00.00Z"));
+        var savedWalk2 = walkRepository.save(walk2.build());
+        var savedWalk3 = walkRepository.save(walk1
+                .withStartTime(Instant.parse("2024-06-02T06:00:00.00Z"))
+                .build()
+        );
+        var request = WalkRequest.builder()
+                .sortBy(WalkRequest.SortField.START_TIME)
+                .direction(Sort.Direction.DESC)
+                .build();
+
+        var foundPage = walkService.getWalksForAdmin(request);
+        var found = foundPage.getContent();
+
+        assertThat(found).hasSize(3);
+        assertThat(found.get(0).getId()).isEqualTo(savedWalk2.getId());
     }
 }

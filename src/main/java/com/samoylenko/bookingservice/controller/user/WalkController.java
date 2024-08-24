@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -35,7 +36,9 @@ public class WalkController {
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "10") int size,
             @RequestParam(value = "routeId", required = false) String routeId,
-            @RequestParam(value = "places", defaultValue = "1") Integer places
+            @RequestParam(value = "places", defaultValue = "1") Integer places,
+            @RequestParam(value = "sortBy", required = false, defaultValue = "START_TIME") WalkRequest.SortField sortBy,
+            @RequestParam(value = "direction", required = false, defaultValue = "DESC") Sort.Direction direction
     ) {
         var request = WalkRequest.builder()
                 .pageNumber(page)
@@ -43,6 +46,8 @@ public class WalkController {
                 .status(WalkStatus.BOOKING_IN_PROGRESS)
                 .routeId(routeId)
                 .availablePlaces(places)
+                .sortBy(sortBy)
+                .direction(direction)
                 .build();
         return walkService.getWalksForUser(request);
     }
