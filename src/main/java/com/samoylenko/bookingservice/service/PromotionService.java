@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 import java.util.List;
@@ -55,6 +56,14 @@ public class PromotionService {
         }
     }
 
+    @Transactional
+    public void setExpired(String voucherId) {
+        var voucher = getEntityById(voucherId);
+        voucher.setStatus(VoucherStatus.EXPIRED);
+        voucherRepository.save(voucher);
+        log.info("Voucher {} has been set as expired", voucherId);
+    }
+
     private void checkUniqueness(String code) {
         if (voucherRepository.existsByCode(code)) {
             throw new RuntimeException("The voucher with the specified code %s already exists".formatted(code));
@@ -62,8 +71,11 @@ public class PromotionService {
     }
 
     public VoucherDto getVoucherById(@NotBlank String id) {
+        return modelMapper.map(getEntityById(id), VoucherDto.class);
+    }
+
+    private VoucherEntity getEntityById(String id) {
         return voucherRepository.findById(id)
-                .map(voucher -> modelMapper.map(voucher, VoucherDto.class))
                 .orElseThrow(() -> new EntityNotFoundException(VOUCHER, id));
     }
 
@@ -71,13 +83,16 @@ public class PromotionService {
         var spec = VoucherSpecification
                 .withStatus(request.getStatus())
                 .and(VoucherSpecification.withRoute(request.getRoute()))
-                .and(VoucherSpecification.withType(request.getType()));
+                .and(VoucherSpecification.withType(request.getType()))
+                .and(VoucherSpecification.expiredTimeAfter(request.getExpiredAfter()))
+                .and(VoucherSpecification.expiredTimeBefore(request.getExpiredBefore()));
         var sort = Sort.by("createdDate").descending();
 
         return voucherRepository.findAll(spec, sort).stream()
                 .map(voucher -> modelMapper.map(voucher, VoucherDto.class))
                 .toList();
     }
+
 
     public void applyVoucher(DiscountRequest discountRequest) {
         var voucher = voucherRepository.findByCode(discountRequest.getCode())

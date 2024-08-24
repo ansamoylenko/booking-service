@@ -17,6 +17,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestConstructor;
 
+import java.time.Instant;
+
 import static com.samoylenko.bookingservice.model.voucher.DiscountType.CERTIFICATE;
 import static com.samoylenko.bookingservice.model.voucher.DiscountType.PROMO_CODE;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -138,6 +140,28 @@ public class PromotionServiceTest {
         assertThat(vouchers.size()).isEqualTo(2);
         assertThat(vouchers.get(0).getId()).isEqualTo(voucher3.getId());
         assertThat(vouchers.get(1).getId()).isEqualTo(voucher1.getId());
+    }
+
+    @Test
+    public void getVouchers_filteredByExpiredTime_shouldReturnFilteredCertificates() {
+        var voucher1 = voucherRepository.save(DefaultVoucherEntityBuilder.of()
+                .withExpiredAt(Instant.parse("2024-06-01T06:00:00.00Z"))
+                .build());
+        var voucher2 = voucherRepository.save(DefaultVoucherEntityBuilder.of()
+                .withExpiredAt(Instant.parse("2024-06-02T06:00:00.00Z"))
+                .build());
+        var voucher3 = voucherRepository.save(DefaultVoucherEntityBuilder.of()
+                .withExpiredAt(Instant.parse("2024-06-03T06:00:00.00Z"))
+                .build());
+        var request = VoucherRequest.builder()
+                .expiredAfter(Instant.parse("2024-06-02T04:00:00.00Z"))
+                .expiredBefore(Instant.parse("2024-06-03T05:00:00.00Z"))
+                .build();
+
+        var vouchers = promotionService.getVouchers(request);
+
+        assertThat(vouchers.size()).isEqualTo(1);
+        assertThat(vouchers.get(0).getId()).isEqualTo(voucher2.getId());
     }
 
     @Test

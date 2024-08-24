@@ -35,6 +35,9 @@ service:
   invoiceCheckPeriod: 5
 
   # DISCOUNT
+  # Период проверки истекших ваучеров
+  checkVouchersToExpired: "0 */5 * * * *"
+
   # Активировать скидку для групп
   groupDiscountEnabled: true
   # Процент скидки для групп

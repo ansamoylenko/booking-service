@@ -4,6 +4,8 @@ import com.samoylenko.bookingservice.config.ServiceProperties;
 import com.samoylenko.bookingservice.model.booking.BookingRequest;
 import com.samoylenko.bookingservice.model.booking.BookingStatus;
 import com.samoylenko.bookingservice.model.payment.PaymentStatus;
+import com.samoylenko.bookingservice.model.voucher.VoucherRequest;
+import com.samoylenko.bookingservice.model.voucher.VoucherStatus;
 import com.samoylenko.bookingservice.model.walk.WalkRequest;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +27,7 @@ public class Scheduler {
     private final BookingService bookingService;
     private final PaymentService paymentService;
     private final ServiceProperties properties;
+    private final PromotionService promotionService;
 
     @Scheduled(cron = "${service.checkWalkToCompleteBooking}")
     public void scanWalksToCompleteBookings() {
@@ -82,6 +85,17 @@ public class Scheduler {
             if (result.equals(PaymentStatus.PAID)) {
                 bookingService.setStatus(booking.getId(), BookingStatus.PAID);
             }
+        }
+    }
+
+    @Scheduled(cron = "${service.checkVouchersToExpired}")
+    public void checkVouchers() {
+        var voucherRequest = VoucherRequest.builder()
+                .status(VoucherStatus.ACTIVE)
+                .expiredBefore(now()).build();
+        var vouchers = promotionService.getVouchers(voucherRequest);
+        for (var voucher : vouchers) {
+            promotionService.setExpired(voucher.getId());
         }
     }
 }
