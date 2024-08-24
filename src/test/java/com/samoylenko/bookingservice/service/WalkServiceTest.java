@@ -210,7 +210,7 @@ public class WalkServiceTest extends BaseServiceTest {
         var savedWalk = walkRepository.save(DefaultWalkEntityBuilder.of()
                 .withRoute(savedRoute)
                 .withMaxPlaces(10)
-                .withAvailablePlaces(5)
+                .withReservedPlaces(5)
                 .build());
         var updateDto = WalkUpdateDto.builder()
                 .status(WalkStatus.BOOKING_FINISHED)
@@ -226,8 +226,9 @@ public class WalkServiceTest extends BaseServiceTest {
         assertThat(updatedWalk.getStatus()).isEqualTo(updateDto.getStatus());
         assertThat(updatedWalk.getDuration()).isEqualTo(updateDto.getDurationInMinutes());
         assertThat(updatedWalk.getPriceForOne()).isEqualTo(updateDto.getPriceForOne());
-        assertThat(updatedWalk.getMaxPlaces()).isEqualTo(updateDto.getMaxPlaces());
+        assertThat(updatedWalk.getMaxPlaces()).isEqualTo(12);
         assertThat(updatedWalk.getAvailablePlaces()).isEqualTo(7);
+        assertThat(updatedWalk.getReservedPlaces()).isEqualTo(5);
         assertThat(updatedWalk.getStartTime()).isEqualTo(updateDto.getStartTime());
         assertThat(updatedWalk.getRoute()).isNotNull();
         assertThat(updatedWalk.getRoute().getId()).isEqualTo(savedRoute.getId());
