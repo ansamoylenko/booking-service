@@ -28,6 +28,7 @@ public class Scheduler {
     private final PaymentService paymentService;
     private final ServiceProperties properties;
     private final PromotionService promotionService;
+    private final String ACTOR = "SYSTEM_SCHEDULER";
 
     @Scheduled(cron = "${service.checkWalkToCompleteBooking}")
     public void scanWalksToCompleteBookings() {
@@ -42,7 +43,7 @@ public class Scheduler {
                     .withWalkId(walk.getId())
                     .withStatus(List.of(BookingStatus.PAID)));
             bookings.forEach(booking -> {
-                bookingService.setStatus(booking.getId(), BookingStatus.COMPLETED);
+                bookingService.setStatus(booking.getId(), BookingStatus.COMPLETED, ACTOR);
             });
         });
     }
@@ -65,7 +66,7 @@ public class Scheduler {
         var bookings = bookingService.getBookingList(bookingRequest);
         for (var booking : bookings) {
             if (booking.getEndTime() == null || booking.getEndTime().isBefore(now())) {
-                bookingService.setStatus(booking.getId(), BookingStatus.EXPIRED);
+                bookingService.setStatus(booking.getId(), BookingStatus.EXPIRED, ACTOR);
                 walkService.releasePlaces(booking.getWalkId(), booking.getNumberOfPeople());
                 if (booking.getStatus().equals(BookingStatus.WAITING_FOR_PAYMENT)) {
                     var payment = bookingService.getBookingForUser(booking.getId()).getPayment();
@@ -83,7 +84,7 @@ public class Scheduler {
             var payment = bookingService.getBookingForUser(booking.getId()).getPayment();
             var result = paymentService.checkPaymentDocument(payment.getId());
             if (result.equals(PaymentStatus.PAID)) {
-                bookingService.setStatus(booking.getId(), BookingStatus.PAID);
+                bookingService.setStatus(booking.getId(), BookingStatus.PAID, ACTOR);
             }
         }
     }

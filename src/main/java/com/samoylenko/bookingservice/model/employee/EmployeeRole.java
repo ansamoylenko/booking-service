@@ -41,4 +41,9 @@ public enum EmployeeRole implements GrantedAuthority {
         }
         return null;
     }
+
+    @Override
+    public String toString() {
+        return this.name();
+    }
 }

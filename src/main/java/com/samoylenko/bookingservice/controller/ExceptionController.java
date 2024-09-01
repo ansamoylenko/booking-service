@@ -50,6 +50,13 @@ public class ExceptionController {
     }
 
     @ResponseBody
+    @ExceptionHandler(IllegalArgumentException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ExceptionResponse handleException(IllegalArgumentException e, HttpServletRequest request) {
+        return handleException(e, request, HttpStatus.BAD_REQUEST);
+    }
+
+    @ResponseBody
     @ExceptionHandler(AccessDeniedException.class)
     @ResponseStatus(HttpStatus.FORBIDDEN)
     public ExceptionResponse handleException(AccessDeniedException e, HttpServletRequest request) {
@@ -70,7 +77,7 @@ public class ExceptionController {
                 .method(request.getMethod())
                 .status(status.value())
                 .message(e.getMessage())
-                .cause(e.getCause() != null ? e.getCause().getMessage() : null)
+                .cause(e.getMessage())
                 .rootCause(getRootCause(e))
                 .build();
         log.warn(exception.toString());

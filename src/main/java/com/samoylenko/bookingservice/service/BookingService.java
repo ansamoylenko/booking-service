@@ -223,12 +223,12 @@ public class BookingService {
     }
 
     @Transactional
-    public void setStatus(@NotBlank String bookingId, @NotNull BookingStatus status) {
+    public void setStatus(@NotBlank String bookingId, @NotNull BookingStatus status, @NotBlank String actor) {
         var booking = getBookingEntity(bookingId);
         var oldStatus = booking.getStatus();
         booking.setStatus(status);
         bookingRepository.save(booking);
-        log.info("Updated status of booking {} from {} to {}", bookingId, oldStatus, status);
+        log.info("Updated status of booking {} from {} to {} by {}", bookingId, oldStatus, status, actor);
     }
 
     @Transactional

@@ -28,4 +28,9 @@ public class EmployeeDto implements UserDetails {
     public String getUsername() {
         return email;
     }
+
+    @Override
+    public String toString() {
+        return "Employee(id: %s, authorities: %s)".formatted(id, authorities);
+    }
 }

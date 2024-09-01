@@ -9,11 +9,15 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.List;
 
+import static com.samoylenko.bookingservice.model.booking.BookingStatus.ACTIVE;
+import static com.samoylenko.bookingservice.model.booking.BookingStatus.COMPLETED;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RestController
@@ -43,6 +47,21 @@ public class AdminBookingController {
             @RequestParam(value = "voucher", required = false) String voucher
     ) {
         return bookingService.createInvoice(id, voucher);
+    }
+
+    @Operation(summary = "Сменить статус бронирования", description = "Доступен для роли MANAGER и выше")
+    @PreAuthorize("hasRole('MANAGER')")
+    @PatchMapping(value = "/{id}", produces = APPLICATION_JSON_VALUE)
+    @ResponseStatus(HttpStatus.OK)
+    public AdminBookingDto changeStatus(
+            @PathVariable String id,
+            @RequestParam BookingStatus status
+    ) {
+        var actor = SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
+        Assert.isTrue(!COMPLETED.equals(status) && !ACTIVE.equals(status),
+                "unsupported for change booking status");
+        bookingService.setStatus(id, status, actor);
+        return bookingService.getBookingForAdmin(id);
     }
 
     @Operation(summary = "Добавить сотрудника в бронирование", description = "Доступен для роли MANAGER и выше")
