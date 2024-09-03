@@ -14,6 +14,7 @@ public enum BookingStatus {
     PAID("Заявка оплачена"),
     EXPIRED("Заявка просрочена"),
     CANCELED("Заявка отменена"),
+    REJECTED("Заявка отклонена"),
     COMPLETED("Заявка выполнена");
 
     private final String description;
